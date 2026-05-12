@@ -1,0 +1,11 @@
+[
+  { "id": "cat-cafe", "slug": "cafe", "name": "Cafe", "name_ar": "كافيه", "color": "#8B5E3C", "icon": "coffee", "sort_order": 0 },
+  { "id": "cat-hotel", "slug": "hotel", "name": "Hotels", "name_ar": "فنادق", "color": "#1E40AF", "icon": "bed", "sort_order": 1 },
+  { "id": "cat-shopping", "slug": "shopping", "name": "Shopping", "name_ar": "تسوق", "color": "#7C3AED", "icon": "shopping-bag", "sort_order": 2 },
+  { "id": "cat-pub", "slug": "pub", "name": "Pubs & Bars", "name_ar": "حانات", "color": "#DC2626", "icon": "wine", "sort_order": 3 },
+  { "id": "cat-essentials", "slug": "essentials", "name": "Essentials", "name_ar": "أساسيات", "color": "#059669", "icon": "heart", "sort_order": 4 },
+  { "id": "cat-heritage", "slug": "heritage", "name": "Heritage", "name_ar": "تراث", "color": "#92400E", "icon": "landmark", "sort_order": 5 },
+  { "id": "cat-dining", "slug": "dining", "name": "Dining", "name_ar": "مطاعم", "color": "#EA580C", "icon": "utensils", "sort_order": 6 },
+  { "id": "cat-experience", "slug": "experience", "name": "Experience", "name_ar": "تجارب", "color": "#0891B2", "icon": "compass", "sort_order": 7 },
+  { "id": "cat-entertainment", "slug": "entertainment", "name": "Entertainment", "name_ar": "ترفيه", "color": "#C026D3", "icon": "sparkles", "sort_order": 8 }
+]

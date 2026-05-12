@@ -1,0 +1,4 @@
+[
+  { "id": "lvl-ground", "slug": "ground", "name": "Ground Level", "name_ar": "الطابق الأرضي", "map_image": "images/map-ground.png", "sort_order": 0 },
+  { "id": "lvl-marina", "slug": "marina", "name": "Marina Level", "name_ar": "طابق المرسى", "map_image": "images/map-marina.png", "sort_order": 1 }
+]

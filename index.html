@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0E4F58">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Ayla Marina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- Splash -->
+<div id="splash" class="splash">
+  <div class="splash-inner">
+    <div class="splash-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C8 6 5 10 5 14a7 7 0 0 0 14 0c0-4-3-8-7-12z"/></svg>
+    </div>
+    <h1 class="splash-title">Ayla <span>Marina</span></h1>
+    <p class="splash-tag">Shops, dining & experiences by the sea</p>
+  </div>
+</div>
+
+<!-- Map stage -->
+<div id="stage" class="stage" aria-label="Interactive map">
+  <div id="canvas" class="canvas">
+    <img id="map-img" class="map-img" alt="Marina map" draggable="false">
+    <!-- Water shimmer overlay -->
+    <div class="water-shimmer" aria-hidden="true"></div>
+    <!-- Drifting boats -->
+    <div id="boats" class="boats" aria-hidden="true"></div>
+    <!-- Route SVG layer (wayfinding) -->
+    <svg id="routes" class="routes" aria-hidden="true"></svg>
+    <div id="pins" class="pins"></div>
+  </div>
+
+  <!-- Floating compass + zoom controls (top-right) -->
+  <div class="map-tools">
+    <button id="compass-btn" class="map-tool" aria-label="Reset orientation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9.5"/>
+        <polygon points="12 4 14.5 12 12 11 9.5 12" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
+    <div class="map-tool-group">
+      <button id="zoom-in-btn" class="map-tool" aria-label="Zoom in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="6" x2="12" y2="18"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
+      </button>
+      <div class="map-tool-divider"></div>
+      <button id="zoom-out-btn" class="map-tool" aria-label="Zoom out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="12" x2="18" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scale bar (bottom-left) -->
+  <div id="scale-bar" class="scale-bar" aria-hidden="true">
+    <span class="scale-line"></span>
+    <span class="scale-text">100 m</span>
+  </div>
+</div>
+
+<!-- Left rail (mobile: floats over map / desktop: fixed sidebar) -->
+<aside class="rail">
+  <header class="topbar safe-top">
+    <div class="brand">
+      <h1 class="brand-name">Ayla <span class="brand-accent">Marina</span></h1>
+      <div id="level-switch" class="level-switch" role="tablist" aria-label="Map level"></div>
+    </div>
+    <button id="search-trigger" class="search-trigger" aria-label="Search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search shops, dining, experiences…</span>
+    </button>
+  </header>
+
+  <!-- Category filter chips -->
+  <div id="chips" class="chips" role="tablist" aria-label="Filter by category"></div>
+
+  <!-- Desktop-only place list -->
+  <div id="rail-list-wrap" class="rail-list-wrap">
+    <div class="rail-list-head">
+      <h2 id="rail-list-title" class="rail-list-title">All places</h2>
+      <span id="rail-list-count" class="rail-list-count"></span>
+    </div>
+    <div id="rail-list" class="rail-list"></div>
+  </div>
+</aside>
+
+<!-- Reset zoom button (when zoomed) -->
+<button id="reset-btn" class="reset-btn" aria-label="Reset map view" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/></svg>
+</button>
+
+<!-- POI bottom sheet -->
+<aside id="sheet" class="sheet" aria-hidden="true" aria-label="Place details">
+  <div class="sheet-handle"><span class="grab"></span></div>
+  <div class="sheet-body">
+    <div class="sheet-head">
+      <div id="sheet-logo" class="sheet-logo"></div>
+      <div class="sheet-titles">
+        <h2 id="sheet-name" class="sheet-name"></h2>
+        <p id="sheet-meta" class="sheet-meta"></p>
+      </div>
+      <button id="sheet-close" class="sheet-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p id="sheet-desc" class="sheet-desc" hidden></p>
+    <div class="sheet-actions">
+      <a id="act-directions" class="act act-primary" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        <span>Directions</span>
+      </a>
+      <a id="act-call" class="act" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.56 2.81.69A2 2 0 0 1 22 16.92z"/></svg>
+        <span>Call</span>
+      </a>
+      <a id="act-whatsapp" class="act" target="_blank" rel="noopener" hidden>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.07 4.93A10 10 0 0 0 4.93 19.07L4 22l3-1a10 10 0 0 0 12.07-16.07zM12 20a8 8 0 0 1-4.08-1.11l-.29-.18-2.32.61.62-2.26-.19-.3A8 8 0 1 1 12 20zm4.55-5.79c-.25-.13-1.47-.73-1.7-.81-.23-.08-.39-.13-.55.13s-.63.81-.77.97c-.14.17-.28.18-.53.06a6.5 6.5 0 0 1-3.24-2.85c-.24-.42.25-.4.7-1.31a.44.44 0 0 0 0-.42c-.06-.13-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42s-.31 0-.48 0a.92.92 0 0 0-.67.31 2.79 2.79 0 0 0-.87 2.07c0 1.22.89 2.4 1.01 2.57.13.17 1.75 2.67 4.25 3.74a14.41 14.41 0 0 0 1.42.52 3.42 3.42 0 0 0 1.57.1c.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18s-.23-.18-.48-.31z"/></svg>
+        <span>WhatsApp</span>
+      </a>
+      <a id="act-instagram" class="act" target="_blank" rel="noopener" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        <span>Instagram</span>
+      </a>
+      <button id="act-share" class="act">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Share</span>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- Search overlay -->
+<section id="search-overlay" class="search-overlay" aria-hidden="true">
+  <header class="search-head safe-top">
+    <button id="search-back" class="search-back" aria-label="Back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="search-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search-input" type="search" placeholder="Search…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+  </header>
+  <div id="search-results" class="search-results"></div>
+</section>
+
+<!-- Toast -->
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="js/app.js" type="module"></script>
+</body>
+</html>

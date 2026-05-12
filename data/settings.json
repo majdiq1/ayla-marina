@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "brand": {
+    "name": "Ayla Marina",
+    "name_ar": "أيلا مارينا",
+    "logo": null,
+    "splash_image": "images/splash.jpeg",
+    "splash_title": "Ayla Marina",
+    "splash_tagline": "Explore shops, dining, and experiences by the sea"
+  },
+  "font": {
+    "family": "Inter",
+    "source": "google",
+    "google_url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap",
+    "custom_file": null,
+    "headings_family": "Playfair Display"
+  },
+  "pin": {
+    "shape": "teardrop",
+    "width": 44,
+    "height": 56
+  },
+  "admin": {
+    "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"
+  }
+}
