@@ -526,10 +526,12 @@ function renderCatList(){
   $('#cat-count').textContent = `${DATA.categories.length} categories`;
   wrap.innerHTML = DATA.categories.map(c => {
     const places = (byCat[c.id] || []).slice().sort((a, b) => a.name.localeCompare(b.name));
-    const sample = places.slice(0, 3);
+    const MAX_CHIPS = 6;
+    const sample = places.slice(0, MAX_CHIPS);
     const more = places.length - sample.length;
-    const list = sample.map(p => `<li>${escHtml(p.name)}</li>`).join('');
-    const moreLine = more > 0 ? `<li class="more">+ ${more} more</li>` : (places.length === 0 ? `<li class="more">No places yet</li>` : '');
+    const chips = sample.map(p => `<span class="chip">${escHtml(p.name)}</span>`).join('');
+    const moreChip = more > 0 ? `<span class="chip more">+ ${more} more</span>` : '';
+    const empty = places.length === 0 ? `<span class="chip empty">No places yet</span>` : '';
     return `
       <div class="cat-card" data-id="${escAttr(c.id)}" style="--c:${escAttr(c.color)}">
         <div class="cat-card-head">
@@ -543,10 +545,9 @@ function renderCatList(){
           ${c.name_ar ? `<p class="cat-name-ar">${escHtml(c.name_ar)}</p>` : ''}
         </div>
         <p class="cat-stats"><strong>${places.length}</strong>place${places.length === 1 ? '' : 's'}</p>
-        <ul class="cat-mini-list">
-          ${list}
-          ${moreLine}
-        </ul>
+        <div class="cat-mini-grid">
+          ${chips}${moreChip}${empty}
+        </div>
       </div>
     `;
   }).join('');
