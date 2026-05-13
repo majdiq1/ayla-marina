@@ -282,8 +282,13 @@ function renderPins(){
     el.style.top  = p.pin_y + '%';
     el.style.setProperty('--c', cat?.color || '#666');
     el.style.setProperty('--pin-i', i++);
+    // Inner content of the teardrop: prefer the place's logo, else category icon, else initials
+    const initials = (p.name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const innerHTML = p.logo
+      ? `<img src="${p.logo}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'initials',textContent:'${initials}'}))">`
+      : iconSvg(cat?.icon);
     el.innerHTML = `
-      <div class="pin-teardrop">${iconSvg(cat?.icon)}</div>
+      <div class="pin-teardrop"><div class="pin-inner">${innerHTML}</div></div>
       <div class="pin-dot"></div>
       <span class="pin-label">${escapeHtml(p.name)}</span>
     `;

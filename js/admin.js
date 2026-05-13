@@ -518,18 +518,38 @@ const ICON_SVGS = {
 function renderCatList(){
   const wrap = $('#cat-grid');
   if (!wrap) return;
-  const counts = {};
-  DATA.pois.forEach(p => { counts[p.category_id] = (counts[p.category_id] || 0) + 1; });
+  // POIs grouped by category
+  const byCat = {};
+  DATA.pois.forEach(p => {
+    (byCat[p.category_id] = byCat[p.category_id] || []).push(p);
+  });
   $('#cat-count').textContent = `${DATA.categories.length} categories`;
-  wrap.innerHTML = DATA.categories.map(c => `
-    <div class="cat-card" data-id="${escAttr(c.id)}" style="--c:${escAttr(c.color)}">
-      <div class="swatch-lg">${ICON_SVGS[c.icon] || ICON_SVGS.compass}</div>
-      <div class="cat-meta">
-        <p class="cat-name">${escHtml(c.name)}</p>
-        <p class="cat-sub">${counts[c.id] || 0} place${(counts[c.id] || 0) === 1 ? '' : 's'} · ${escHtml(c.color.toUpperCase())}</p>
+  wrap.innerHTML = DATA.categories.map(c => {
+    const places = (byCat[c.id] || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+    const sample = places.slice(0, 3);
+    const more = places.length - sample.length;
+    const list = sample.map(p => `<li>${escHtml(p.name)}</li>`).join('');
+    const moreLine = more > 0 ? `<li class="more">+ ${more} more</li>` : (places.length === 0 ? `<li class="more">No places yet</li>` : '');
+    return `
+      <div class="cat-card" data-id="${escAttr(c.id)}" style="--c:${escAttr(c.color)}">
+        <div class="cat-card-head">
+          <div class="swatch-lg">
+            <div class="swatch-lg-inner">${ICON_SVGS[c.icon] || ICON_SVGS.compass}</div>
+          </div>
+          <span class="hex-chip">${escHtml(c.color.toUpperCase())}</span>
+        </div>
+        <div class="cat-titles">
+          <h3 class="cat-name">${escHtml(c.name)}</h3>
+          ${c.name_ar ? `<p class="cat-name-ar">${escHtml(c.name_ar)}</p>` : ''}
+        </div>
+        <p class="cat-stats"><strong>${places.length}</strong>place${places.length === 1 ? '' : 's'}</p>
+        <ul class="cat-mini-list">
+          ${list}
+          ${moreLine}
+        </ul>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   wrap.querySelectorAll('.cat-card').forEach(el => {
     el.addEventListener('click', () => { location.hash = `#cat/${el.dataset.id}`; });
   });
@@ -585,7 +605,11 @@ function refreshCatPreview(){
   const preview = $('#cat-pin-preview');
   if (preview){
     preview.style.setProperty('--c', c);
-    preview.innerHTML = `<div class="pin-body">${ICON_SVGS[$('#cf-icon').value] || ICON_SVGS.compass}</div>`;
+    preview.innerHTML = `
+      <div class="pin-body">
+        <div class="pin-inner">${ICON_SVGS[$('#cf-icon').value] || ICON_SVGS.compass}</div>
+      </div>
+    `;
   }
   const meta = $('#cat-preview-meta');
   if (meta) meta.textContent = ($('#cf-name').value || 'Category name') + ' · ' + c.toUpperCase();

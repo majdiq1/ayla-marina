@@ -234,17 +234,33 @@ img{ display: block; }
 }
 .pin .pin-teardrop{
   display: none;
-  width: 40px; height: 40px;
+  width: 48px; height: 48px;
   background: var(--c);
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   align-items: center; justify-content: center;
-  box-shadow: 0 6px 20px rgba(0,0,0,.30), 0 0 0 3px #fff, 0 0 0 5px var(--ayla-gold);
+  box-shadow: 0 6px 20px rgba(0,0,0,.30), 0 0 0 3px #fff;
   margin-bottom: 4px;
+  position: relative;
 }
-.pin .pin-teardrop svg{
-  width: 18px; height: 18px; color: #fff;
+.pin .pin-teardrop .pin-inner{
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
   transform: rotate(45deg);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.05);
+  overflow: hidden;
+}
+.pin .pin-teardrop .pin-inner img{
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.pin .pin-teardrop .pin-inner svg{
+  width: 18px; height: 18px; color: var(--c);
+}
+.pin .pin-teardrop .pin-inner .initials{
+  font-family: var(--serif); font-weight: 700;
+  color: var(--c); font-size: 12px;
 }
 .pin-label{
   position: absolute;
