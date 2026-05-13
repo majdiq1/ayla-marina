@@ -7,376 +7,422 @@
 <title>Ayla Marina · Interactive Map Platform · Proposal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --ayla-aqua:#3AB0C8;
     --ayla-aqua-deep:#2A8FA3;
+    --ayla-aqua-darker:#155663;
     --ayla-aqua-soft:#CCE8ED;
+    --ayla-aqua-light:#E6F4F6;
     --bg:#FAF7F3;
     --cream:#FAF6EE;
-    --ink:#1F2937;
-    --ink-2:#6B7280;
-    --ink-3:#9CA3AF;
+    --ink:#0F1419;
+    --ink-2:#4A5568;
+    --ink-3:#A0AEC0;
     --muted:#F1ECE3;
     --border:#E2E2E2;
+    --border-soft:#EDE6D6;
+    --shipped:#10B981;
+    --shipped-soft:#D1FAE5;
+    --coming:#8B5CF6;
+    --coming-soft:#EDE9FE;
+    --future:#F59E0B;
+    --future-soft:#FEF3C7;
     --serif:'Playfair Display',Georgia,serif;
     --sans:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   }
   *,*::before,*::after{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
 
-  /* ----------- Page system (each <section.page> = A4 ----------- */
-  .page{
-    background:#fff;
-    width:210mm;
-    min-height:297mm;
-    margin:24px auto;
-    padding:22mm 20mm;
-    box-shadow:0 8px 32px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  /* ---------- Sticky action bar ---------- */
+  .actbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(250,247,243,0.92);
+    backdrop-filter:blur(24px) saturate(1.4);
+    -webkit-backdrop-filter:blur(24px) saturate(1.4);
+    border-bottom:1px solid var(--border);
+    padding:12px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .brand-tag{
+    font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:-.01em;color:var(--ink);
+  }
+  .brand-tag em{font-style:italic;font-weight:500;color:var(--ayla-aqua)}
+  .brand-tag .pip{font-size:10px;color:var(--ink-3);font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-left:8px;font-family:var(--sans);font-style:normal}
+  .actbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .actbar a,.actbar button{
+    border:1px solid var(--border);background:#fff;color:var(--ink);
+    padding:8px 14px;border-radius:10px;
+    font-size:12.5px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;
+    text-decoration:none;
+    transition:transform 160ms,background 160ms,border-color 160ms;
+  }
+  .actbar a:hover,.actbar button:hover{background:var(--ayla-aqua-light);border-color:var(--ayla-aqua-soft)}
+  .actbar .primary{background:var(--ayla-aqua);color:#fff;border-color:var(--ayla-aqua)}
+  .actbar .primary:hover{background:var(--ayla-aqua-deep);border-color:var(--ayla-aqua-deep)}
+  .actbar svg{width:14px;height:14px}
+
+  /* ---------- Container ---------- */
+  .container{max-width:1280px;margin:0 auto;padding:36px 24px 80px}
+
+  /* ---------- Hero ---------- */
+  .hero{
     position:relative;
-    page-break-after:always;
+    background:linear-gradient(160deg,#0A4751 0%,#0E5E6F 40%,#3AB0C8 130%);
+    color:#fff;
+    border-radius:28px;
+    padding:48px 44px;
+    margin-bottom:32px;
     overflow:hidden;
   }
-  .page:last-child{page-break-after:auto}
-  .page-footer{
-    position:absolute;left:20mm;right:20mm;bottom:14mm;
-    display:flex;justify-content:space-between;align-items:center;
-    font-size:10px;color:var(--ink-3);
-    border-top:1px solid var(--border);padding-top:8px;
-  }
-  .page-footer .brand-mini{font-family:var(--serif);font-style:italic;color:var(--ayla-aqua);font-weight:500}
-
-  /* ----------- Cover ----------- */
-  .cover{
-    background:linear-gradient(160deg,#0A4751 0%,#0E5E6F 50%,#3AB0C8 130%);
-    color:#fff;
-    display:flex;flex-direction:column;justify-content:space-between;
-  }
-  .cover::before{
+  .hero::before{
     content:'';position:absolute;inset:0;
-    background:radial-gradient(ellipse 60% 40% at 20% 80%,rgba(255,255,255,.15),transparent 70%),
-               radial-gradient(ellipse 50% 30% at 80% 20%,rgba(255,255,255,.08),transparent 70%);
+    background:radial-gradient(ellipse 60% 50% at 20% 80%,rgba(255,255,255,.18),transparent 70%),
+               radial-gradient(ellipse 50% 40% at 80% 20%,rgba(255,255,255,.10),transparent 70%);
     pointer-events:none;
   }
-  .cover-top{position:relative;z-index:1}
-  .cover-mark{
-    display:inline-block;
+  .hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:end}
+  .hero-mark{
+    display:inline-flex;align-items:center;gap:8px;
     padding:6px 14px;border:1px solid rgba(255,255,255,.4);
     border-radius:999px;
     font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-    color:rgba(255,255,255,.85);
+    color:rgba(255,255,255,.9);
+    margin-bottom:24px;
   }
-  .cover-title{
+  .hero-mark .dot{width:6px;height:6px;border-radius:50%;background:#A7F3D0;box-shadow:0 0 0 3px rgba(167,243,208,.25);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  .hero h1{
     font-family:var(--serif);font-weight:600;
-    font-size:54px;letter-spacing:-.025em;line-height:1.05;
-    margin:80px 0 18px;
+    font-size:54px;letter-spacing:-.025em;line-height:1.02;
+    margin:0 0 16px;
   }
-  .cover-title em{font-style:italic;font-weight:500;color:#CCE8ED}
-  .cover-sub{
-    font-family:var(--serif);font-weight:400;
-    font-size:22px;letter-spacing:-.01em;font-style:italic;
-    color:rgba(255,255,255,.85);max-width:80%;line-height:1.4;
+  .hero h1 em{font-style:italic;font-weight:500;color:#CCE8ED}
+  .hero-sub{
+    font-family:var(--serif);font-weight:400;font-style:italic;
+    font-size:20px;letter-spacing:-.01em;color:rgba(255,255,255,.82);
+    margin:0;max-width:80%;line-height:1.45;
   }
-  .cover-meta{
-    position:relative;z-index:1;
-    display:grid;grid-template-columns:1fr 1fr;gap:24px;
-    border-top:1px solid rgba(255,255,255,.2);
-    padding-top:24px;
+  .hero-stats{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;
   }
-  .cover-meta .label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:6px}
-  .cover-meta .value{font-size:14px;color:#fff;font-weight:500;line-height:1.5}
-  .cover-meta .value strong{font-family:var(--serif);font-weight:600;font-size:16px;display:block;margin-bottom:2px;color:#fff}
+  .hero-stat{
+    background:rgba(255,255,255,0.10);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:14px;padding:16px 18px;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  .hero-stat .v{font-family:var(--serif);font-weight:600;font-size:32px;letter-spacing:-.02em;line-height:1;color:#fff}
+  .hero-stat .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.65);font-weight:600;margin-top:6px}
 
-  /* ----------- Common ----------- */
-  .eyebrow{
-    font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--ayla-aqua-deep);font-weight:700;margin:0 0 10px;
+  /* ---------- Section header ---------- */
+  .section-head{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    margin-bottom:20px;gap:20px;flex-wrap:wrap;
   }
-  h1.section-title{
+  .section-head h2{
     font-family:var(--serif);font-weight:600;
-    font-size:38px;letter-spacing:-.025em;line-height:1.1;
-    margin:0 0 18px;color:var(--ink);
+    font-size:34px;letter-spacing:-.025em;line-height:1.1;
+    margin:0;color:var(--ink);
   }
-  h1.section-title em{font-style:italic;font-weight:500;color:var(--ayla-aqua)}
-  .lede{
-    font-family:var(--serif);font-weight:400;font-size:18px;line-height:1.5;
-    color:var(--ink-2);max-width:90%;margin:0 0 28px;font-style:italic;
-  }
-  p{margin:0 0 12px;font-size:13.5px;line-height:1.65;color:#374151}
-  strong{color:var(--ink)}
-  ul.bullets{list-style:none;padding:0;margin:0 0 16px}
-  ul.bullets li{
-    position:relative;padding-left:20px;margin-bottom:8px;
-    font-size:13.5px;line-height:1.65;color:#374151;
-  }
-  ul.bullets li::before{
-    content:'';position:absolute;left:0;top:9px;
-    width:6px;height:6px;border-radius:50%;background:var(--ayla-aqua);
-  }
-  ul.checks{list-style:none;padding:0;margin:0 0 16px}
-  ul.checks li{
-    position:relative;padding-left:26px;margin-bottom:10px;
-    font-size:13.5px;line-height:1.65;color:#374151;
-  }
-  ul.checks li::before{
-    content:'';position:absolute;left:0;top:5px;
-    width:18px;height:18px;border-radius:50%;background:var(--ayla-aqua);
-  }
-  ul.checks li::after{
-    content:'';position:absolute;left:5px;top:9px;
-    width:7px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;
-    transform:rotate(-45deg);
-  }
+  .section-head h2 em{font-style:italic;font-weight:500;color:var(--ayla-aqua)}
+  .section-head p{margin:6px 0 0;color:var(--ink-2);font-size:14px;max-width:540px}
 
-  /* ----------- Two-col layout ----------- */
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:24px}
+  /* ---------- Status pills ---------- */
+  .pill{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:3px 8px 3px 7px;border-radius:999px;
+    font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  }
+  .pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+  .pill-live{background:var(--shipped-soft);color:#047857}
+  .pill-phase2{background:var(--coming-soft);color:#6D28D9}
+  .pill-phase3{background:var(--future-soft);color:#B45309}
 
-  /* ----------- Stat cards ----------- */
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0}
-  .stat{
-    background:#fff;border:1px solid var(--border);
-    border-radius:12px;padding:18px;
-    border-top:3px solid var(--ayla-aqua);
+  /* ---------- Bento grid ---------- */
+  .bento{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    grid-auto-rows:160px;
+    gap:14px;
+    margin-bottom:42px;
   }
-  .stat-value{font-family:var(--serif);font-weight:600;font-size:30px;letter-spacing:-.02em;color:var(--ink);line-height:1.1;margin:0}
-  .stat-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);font-weight:600;margin:6px 0 0}
-
-  /* ----------- Cards (rounded panels) ----------- */
-  .card{
-    background:var(--bg);border:1px solid var(--border);
-    border-radius:14px;padding:22px;
+  .b{
+    position:relative;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:22px;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    transition:transform 220ms cubic-bezier(.34,1.3,.45,1),box-shadow 220ms,border-color 220ms;
+    cursor:pointer;
+    text-decoration:none;color:inherit;
   }
-  .card-aqua{
-    background:linear-gradient(135deg,var(--ayla-aqua-soft) 0%,#fff 100%);
-    border:1px solid var(--ayla-aqua-soft);
+  .b:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 36px rgba(8,58,66,.10),0 4px 12px rgba(8,58,66,.06);
+    border-color:var(--ayla-aqua-soft);
   }
-  .card h3{
-    font-family:var(--serif);font-weight:600;font-size:18px;
-    margin:0 0 8px;letter-spacing:-.01em;color:var(--ink);
-  }
-  .card .sub{font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:0 0 12px}
-
-  /* ----------- Feature row ----------- */
-  .feature-row{
-    display:flex;gap:14px;margin-bottom:14px;
-    padding:14px 16px;border:1px solid var(--border);
-    border-radius:12px;background:#fff;
-  }
-  .feature-row .ico{
+  .b-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+  .b-icon{
     width:36px;height:36px;border-radius:10px;
-    background:var(--ayla-aqua-soft);color:var(--ayla-aqua-deep);
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  }
-  .feature-row .ico svg{width:18px;height:18px}
-  .feature-row strong{font-family:var(--serif);font-weight:600;font-size:14.5px;display:block;margin-bottom:2px;color:var(--ink)}
-  .feature-row p{font-size:13px;color:#374151;margin:0;line-height:1.55}
-
-  /* ----------- Compare table ----------- */
-  table.compare{width:100%;border-collapse:collapse;margin:18px 0;font-size:12.5px}
-  table.compare th,table.compare td{
-    border:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:top;
-  }
-  table.compare th{
-    background:var(--bg);font-weight:600;color:var(--ink-2);
-    font-size:11px;text-transform:uppercase;letter-spacing:.06em;
-  }
-  table.compare tbody tr:first-child td{font-weight:600;color:var(--ink)}
-  table.compare .y{color:#198754;font-weight:700}
-  table.compare .n{color:var(--ink-3);font-weight:500}
-
-  /* ----------- Roadmap chips ----------- */
-  .roadmap{display:flex;flex-direction:column;gap:10px;margin:16px 0}
-  .phase{
-    display:flex;gap:14px;
-    border:1px solid var(--border);border-radius:12px;
-    padding:16px 18px;background:#fff;
-  }
-  .phase-num{
-    flex-shrink:0;
-    width:38px;height:38px;border-radius:50%;
-    background:var(--ayla-aqua);color:#fff;
-    font-family:var(--serif);font-weight:700;font-size:18px;
+    background:var(--ayla-aqua-light);color:var(--ayla-aqua-deep);
     display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
   }
-  .phase-num.shipped{background:#198754}
-  .phase-body{flex:1}
-  .phase-body strong{font-family:var(--serif);font-weight:600;font-size:15px;display:block;color:var(--ink)}
-  .phase-body .when{font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:2px 0 6px}
-  .phase-body p{font-size:13px;color:#374151;margin:0}
-  .phase-body ul{margin:6px 0 0;padding-left:0;list-style:none}
-  .phase-body ul li{font-size:12.5px;color:#374151;padding-left:14px;position:relative;margin-bottom:2px}
-  .phase-body ul li::before{content:'';position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:50%;background:var(--ayla-aqua)}
+  .b-icon svg{width:18px;height:18px}
+  .b h3{
+    font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em;
+    margin:6px 0 4px;color:var(--ink);
+  }
+  .b p{
+    font-size:12.5px;color:var(--ink-2);line-height:1.5;margin:0;
+  }
+  .b-foot{
+    margin-top:auto;padding-top:14px;
+    display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ayla-aqua-deep);font-weight:600;
+  }
+  .b-foot a{color:var(--ayla-aqua-deep);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+  .b-foot svg{width:12px;height:12px}
 
-  /* ----------- Pricing ----------- */
-  .pricing{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:14px;margin:18px 0}
+  /* Status variants */
+  .b.live{}
+  .b.coming{
+    background:linear-gradient(140deg,#fff 0%,var(--coming-soft) 220%);
+    border-color:var(--coming-soft);
+  }
+  .b.coming .b-icon{background:var(--coming-soft);color:#6D28D9}
+  .b.future{
+    background:linear-gradient(140deg,#fff 0%,var(--future-soft) 220%);
+    border-color:var(--future-soft);
+  }
+  .b.future .b-icon{background:var(--future-soft);color:#B45309}
+
+  /* Sizes (default = 2x1) */
+  .b{grid-column:span 2;grid-row:span 1}
+  .b.lg{grid-column:span 3}
+  .b.xl{grid-column:span 4}
+  .b.full{grid-column:span 6}
+  .b.tall{grid-row:span 2}
+  .b.sm{grid-column:span 2;grid-row:span 1}
+
+  /* Featured bento — bigger imagery */
+  .b-featured{
+    grid-column:span 3;grid-row:span 2;
+    background:linear-gradient(135deg,var(--ayla-aqua) 0%,var(--ayla-aqua-deep) 100%);
+    color:#fff;
+    border-color:var(--ayla-aqua-deep);
+  }
+  .b-featured h3{color:#fff;font-size:24px;margin-top:auto}
+  .b-featured p{color:rgba(255,255,255,.85);font-size:13.5px;margin-top:6px}
+  .b-featured .b-icon{background:rgba(255,255,255,.18);color:#fff}
+  .b-featured .b-foot{color:#CCE8ED;border-color:rgba(255,255,255,.15)}
+  .b-featured .b-foot a{color:#CCE8ED}
+  .b-featured:hover{box-shadow:0 24px 64px rgba(58,176,200,.4)}
+
+  /* Mock preview shapes inside cards */
+  .mini-map{
+    margin-top:auto;height:64px;
+    border-radius:10px;
+    background:
+      radial-gradient(circle at 30% 35%,rgba(255,87,87,.6),transparent 25%),
+      radial-gradient(circle at 60% 60%,rgba(58,176,200,.6),transparent 25%),
+      linear-gradient(135deg,var(--ayla-aqua-light) 0%,var(--cream) 100%);
+    border:1px solid var(--border);
+  }
+  .mini-bars{
+    margin-top:auto;
+    display:flex;gap:3px;align-items:flex-end;height:54px;padding:6px 0 0;
+  }
+  .mini-bars span{
+    flex:1;background:linear-gradient(180deg,var(--ayla-aqua),var(--ayla-aqua-deep));
+    border-radius:3px 3px 0 0;
+  }
+  .mini-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:10px}
+  .mini-pills span{
+    background:var(--ayla-aqua-light);color:var(--ayla-aqua-deep);
+    font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;
+  }
+  .mini-chips{display:flex;gap:6px;margin-top:auto;padding-top:10px;flex-wrap:wrap}
+  .mini-chips span{
+    display:inline-flex;align-items:center;gap:4px;
+    background:var(--bg);border:1px solid var(--border);
+    padding:3px 8px;border-radius:999px;
+    font-size:10px;font-weight:600;color:var(--ink-2);
+  }
+  .mini-chips i{width:6px;height:6px;border-radius:50%;background:var(--c)}
+  .mini-phone{
+    margin-top:auto;
+    height:64px;border-radius:10px;
+    background:linear-gradient(160deg,#0A4751 0%,#3AB0C8 100%);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:-.01em;font-style:italic;
+  }
+  .mini-list{margin-top:auto;display:flex;flex-direction:column;gap:5px;padding-top:8px}
+  .mini-list span{
+    display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-2);
+    padding:5px 8px;background:var(--bg);border-radius:8px;border:1px solid var(--border);
+  }
+  .mini-list i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+
+  /* ---------- Comparison legend ---------- */
+  .legend{
+    display:flex;gap:14px;margin-bottom:14px;
+    align-items:center;font-size:12px;color:var(--ink-2);font-weight:500;flex-wrap:wrap;
+  }
+  .legend .lg{display:inline-flex;align-items:center;gap:6px}
+
+  /* ---------- Pricing tiers ---------- */
+  .pricing{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:16px;margin:32px 0}
   .price-card{
     background:#fff;border:1px solid var(--border);
-    border-radius:16px;padding:24px 22px;
+    border-radius:18px;padding:28px 24px;
     display:flex;flex-direction:column;
+    transition:transform 220ms,box-shadow 220ms;
   }
+  .price-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(8,58,66,.08)}
   .price-card.featured{
     border-color:var(--ayla-aqua);
-    box-shadow:0 8px 28px rgba(58,176,200,.18);
+    box-shadow:0 12px 32px rgba(58,176,200,.18);
     position:relative;
+    background:linear-gradient(180deg,#fff 0%,var(--ayla-aqua-light) 200%);
   }
   .price-card.featured::before{
     content:'Recommended';
-    position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+    position:absolute;top:-12px;left:50%;transform:translateX(-50%);
     background:var(--ayla-aqua);color:#fff;
-    padding:3px 12px;border-radius:999px;
+    padding:4px 14px;border-radius:999px;
     font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   }
-  .price-tier{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:700;margin:0 0 6px}
-  .price-name{font-family:var(--serif);font-weight:600;font-size:22px;margin:0 0 14px;letter-spacing:-.01em;color:var(--ink)}
-  .price-cost{font-family:var(--serif);font-weight:700;font-size:30px;letter-spacing:-.02em;color:var(--ink);margin:0 0 2px}
-  .price-cost .unit{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink-2)}
-  .price-monthly{font-size:11px;color:var(--ink-2);margin:0 0 18px}
-  .price-card ul{list-style:none;padding:0;margin:0;flex:1}
+  .tier{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:700;margin:0 0 6px}
+  .pname{font-family:var(--serif);font-weight:600;font-size:24px;margin:0 0 14px;letter-spacing:-.01em}
+  .pcost{font-family:var(--serif);font-weight:700;font-size:36px;letter-spacing:-.02em;line-height:1;margin:0}
+  .pcost .u{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink-2)}
+  .pmonth{font-size:11.5px;color:var(--ink-2);margin:4px 0 22px}
+  .price-card ul{list-style:none;padding:0;margin:0 0 16px;flex:1}
   .price-card ul li{
     font-size:12.5px;color:#374151;
-    padding:6px 0 6px 22px;position:relative;line-height:1.5;
+    padding:8px 0 8px 24px;position:relative;line-height:1.5;
     border-bottom:1px solid var(--border);
   }
   .price-card ul li:last-child{border-bottom:0}
   .price-card ul li::before{
-    content:'';position:absolute;left:0;top:11px;
-    width:14px;height:14px;border-radius:50%;background:var(--ayla-aqua-soft);
+    content:'';position:absolute;left:0;top:12px;
+    width:16px;height:16px;border-radius:50%;background:var(--ayla-aqua-soft);
   }
   .price-card ul li::after{
-    content:'';position:absolute;left:3.5px;top:14px;
-    width:6px;height:3px;border-left:1.5px solid var(--ayla-aqua-deep);border-bottom:1.5px solid var(--ayla-aqua-deep);
+    content:'';position:absolute;left:4px;top:16px;
+    width:7px;height:3px;border-left:1.5px solid var(--ayla-aqua-deep);border-bottom:1.5px solid var(--ayla-aqua-deep);
     transform:rotate(-45deg);
   }
 
-  /* ----------- Timeline ----------- */
-  .timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0}
-  .tl-step{text-align:center}
-  .tl-week{font-size:9px;color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
-  .tl-dot{width:14px;height:14px;border-radius:50%;background:var(--ayla-aqua);margin:0 auto 8px;position:relative}
-  .tl-dot::after{
-    content:'';position:absolute;top:50%;left:14px;
-    width:calc(210mm / 5 - 22px);height:2px;background:var(--ayla-aqua-soft);transform:translateY(-50%);
-  }
-  .tl-step:last-child .tl-dot::after{display:none}
-  .tl-title{font-family:var(--serif);font-weight:600;font-size:12.5px;color:var(--ink);margin:0 0 4px}
-  .tl-body{font-size:10.5px;color:var(--ink-2);line-height:1.4;padding:0 6px}
-
-  /* ----------- Mockup frame ----------- */
-  .mock{
-    background:var(--bg);border-radius:14px;padding:14px;border:1px solid var(--border);
-    text-align:center;
-  }
-  .mock-screen{
-    background:#fff;border-radius:8px;border:1px solid var(--border);
-    padding:12px;font-size:11px;color:var(--ink-2);text-align:left;
-    min-height:140px;
-  }
-  .mock-caption{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-top:10px;letter-spacing:.08em}
-
-  /* ----------- Heatmap mock ----------- */
-  .mini-heat{
-    width:100%;aspect-ratio:1/1.2;border-radius:8px;
-    background:
-      radial-gradient(circle at 30% 25%,rgba(255,87,87,.7),transparent 18%),
-      radial-gradient(circle at 50% 38%,rgba(255,140,0,.6),transparent 22%),
-      radial-gradient(circle at 38% 60%,rgba(255,87,87,.5),transparent 18%),
-      radial-gradient(circle at 60% 70%,rgba(58,176,200,.5),transparent 18%),
-      linear-gradient(135deg,#CCE8ED 0%,#FAF6EE 100%);
-    border:1px solid var(--border);
-  }
-
-  /* ----------- Contact card ----------- */
+  /* ---------- Contact ---------- */
   .contact{
     background:linear-gradient(135deg,#0A4751 0%,#0E5E6F 100%);color:#fff;
-    border-radius:18px;padding:32px 28px;margin-top:16px;
-    display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:center;
+    border-radius:24px;padding:42px 36px;margin-top:32px;
+    display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:center;
+    position:relative;overflow:hidden;
   }
-  .contact h2{font-family:var(--serif);font-weight:600;font-size:30px;margin:0 0 8px;letter-spacing:-.02em}
+  .contact::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 50% 60% at 80% 20%,rgba(255,255,255,.12),transparent 70%);
+    pointer-events:none;
+  }
+  .contact>*{position:relative;z-index:1}
+  .contact h2{font-family:var(--serif);font-weight:600;font-size:34px;margin:0 0 10px;letter-spacing:-.02em}
   .contact h2 em{font-style:italic;color:#CCE8ED;font-weight:500}
-  .contact p{margin:0 0 6px;color:rgba(255,255,255,.85);font-size:13.5px}
-  .contact .clabel{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin:14px 0 4px;font-weight:700}
-  .contact .cvalue{font-size:14px;color:#fff;font-weight:500;line-height:1.5}
-  .contact-actions{display:flex;flex-direction:column;gap:10px}
-  .contact-actions a{
-    background:rgba(255,255,255,.15);color:#fff;
-    padding:12px 14px;border-radius:11px;
-    font-size:12px;font-weight:600;
-    display:flex;align-items:center;gap:10px;
-    border:1px solid rgba(255,255,255,.25);
+  .contact p{margin:0 0 6px;color:rgba(255,255,255,.85);font-size:14px}
+  .clabel{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);margin:18px 0 4px;font-weight:700}
+  .cvalue{font-size:14px;color:#fff;font-weight:500;line-height:1.5}
+  .cactions{display:flex;flex-direction:column;gap:10px}
+  .cactions a{
+    background:rgba(255,255,255,.12);color:#fff;
+    padding:14px 18px;border-radius:12px;
+    font-size:13px;font-weight:600;
+    display:flex;align-items:center;gap:12px;
+    border:1px solid rgba(255,255,255,.18);
+    text-decoration:none;
+    transition:background 160ms,transform 160ms;
   }
-  .contact-actions a strong{color:#fff;font-weight:700}
-  .contact-actions a svg{width:16px;height:16px;flex-shrink:0}
+  .cactions a:hover{background:rgba(255,255,255,.20);transform:translateY(-1px)}
+  .cactions a svg{width:18px;height:18px;flex-shrink:0;opacity:.85}
 
-  /* ----------- Quote block ----------- */
-  .quote{
-    background:var(--bg);border-left:3px solid var(--ayla-aqua);
-    padding:18px 24px;border-radius:0 12px 12px 0;
-    margin:20px 0;
+  /* ---------- Tabs ---------- */
+  .tabs-wrap{
+    margin-bottom:18px;
+    display:flex;gap:6px;
+    background:#fff;border:1px solid var(--border);
+    border-radius:14px;padding:5px;
+    width:fit-content;
+    box-shadow:var(--shadow-1);
   }
-  .quote p{font-family:var(--serif);font-weight:500;font-style:italic;font-size:18px;line-height:1.45;color:var(--ink);margin:0}
+  .tab-pill{
+    border:0;background:transparent;
+    padding:9px 18px;border-radius:10px;
+    font-size:13px;font-weight:600;color:var(--ink-2);
+    cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+    transition:all 160ms;
+  }
+  .tab-pill:hover{color:var(--ink)}
+  .tab-pill.on{background:var(--ayla-aqua);color:#fff;box-shadow:0 1px 3px rgba(58,176,200,.3)}
+  .tab-pill .count{
+    background:rgba(0,0,0,.08);color:inherit;
+    padding:1px 8px;border-radius:999px;
+    font-size:10px;font-weight:700;
+  }
+  .tab-pill.on .count{background:rgba(255,255,255,.25)}
 
-  /* ----------- Top action bar (screen only) ----------- */
-  .actbar{
-    position:sticky;top:0;z-index:50;
-    background:rgba(250,247,243,0.95);
-    backdrop-filter:blur(20px) saturate(1.4);
-    -webkit-backdrop-filter:blur(20px) saturate(1.4);
-    border-bottom:1px solid var(--border);
-    padding:10px 24px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
-  }
-  .actbar .brand-tag{font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:-.01em;color:var(--ink)}
-  .actbar .brand-tag em{font-style:italic;font-weight:500;color:var(--ayla-aqua)}
-  .actbar .actions{display:flex;gap:8px}
-  .actbar button,.actbar a{
-    border:1px solid var(--border);background:#fff;color:var(--ink);
-    padding:8px 14px;border-radius:9px;
-    font-size:12px;font-weight:600;cursor:pointer;
-    display:inline-flex;align-items:center;gap:6px;
-  }
-  .actbar .primary{background:var(--ayla-aqua);color:#fff;border-color:var(--ayla-aqua)}
-  .actbar svg{width:14px;height:14px}
-
-  /* ----------- Print rules ----------- */
+  /* ---------- Print ---------- */
   @media print{
     .actbar{display:none}
     body{background:#fff}
-    .page{
-      margin:0;width:auto;min-height:auto;
-      box-shadow:none;
-      page-break-after:always;
-    }
-    .page:last-child{page-break-after:auto}
+    .hero,.contact{break-inside:avoid}
+    .bento{break-inside:auto}
+    .b{break-inside:avoid}
   }
-  @page{size:A4 portrait;margin:0}
+  @page{size:A4 portrait;margin:14mm}
 
-  /* ----------- Smaller screens (just stack for review) ----------- */
+  /* ---------- Mobile ---------- */
   @media (max-width:760px){
-    .page{width:auto;margin:8px;padding:20px 16px;min-height:auto}
-    .cover-title{font-size:36px}
-    .cover-sub{font-size:16px;max-width:100%}
-    h1.section-title{font-size:28px}
-    .stats{grid-template-columns:repeat(2,1fr)}
-    .grid-2,.grid-3,.pricing,.timeline{grid-template-columns:1fr;gap:14px}
-    .contact{grid-template-columns:1fr}
+    .container{padding:20px 16px 60px}
+    .hero{padding:32px 24px;border-radius:22px}
+    .hero-inner{grid-template-columns:1fr;gap:24px}
+    .hero h1{font-size:34px}
+    .hero-sub{font-size:16px;max-width:100%}
+    .section-head h2{font-size:24px}
+    .bento{grid-template-columns:repeat(2,1fr);grid-auto-rows:140px}
+    .b,.b.lg,.b.xl,.b.full,.b-featured{grid-column:span 2;grid-row:span 1}
+    .b-featured{grid-row:span 2}
+    .pricing{grid-template-columns:1fr}
+    .contact{grid-template-columns:1fr;padding:30px 24px}
+    .contact h2{font-size:24px}
+    .actbar{padding:10px 16px}
+    .actbar .actions{gap:6px}
+    .actbar a,.actbar button{padding:7px 10px;font-size:11.5px}
   }
 </style>
 </head>
 <body>
 
-<!-- Sticky action bar (screen only) -->
 <header class="actbar">
-  <span class="brand-tag">Ayla <em>Marina</em> · Proposal</span>
+  <span class="brand-tag">Ayla <em>Marina</em><span class="pip">Interactive Map · Proposal</span></span>
   <div class="actions">
     <a href="index.html" target="_blank">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      Live demo
+      Map
     </a>
     <a href="dashboard.html" target="_blank">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Analytics
+    </a>
+    <a href="admin.html" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Admin
     </a>
     <button class="primary" onclick="window.print()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -385,440 +431,376 @@
   </div>
 </header>
 
-<!-- PAGE 1 — COVER -->
-<section class="page cover">
-  <div class="cover-top">
-    <span class="cover-mark">Proposal · May 2026</span>
-    <h1 class="cover-title">Ayla Marina <em>Interactive Map</em></h1>
-    <p class="cover-sub">A premium digital wayfinding platform for the visitors, residents, and tenants of Ayla Marina Village — designed exclusively for Ayla.</p>
-  </div>
-  <div class="cover-meta">
+<main class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <span class="hero-mark"><span class="dot"></span>Already live · Tap any tile to try it</span>
+        <h1>Everything Ayla Marina needs to <em>show the world</em> what's inside.</h1>
+        <p class="hero-sub">A premium interactive map, a real-time analytics dashboard, and a content admin — all already running, exclusively for Ayla.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="v">55</div><div class="l">Tenant businesses</div></div>
+        <div class="hero-stat"><div class="v">2</div><div class="l">Map levels</div></div>
+        <div class="hero-stat"><div class="v">9</div><div class="l">Categories</div></div>
+        <div class="hero-stat"><div class="v">3</div><div class="l">Modules shipped</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT'S LIVE -->
+  <div class="section-head">
     <div>
-      <div class="label">Prepared for</div>
-      <div class="value"><strong>Ayla Oasis Real Estate Development</strong>Marina Village · Aqaba, Jordan</div>
+      <h2>What's <em>already live</em></h2>
+      <p>Built, tested, deployed. Open any tile to use it — the platform is real, not slides.</p>
     </div>
-    <div>
-      <div class="label">Prepared by</div>
-      <div class="value"><strong>Majdi Alqudah</strong>مؤسسة ثلاثمائة وواحد وستون درجة<br>majdi@majdialqudah.com</div>
-    </div>
-  </div>
-</section>
-
-<!-- PAGE 2 — THE OPPORTUNITY -->
-<section class="page">
-  <p class="eyebrow">The opportunity</p>
-  <h1 class="section-title">Ayla Marina has <em>55 stories</em>. Visitors only meet a few.</h1>
-  <p class="lede">A world-class marina, premium hospitality, and a thriving retail community — but no digital experience that helps visitors discover what's inside.</p>
-
-  <div class="stats">
-    <div class="stat"><p class="stat-value">55</p><p class="stat-label">Tenant businesses</p></div>
-    <div class="stat"><p class="stat-value">2</p><p class="stat-label">Pedestrian levels</p></div>
-    <div class="stat"><p class="stat-value">9</p><p class="stat-label">Visitor categories</p></div>
-    <div class="stat"><p class="stat-value">12K+</p><p class="stat-label">Monthly visitors* potential</p></div>
-  </div>
-
-  <div class="grid-2">
-    <div>
-      <h2 style="font-family:var(--serif);font-weight:600;font-size:18px;margin:0 0 10px">Today</h2>
-      <ul class="bullets">
-        <li><strong>No digital map.</strong> A first-time visitor has to walk the property to discover what's there.</li>
-        <li><strong>Tenants are invisible</strong> unless searched by exact name on Google Maps.</li>
-        <li><strong>Foot traffic is uneven.</strong> Anchor businesses near entrances win; the rest get missed.</li>
-        <li><strong>No data.</strong> Ayla has no insight into what visitors are looking for, when, or where they drop off.</li>
-        <li><strong>Tenant communication is one-way.</strong> Phone/WhatsApp/Instagram are scattered across signage.</li>
-      </ul>
-    </div>
-    <div>
-      <h2 style="font-family:var(--serif);font-weight:600;font-size:18px;margin:0 0 10px">After this platform</h2>
-      <ul class="checks">
-        <li>One QR code at every entrance opens an interactive map of the entire village.</li>
-        <li>Every tenant is one tap away from <strong>Directions, Call, WhatsApp, Instagram, Share</strong>.</li>
-        <li>Filters surface what visitors are actually looking for (cafe, pharmacy, kids' activity).</li>
-        <li>Real analytics: what's searched, what's clicked, peak hours, conversion to action.</li>
-        <li>One admin can update 55 listings in minutes — without a developer.</li>
-      </ul>
+    <div class="legend">
+      <span class="lg"><span class="pill pill-live">Live now</span></span>
+      <span class="lg"><span class="pill pill-phase2">Coming · Phase 2</span></span>
+      <span class="lg"><span class="pill pill-phase3">Future · Phase 3</span></span>
     </div>
   </div>
 
-  <div class="quote">
-    <p>"The hardest moment for any visitor is the first thirty seconds — before they orient themselves. We solve that, once, for every property in Ayla's portfolio."</p>
-  </div>
+  <section class="bento">
 
-  <div class="page-footer">
-    <span>Ayla Marina · Interactive Map Platform Proposal</span>
-    <span class="brand-mini">Page 1</span>
-  </div>
-</section>
+    <!-- FEATURED: Visitor map -->
+    <a class="b b-featured" href="index.html" target="_blank">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
+      <h3>Visitor map · all 55 places</h3>
+      <p>Pinch-zoom · search · filter · directions · WhatsApp · share. Native bottom sheet, drifting boats, sequential pin entry.</p>
+      <div class="b-foot">
+        <a href="index.html" target="_blank">Open the live map →</a>
+        <span>ayla-marina.vercel.app</span>
+      </div>
+    </a>
 
-<!-- PAGE 3 — THE EXPERIENCE -->
-<section class="page">
-  <p class="eyebrow">The visitor experience</p>
-  <h1 class="section-title">A native app, <em>without the app store</em>.</h1>
-  <p class="lede">Built as a Progressive Web App — installs to the home screen with one tap, works offline after first visit, no download required, no app store gatekeepers.</p>
-
-  <div class="grid-2">
-    <div>
-      <div class="feature-row">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <div><strong>Search any place</strong><p>Type "coffee" or "pharmacy" — the map flies to the result and opens its details.</p></div>
+    <!-- Analytics dashboard -->
+    <a class="b live" href="dashboard.html" target="_blank">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+        <span class="pill pill-live">Live now</span>
       </div>
-      <div class="feature-row">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
-        <div><strong>Filter by category</strong><p>Nine colour-coded categories. One tap shows only cafés, only shops, only experiences.</p></div>
-      </div>
-      <div class="feature-row">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 11 22 2 13 21 11 13 3 11"/></svg></div>
-        <div><strong>Directions in one tap</strong><p>Opens Google Maps or Apple Maps with walking route already plotted.</p></div>
-      </div>
-      <div class="feature-row">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.56 2.81.69A2 2 0 0 1 22 16.92z"/></svg></div>
-        <div><strong>Direct contact</strong><p>Call, WhatsApp, Instagram, or share the venue with friends — all from the place card.</p></div>
-      </div>
-    </div>
-    <div>
-      <div class="feature-row">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-        <div><strong>Mobile-native feel</strong><p>iOS-style bottom tab bar, drag-to-dismiss sheets, haptics, springy transitions. Designed for the phone first.</p></div>
-      </div>
-      <div class="feature-row">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-        <div><strong>Bilingual</strong><p>English and Arabic, with full RTL layout. Switches with one tap or auto-detects from device locale.</p></div>
-      </div>
-      <div class="feature-row">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
-        <div><strong>Deep-linkable</strong><p>Every place has its own URL — tenants share their own pin on Instagram or WhatsApp, driving footfall directly to their door.</p></div>
-      </div>
-      <div class="feature-row">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a5 5 0 0 1 10 0v8m-5-4h6"/><polyline points="13 16 19 16 21 21 17 21"/></svg></div>
-        <div><strong>Installable PWA</strong><p>Visitors save "Ayla Marina" to their home screen. Splash screen, no browser chrome, feels native.</p></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-footer">
-    <span>Ayla Marina · Interactive Map Platform Proposal</span>
-    <span class="brand-mini">Page 2</span>
-  </div>
-</section>
-
-<!-- PAGE 4 — WHAT'S LIVE TODAY -->
-<section class="page">
-  <p class="eyebrow">Already built · already live</p>
-  <h1 class="section-title">A working demo Ayla can <em>tap right now</em>.</h1>
-  <p class="lede">Two months of work, deployed and ready for Ayla's review. The visitor map, the analytics dashboard, and the admin console are all already running.</p>
-
-  <div class="grid-3">
-    <div class="card card-aqua">
-      <p class="sub">Module 1</p>
-      <h3>Visitor map</h3>
-      <p style="font-size:12.5px;margin:0">All 55 businesses pinned with logos, full search, category filters, native bottom sheet with Directions / Call / WhatsApp / Instagram / Share. Two levels: Ground and Marina. Pinch-zoom, drifting boats, water shimmer, sequential pin entry.</p>
-    </div>
-    <div class="card card-aqua">
-      <p class="sub">Module 2</p>
       <h3>Analytics dashboard</h3>
-      <p style="font-size:12.5px;margin:0">Real-time visitor heatmap, top searches, most-tapped places, peak hours, conversion funnel from map view to real-world action (directions / call / share), mobile vs desktop split. Built to swap in real visitor data the day we go live.</p>
-    </div>
-    <div class="card card-aqua">
-      <p class="sub">Module 3</p>
+      <p>Heatmap, top searches, peak hours, conversion funnel.</p>
+      <div class="mini-bars">
+        <span style="height:32%"></span><span style="height:48%"></span><span style="height:62%"></span><span style="height:88%"></span><span style="height:72%"></span><span style="height:54%"></span><span style="height:40%"></span><span style="height:68%"></span>
+      </div>
+    </a>
+
+    <!-- Admin console -->
+    <a class="b live" href="admin.html" target="_blank">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
       <h3>Admin console</h3>
-      <p style="font-size:12.5px;margin:0">Password-protected, mobile-friendly. Search-and-edit any of the 55 places. Tap the map to place a pin, drag to fine-tune. Upload logos. Add new places in 30 seconds. One admin can keep the entire village current without a developer.</p>
+      <p>Tap-to-place pins, edit any place, upload logos, export JSON.</p>
+      <div class="mini-list">
+        <span style="--c:#1E40AF"><i></i>Hyatt Regency Aqaba Ayla</span>
+        <span style="--c:#DC2626"><i></i>Tipsy Cow</span>
+        <span style="--c:#8B5E3C"><i></i>Anabtawi Sweets</span>
+      </div>
+    </a>
+
+    <!-- Real GPS coords -->
+    <div class="b live">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
+      <h3>Real GPS coordinates</h3>
+      <p>Every place has its true lat/lng — directions open Google Maps to the exact spot.</p>
     </div>
-  </div>
 
-  <h2 style="font-family:var(--serif);font-weight:600;font-size:20px;margin:30px 0 14px">What's running on the live demo</h2>
-  <table class="compare">
-    <thead><tr><th>Capability</th><th>Status</th><th>Notes</th></tr></thead>
-    <tbody>
-      <tr><td>Interactive map with 55 places</td><td class="y">✓ Live</td><td>Real Ayla tenants, ground + marina levels</td></tr>
-      <tr><td>Real GPS coordinates for every place</td><td class="y">✓ Live</td><td>Parsed from each tenant's Google Maps URL</td></tr>
-      <tr><td>Search · filter · deep-linking</td><td class="y">✓ Live</td><td>Type-ahead search, multi-select filters</td></tr>
-      <tr><td>Place detail · contact · directions</td><td class="y">✓ Live</td><td>5-action sheet, opens native Maps / Phone / WhatsApp</td></tr>
-      <tr><td>Mobile-native interactions</td><td class="y">✓ Live</td><td>Bottom tab bar, drag-dismiss sheets, springy motion</td></tr>
-      <tr><td>Desktop split view</td><td class="y">✓ Live</td><td>Sidebar list ↔ map hover sync, like Google Maps</td></tr>
-      <tr><td>PWA · installable · offline</td><td class="y">✓ Live</td><td>Saves to home screen with one tap</td></tr>
-      <tr><td>Admin console</td><td class="y">✓ Live</td><td>Edit, add, delete, export JSON</td></tr>
-      <tr><td>Analytics dashboard</td><td class="y">✓ Live</td><td>Sample data, ready to receive real telemetry</td></tr>
-    </tbody>
-  </table>
+    <!-- Mobile native feel -->
+    <div class="b live">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
+      <h3>iOS-native feel</h3>
+      <p>Bottom tab bar, drag-dismiss sheets, springy motion, haptics, safe-area insets.</p>
+      <div class="mini-phone">Phone-first</div>
+    </div>
 
-  <div class="card" style="margin-top:14px;background:#fff;border-color:var(--ayla-aqua)">
-    <strong style="font-family:var(--serif);font-size:15px">Visit the live demo →</strong>
-    <p style="margin:8px 0 0;font-size:13px">Map: <strong>ayla-marina.vercel.app</strong> · Analytics: <strong>ayla-marina.vercel.app/dashboard.html</strong> · Admin: <strong>ayla-marina.vercel.app/admin.html</strong></p>
-  </div>
+    <!-- Category filters -->
+    <div class="b live">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
+      <h3>Smart filters</h3>
+      <p>Nine colour-coded categories. Tap one to surface just cafés, just shops, just experiences.</p>
+      <div class="mini-chips">
+        <span style="--c:#8B5E3C"><i></i>Cafe</span>
+        <span style="--c:#DC2626"><i></i>Pubs</span>
+        <span style="--c:#EA580C"><i></i>Dining</span>
+        <span style="--c:#7C3AED"><i></i>Shopping</span>
+        <span style="--c:#1E40AF"><i></i>Hotels</span>
+        <span style="--c:#059669"><i></i>Essentials</span>
+      </div>
+    </div>
 
-  <div class="page-footer">
-    <span>Ayla Marina · Interactive Map Platform Proposal</span>
-    <span class="brand-mini">Page 3</span>
-  </div>
-</section>
+    <!-- Search -->
+    <div class="b live">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
+      <h3>Type-ahead search</h3>
+      <p>"Coffee", "pharmacy", "spa" — instant results, map flies to the right pin.</p>
+      <div class="mini-pills">
+        <span>pharmacy</span><span>coffee</span><span>breakfast</span><span>spa</span><span>atm</span>
+      </div>
+    </div>
 
-<!-- PAGE 5 — ANALYTICS PREVIEW -->
-<section class="page">
-  <p class="eyebrow">Module 2 · Analytics</p>
-  <h1 class="section-title">For the first time, <em>Ayla sees what visitors do</em>.</h1>
-  <p class="lede">Every tap, every search, every direction request is recorded. Ayla and tenants finally have real data on what's working and what's missing.</p>
+    <!-- Deep-link sharing -->
+    <div class="b live lg">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
+      <h3>Each place is shareable</h3>
+      <p>Every venue has its own URL. Tenants share their pin on Instagram or WhatsApp — driving footfall straight to their door without paid ads.</p>
+    </div>
 
-  <div class="grid-2">
+    <!-- PWA installable -->
+    <div class="b live">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
+      <h3>Installable PWA</h3>
+      <p>"Add to home screen" gives visitors an app icon. No app-store gatekeepers, works offline.</p>
+    </div>
+
+    <!-- Desktop split view -->
+    <div class="b live">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="3" x2="8" y2="17"/></svg></div>
+        <span class="pill pill-live">Live now</span>
+      </div>
+      <h3>Desktop split view</h3>
+      <p>Sidebar list ↔ map hover sync. Same data, premium on big screens.</p>
+    </div>
+
+  </section>
+
+  <!-- COMING NEXT -->
+  <div class="section-head" style="margin-top:8px">
     <div>
-      <div class="mock">
-        <div class="mini-heat"></div>
-        <p class="mock-caption">Attention heatmap · Marina level</p>
-      </div>
+      <h2>What we can <em>build next</em></h2>
+      <p>Phase 2 and 3 — selectable features. Pick what Ayla wants when ordering; we price each tier accordingly.</p>
     </div>
+  </div>
+
+  <section class="bento">
+
+    <!-- Custom illustrated map (featured Phase 2) -->
+    <div class="b b-featured coming" style="background:linear-gradient(135deg,#6D28D9 0%,#3730A3 100%);border-color:#3730A3">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></div>
+        <span class="pill pill-phase2" style="background:rgba(255,255,255,.18);color:#fff">Phase 2</span>
+      </div>
+      <h3>Custom illustrated marina</h3>
+      <p>Commission a Disney-tier hand-drawn map of Marina Village. The algorithmic map becomes the artistic version — recognisable, beautiful, branded.</p>
+      <div class="b-foot"><span>~ 2 weeks · included in Tier 2</span></div>
+    </div>
+
+    <!-- GPS Wayfinding -->
+    <div class="b coming">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <span class="pill pill-phase2">Phase 2</span>
+      </div>
+      <h3>Real GPS wayfinding</h3>
+      <p>"You are here" pulse, walking routes between any two pins, entry-gate + parking markers.</p>
+    </div>
+
+    <!-- Tenant portal -->
+    <div class="b coming">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <span class="pill pill-phase2">Phase 2</span>
+      </div>
+      <h3>Tenant self-service</h3>
+      <p>Each business gets a login — edits their own hours, photos, offers. Ayla approves.</p>
+    </div>
+
+    <!-- Events overlay -->
+    <div class="b coming">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <span class="pill pill-phase2">Phase 2</span>
+      </div>
+      <h3>Events overlay</h3>
+      <p>Live events on the map for visitors: night market, beach yoga, kids' day.</p>
+    </div>
+
+    <!-- Push notifications -->
+    <div class="b coming">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+        <span class="pill pill-phase2">Phase 2</span>
+      </div>
+      <h3>Push notifications</h3>
+      <p>Re-engage installed visitors: "Café Anabtawi just opened a new terrace — 5 min walk".</p>
+    </div>
+
+    <!-- Bilingual EN+AR -->
+    <div class="b coming">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <span class="pill pill-phase2">Phase 2</span>
+      </div>
+      <h3>Full bilingual EN ↔ AR</h3>
+      <p>Auto-detect device locale, full RTL layout, native Arabic UI for local visitors.</p>
+    </div>
+
+    <!-- Tenant performance PDFs -->
+    <div class="b coming lg">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div>
+        <span class="pill pill-phase2">Phase 2</span>
+      </div>
+      <h3>Monthly tenant performance PDFs</h3>
+      <p>Each tenant receives a one-page report: pin views, contact actions, search terms that found them, peer benchmarks. Protects renewal rates by proving Ayla's value.</p>
+    </div>
+
+    <!-- Multi-property Phase 3 -->
+    <div class="b b-featured future" style="background:linear-gradient(135deg,#F59E0B 0%,#D97706 100%);border-color:#D97706">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+        <span class="pill pill-phase3" style="background:rgba(255,255,255,.18);color:#fff">Phase 3</span>
+      </div>
+      <h3>One platform · every Ayla property</h3>
+      <p>Marina Village, Hyatt Regency Ayla, Cloud7, Ayla Golf Academy, Beach Club — one admin, one brand, one app. White-label-ready if Ayla licenses to other resorts in Aqaba.</p>
+      <div class="b-foot"><span>Tier 3 · included in Enterprise</span></div>
+    </div>
+
+    <!-- Cross-property analytics -->
+    <div class="b future">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 6-10"/></svg></div>
+        <span class="pill pill-phase3">Phase 3</span>
+      </div>
+      <h3>Cross-property analytics</h3>
+      <p>Compare visitor behaviour across all Ayla assets in one dashboard.</p>
+    </div>
+
+    <!-- Property picker -->
+    <div class="b future">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m-9-9h6m10 0h6m-12.728-6.728l4.243 4.243m6.485 6.485l4.243 4.243m0-15.214l-4.243 4.243m-6.485 6.485l-4.243 4.243"/></svg></div>
+        <span class="pill pill-phase3">Phase 3</span>
+      </div>
+      <h3>Property picker</h3>
+      <p>Visitor selects which Ayla property to explore — one app for all assets.</p>
+    </div>
+
+    <!-- White-label -->
+    <div class="b future">
+      <div class="b-head">
+        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg></div>
+        <span class="pill pill-phase3">Phase 3</span>
+      </div>
+      <h3>White-label option</h3>
+      <p>Ayla can license the platform to other resorts in Aqaba and beyond.</p>
+    </div>
+
+  </section>
+
+  <!-- INVESTMENT -->
+  <div class="section-head">
     <div>
-      <h2 style="font-family:var(--serif);font-weight:600;font-size:18px;margin:0 0 10px">What Ayla learns</h2>
-      <ul class="bullets">
-        <li><strong>Which businesses get attention</strong> and which need help with visibility (data for tenant performance reviews).</li>
-        <li><strong>What visitors search for</strong> — including queries with zero results. <em>"sushi"</em> with 121 searches = an unmet demand and a leasing opportunity.</li>
-        <li><strong>Peak hours per day, per category.</strong> Cafés peak at 10 AM; restaurants at 8 PM. Plan events, security, staffing accordingly.</li>
-        <li><strong>Conversion funnel:</strong> 82 % of map views lead to a place tap, 48 % open directions, 21 % call or WhatsApp. Tenants get accountability metrics.</li>
-        <li><strong>Source attribution:</strong> QR signage, Instagram, Google, saved app. Know which channels work for Ayla's marketing budget.</li>
-      </ul>
+      <h2>Investment <em>tiers</em></h2>
+      <p>Choose what fits Ayla today. Upgrade as the platform proves itself.</p>
     </div>
   </div>
 
-  <h2 style="font-family:var(--serif);font-weight:600;font-size:18px;margin:24px 0 10px">What tenants get</h2>
-  <p>A monthly performance report PDF for each business: their pin views, contact actions, search terms that found them, peers in their category. Tenants pay for retail space at Ayla — they now <strong>see what they're paying for</strong>. This protects renewal rates.</p>
+  <section class="pricing">
 
-  <div class="page-footer">
-    <span>Ayla Marina · Interactive Map Platform Proposal</span>
-    <span class="brand-mini">Page 4</span>
-  </div>
-</section>
-
-<!-- PAGE 6 — ROADMAP -->
-<section class="page">
-  <p class="eyebrow">Roadmap</p>
-  <h1 class="section-title">Ship the marina, then scale to <em>every Ayla property</em>.</h1>
-  <p class="lede">Phase 1 is already done. Phase 2 deepens visitor engagement. Phase 3 expands the platform across Ayla's portfolio.</p>
-
-  <div class="roadmap">
-    <div class="phase">
-      <div class="phase-num shipped">✓</div>
-      <div class="phase-body">
-        <strong>Phase 1 · Visitor experience for Marina Village</strong>
-        <div class="when">Shipped · already live</div>
-        <ul>
-          <li>Interactive map, 55 places, real GPS, search, filters, directions, deep-link sharing</li>
-          <li>Mobile-native PWA, bilingual, offline-capable, installable</li>
-          <li>Admin console — Ayla edits all 55 places without a developer</li>
-          <li>Analytics dashboard ready to receive live data</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="phase">
-      <div class="phase-num">2</div>
-      <div class="phase-body">
-        <strong>Phase 2 · Wayfinding + tenant portal + premium illustration</strong>
-        <div class="when">4–6 weeks after kickoff</div>
-        <ul>
-          <li><strong>Real GPS wayfinding:</strong> "You are here" pulse, walking directions between any two pins, entry-gate and parking markers</li>
-          <li><strong>Tenant self-service:</strong> each business gets a login, edits their own opening hours, photos, offers — Ayla approves changes</li>
-          <li><strong>Custom illustrated marina:</strong> commission a Disney-tier hand-drawn map of Marina Village; the algorithmic map becomes the artistic version</li>
-          <li><strong>Events overlay:</strong> live events shown on the map for visitors (Friday night market, beach yoga, kids' day)</li>
-          <li><strong>Push notifications</strong> for opted-in visitors (PWA): "Café Anabtawi just opened a new terrace, 5-min walk from where you are"</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="phase">
-      <div class="phase-num">3</div>
-      <div class="phase-body">
-        <strong>Phase 3 · Multi-property — same platform, every Ayla asset</strong>
-        <div class="when">3 months after Phase 2</div>
-        <ul>
-          <li><strong>One admin manages multiple properties:</strong> Marina Village, Hyatt Regency Ayla, Cloud7, Ayla Beach Club, Ayla Golf Academy — all on one platform</li>
-          <li><strong>Property picker</strong> for visitors; the experience adapts per location while keeping one Ayla brand</li>
-          <li><strong>Cross-property analytics:</strong> compare visitor behaviour across all of Ayla's assets in a single dashboard</li>
-          <li><strong>White-label-ready</strong> if Ayla decides to license the platform to other resorts in Aqaba and beyond</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-footer">
-    <span>Ayla Marina · Interactive Map Platform Proposal</span>
-    <span class="brand-mini">Page 5</span>
-  </div>
-</section>
-
-<!-- PAGE 7 — INVESTMENT -->
-<section class="page">
-  <p class="eyebrow">Investment</p>
-  <h1 class="section-title">Three tiers. <em>One platform.</em></h1>
-  <p class="lede">Choose the scope that fits Ayla today. Upgrade as the platform proves itself.</p>
-
-  <div class="pricing">
     <div class="price-card">
-      <p class="price-tier">Tier 1</p>
-      <h3 class="price-name">Starter</h3>
-      <p class="price-cost">3,500 <span class="unit">JOD</span></p>
-      <p class="price-monthly">One-time · hosting on Ayla's existing servers</p>
+      <p class="tier">Tier 1</p>
+      <h3 class="pname">Starter</h3>
+      <p class="pcost">3,500 <span class="u">JOD</span></p>
+      <p class="pmonth">One-time · hosted on Ayla's servers</p>
       <ul>
-        <li>Marina Village only · 55 places</li>
+        <li>Marina Village · 55 places</li>
         <li>Full visitor map (Phase 1)</li>
         <li>Admin console</li>
-        <li>Basic analytics dashboard</li>
-        <li>3 months free support</li>
+        <li>Basic analytics</li>
+        <li>3 months support</li>
       </ul>
     </div>
 
     <div class="price-card featured">
-      <p class="price-tier">Tier 2</p>
-      <h3 class="price-name">Professional</h3>
-      <p class="price-cost">7,500 <span class="unit">JOD</span></p>
-      <p class="price-monthly">+ 200 JOD/month · hosting + updates</p>
+      <p class="tier">Tier 2</p>
+      <h3 class="pname">Professional</h3>
+      <p class="pcost">7,500 <span class="u">JOD</span></p>
+      <p class="pmonth">+ 200 JOD/month · hosting + updates</p>
       <ul>
         <li>Everything in Starter</li>
-        <li>Phase 2: GPS wayfinding</li>
+        <li>GPS wayfinding</li>
         <li>Tenant self-service portal</li>
-        <li>Custom illustrated marina map</li>
+        <li>Custom illustrated marina</li>
         <li>Live events overlay</li>
         <li>Push notifications</li>
-        <li>Monthly tenant performance PDFs</li>
-        <li>12 months free support</li>
+        <li>Monthly tenant PDFs</li>
+        <li>12 months support</li>
       </ul>
     </div>
 
     <div class="price-card">
-      <p class="price-tier">Tier 3</p>
-      <h3 class="price-name">Enterprise</h3>
-      <p class="price-cost">18,000 <span class="unit">JOD</span></p>
-      <p class="price-monthly">+ 500 JOD/month · all Ayla properties</p>
+      <p class="tier">Tier 3</p>
+      <h3 class="pname">Enterprise</h3>
+      <p class="pcost">18,000 <span class="u">JOD</span></p>
+      <p class="pmonth">+ 500 JOD/month · all Ayla properties</p>
       <ul>
         <li>Everything in Professional</li>
-        <li>Phase 3: multi-property platform</li>
-        <li>Property picker for visitors</li>
+        <li>Multi-property platform</li>
+        <li>Property picker</li>
         <li>Cross-property analytics</li>
         <li>White-label option</li>
-        <li>Custom Ayla brand integration</li>
-        <li>Priority support · 24h response</li>
-        <li>24 months free support</li>
+        <li>Priority 24h support</li>
+        <li>24 months support</li>
       </ul>
     </div>
-  </div>
 
-  <div class="card" style="margin-top:14px">
-    <h3 style="margin-bottom:6px">What's included regardless of tier</h3>
-    <p style="margin:0">Source code ownership, hosting on Ayla's infrastructure (or staging on ours during onboarding), full handover documentation, video walkthrough for your team, and 30-day warranty against bugs.</p>
-  </div>
+  </section>
 
-  <div class="page-footer">
-    <span>Ayla Marina · Interactive Map Platform Proposal</span>
-    <span class="brand-mini">Page 6</span>
-  </div>
-</section>
-
-<!-- PAGE 8 — TIMELINE -->
-<section class="page">
-  <p class="eyebrow">Timeline</p>
-  <h1 class="section-title">From signature to live in <em>2–3 weeks</em>.</h1>
-  <p class="lede">Phase 1 is already built. The work between signing and launch is configuration, content, and Ayla's infrastructure handover — not new development.</p>
-
-  <div class="timeline">
-    <div class="tl-step">
-      <p class="tl-week">Week 1</p>
-      <div class="tl-dot"></div>
-      <h4 class="tl-title">Kickoff</h4>
-      <p class="tl-body">Brand alignment · domain · access to Ayla servers · content review</p>
-    </div>
-    <div class="tl-step">
-      <p class="tl-week">Week 1–2</p>
-      <div class="tl-dot"></div>
-      <h4 class="tl-title">Content</h4>
-      <p class="tl-body">All 55 tenant details verified, logos finalised, descriptions added</p>
-    </div>
-    <div class="tl-step">
-      <p class="tl-week">Week 2</p>
-      <div class="tl-dot"></div>
-      <h4 class="tl-title">Deploy</h4>
-      <p class="tl-body">Production deploy to Ayla domain, SSL, analytics wired up</p>
-    </div>
-    <div class="tl-step">
-      <p class="tl-week">Week 2–3</p>
-      <div class="tl-dot"></div>
-      <h4 class="tl-title">QR + signage</h4>
-      <p class="tl-body">QR codes designed and printed for all entrances and tenant windows</p>
-    </div>
-    <div class="tl-step">
-      <p class="tl-week">Week 3</p>
-      <div class="tl-dot"></div>
-      <h4 class="tl-title">Launch</h4>
-      <p class="tl-body">Soft launch with Ayla team, then public soft-launch, then full marketing push</p>
-    </div>
-  </div>
-
-  <h2 style="font-family:var(--serif);font-weight:600;font-size:20px;margin:30px 0 14px">Why this works for Ayla</h2>
-  <div class="grid-2">
-    <div class="card">
-      <h3>Speed</h3>
-      <p style="margin:0">Phase 1 is already built. Most vendors quote 8–12 weeks for what's already running today.</p>
-    </div>
-    <div class="card">
-      <h3>Risk</h3>
-      <p style="margin:0">You can tap the live demo before signing. Most proposals ask Ayla to imagine the result; we show it.</p>
-    </div>
-    <div class="card">
-      <h3>Ownership</h3>
-      <p style="margin:0">Source code transfers to Ayla on delivery. No vendor lock-in. Hosting on Ayla's infrastructure.</p>
-    </div>
-    <div class="card">
-      <h3>Scalability</h3>
-      <p style="margin:0">Same platform extends to every Ayla property — Cloud7, Hyatt, Golf Academy. One investment, one brand.</p>
-    </div>
-  </div>
-
-  <div class="page-footer">
-    <span>Ayla Marina · Interactive Map Platform Proposal</span>
-    <span class="brand-mini">Page 7</span>
-  </div>
-</section>
-
-<!-- PAGE 9 — CONTACT / CLOSE -->
-<section class="page">
-  <p class="eyebrow">Next step</p>
-  <h1 class="section-title">Tap the live demo. <em>Then let's talk.</em></h1>
-  <p class="lede">The strongest pitch is one Ayla can hold in their hand. The platform is already running — open it on your phone, walk through the marina with it tomorrow, and tell us what you'd add.</p>
-
-  <div class="card card-aqua" style="margin-bottom:16px">
-    <h3 style="margin-bottom:10px">For Ayla's reviewer</h3>
-    <p style="font-size:13.5px;margin:0 0 8px"><strong>Live visitor map →</strong> <span style="color:var(--ayla-aqua-deep)">ayla-marina.vercel.app</span></p>
-    <p style="font-size:13.5px;margin:0 0 8px"><strong>Analytics preview →</strong> <span style="color:var(--ayla-aqua-deep)">ayla-marina.vercel.app/dashboard.html</span></p>
-    <p style="font-size:13.5px;margin:0"><strong>Admin console →</strong> <span style="color:var(--ayla-aqua-deep)">ayla-marina.vercel.app/admin.html</span> (password supplied separately)</p>
-  </div>
-
-  <div class="contact">
+  <!-- CONTACT -->
+  <section class="contact">
     <div>
-      <h2>Majdi <em>Alqudah</em></h2>
-      <p>Founder & lead designer · مؤسسة ثلاثمائة وواحد وستون درجة</p>
-      <p>Independent software studio, Amman & Aqaba · 14 years building production software for resorts, retail, and hospitality.</p>
+      <h2>Tap the demo. <em>Then let's talk.</em></h2>
+      <p>The strongest pitch is one Ayla can hold in their hand. The platform is already running — open it, walk the marina with it tomorrow, then tell us what you'd add.</p>
+      <div class="clabel">Prepared by</div>
+      <div class="cvalue"><strong>Majdi Alqudah</strong> · مؤسسة ثلاثمائة وواحد وستون درجة<br>Independent studio · Amman & Aqaba</div>
       <div class="clabel">References on request</div>
       <div class="cvalue">Onneta · MBN · Nawah · La Barista · SPK Studios</div>
     </div>
-    <div class="contact-actions">
+    <div class="cactions">
       <a href="mailto:majdi@majdialqudah.com">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        <div>Email<br><strong>majdi@majdialqudah.com</strong></div>
+        <div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.6;font-weight:700">Email</div>majdi@majdialqudah.com</div>
       </a>
-      <a href="https://wa.me/962792000126">
+      <a href="https://wa.me/962792000126" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.07 4.93A10 10 0 0 0 4.93 19.07L4 22l3-1a10 10 0 0 0 12.07-16.07z"/></svg>
-        <div>WhatsApp<br><strong>+962 79 200 0126</strong></div>
+        <div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.6;font-weight:700">WhatsApp</div>+962 79 200 0126</div>
       </a>
       <a href="tel:+962792000126">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.56 2.81.69A2 2 0 0 1 22 16.92z"/></svg>
-        <div>Call<br><strong>+962 79 200 0126</strong></div>
+        <div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.6;font-weight:700">Call</div>+962 79 200 0126</div>
       </a>
     </div>
-  </div>
+  </section>
 
-  <p style="text-align:center;color:var(--ink-3);font-size:11px;margin-top:30px;font-family:var(--serif);font-style:italic">— Thank you for considering this proposal. We're ready when Ayla is. —</p>
-
-  <div class="page-footer">
-    <span>Ayla Marina · Interactive Map Platform Proposal · May 2026</span>
-    <span class="brand-mini">Page 8</span>
-  </div>
-</section>
+</main>
 
 </body>
 </html>

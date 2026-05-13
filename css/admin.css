@@ -26,6 +26,8 @@
 }
 *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100dvh}
+/* HTML `hidden` attribute must always win over class-level display rules */
+[hidden]{display:none !important}
 img{display:block;max-width:100%}
 button{font:inherit;color:inherit}
 a{color:inherit;text-decoration:none}
