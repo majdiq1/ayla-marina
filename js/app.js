@@ -1055,12 +1055,10 @@ function setupTabbar(){
   });
 }
 
-// ---------- Satellite map (Leaflet + Esri tiles) ----------
+// ---------- Real map (MapLibre GL + OpenFreeMap vector tiles) ----------
 const SAT = { map: null, markers: [], initialized: false };
-const AYLA_CENTER = [29.5462, 34.9905];
-const AYLA_ZOOM   = 17.5;
-// Bounds used to estimate lat/lng for POIs that only have pin_x / pin_y on the illustrated map.
-// Bounds derived from the marina silhouette in the PNG vs. Esri imagery.
+const AYLA_CENTER = [34.9905, 29.5462];  // MapLibre uses [lng, lat]
+const AYLA_ZOOM   = 16.5;
 const MARINA_BOUNDS = {
   ground: { nw: [29.5487, 34.9886], se: [29.5448, 34.9925] },
   marina: { nw: [29.5478, 34.9888], se: [29.5450, 34.9912] }
@@ -1078,45 +1076,87 @@ function poiLatLng(poi){
 
 function initSatMap(){
   if (SAT.initialized) return;
-  if (typeof L === 'undefined'){
-    console.warn('[satmap] Leaflet not ready, retrying…');
+  if (typeof maplibregl === 'undefined'){
+    console.warn('[map] MapLibre not ready, retrying…');
     setTimeout(initSatMap, 200);
     return;
   }
   const el = document.getElementById('satmap');
   if (!el) return;
 
-  SAT.map = L.map(el, {
-    zoomControl: false,        // we'll position our own
-    attributionControl: true,
-    minZoom: 15,
-    maxZoom: 20,
-    zoomSnap: 0.5,
-    tap: true,
-    inertia: true,
-  }).setView(AYLA_CENTER, AYLA_ZOOM);
+  SAT.map = new maplibregl.Map({
+    container: el,
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: AYLA_CENTER,
+    zoom: AYLA_ZOOM,
+    minZoom: 14,
+    maxZoom: 19,
+    pitch: 35,           // slight tilt for premium 3D feel
+    bearing: -8,         // gentle rotation so the marina lays diagonal
+    attributionControl: false,
+  });
 
-  L.control.zoom({ position: 'topright' }).addTo(SAT.map);
+  SAT.map.addControl(new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-right');
+  SAT.map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
 
-  // Esri World Imagery
-  L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    { attribution: 'Imagery © Esri', maxNativeZoom: 19, maxZoom: 20 }
-  ).addTo(SAT.map);
+  // Tint water + boost label contrast once the base style is loaded
+  SAT.map.on('load', () => {
+    try {
+      // Repaint water in Ayla aqua
+      const layers = SAT.map.getStyle().layers || [];
+      layers.forEach(lyr => {
+        if (/water/i.test(lyr.id) && lyr.type === 'fill'){
+          SAT.map.setPaintProperty(lyr.id, 'fill-color', '#76C4D0');
+          SAT.map.setPaintProperty(lyr.id, 'fill-opacity', 0.92);
+        }
+        if (lyr.type === 'fill' && /(landuse|land|earth)/i.test(lyr.id) && !/water/i.test(lyr.id)){
+          SAT.map.setPaintProperty(lyr.id, 'fill-color', '#FAF6EE');
+        }
+        if (lyr.type === 'fill' && /(building)/i.test(lyr.id)){
+          SAT.map.setPaintProperty(lyr.id, 'fill-color', '#E8E1D2');
+          SAT.map.setPaintProperty(lyr.id, 'fill-outline-color', '#C8BFAA');
+        }
+        if (lyr.type === 'line' && /(road|street|highway)/i.test(lyr.id)){
+          try { SAT.map.setPaintProperty(lyr.id, 'line-color', '#FFFFFF'); } catch(e){}
+        }
+        if (lyr.type === 'symbol'){
+          // Mute OSM labels so our POI labels dominate
+          try { SAT.map.setPaintProperty(lyr.id, 'text-opacity', 0.55); } catch(e){}
+        }
+      });
 
-  // Subtle place labels (streets / landmarks) over satellite
-  L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-    { maxNativeZoom: 19, opacity: 0.8 }
-  ).addTo(SAT.map);
+      // 3D building extrusion if available
+      const buildingLayer = layers.find(l => /building/i.test(l.id) && l.type === 'fill');
+      if (buildingLayer){
+        SAT.map.addLayer({
+          id: 'ayla-3d-buildings',
+          source: buildingLayer.source,
+          'source-layer': buildingLayer['source-layer'],
+          type: 'fill-extrusion',
+          minzoom: 14.5,
+          paint: {
+            'fill-extrusion-color': '#E8E1D2',
+            'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
+            'fill-extrusion-base':   ['coalesce', ['get', 'render_min_height'], 0],
+            'fill-extrusion-opacity': 0.92,
+          }
+        });
+      }
+    } catch(e){ console.warn('style customization', e); }
 
-  SAT.initialized = true;
-  renderSatMarkers();
+    SAT.initialized = true;
+    renderSatMarkers();
+  });
+
+  // If style fails to load, mark initialised so markers still render with fallback BG
+  SAT.map.on('error', e => {
+    console.warn('[map] error', e?.error?.message || e);
+  });
 }
 
 function renderSatMarkers(){
-  if (!SAT.map) return;
-  SAT.markers.forEach(m => SAT.map.removeLayer(m));
+  if (!SAT.map || !SAT.initialized) return;
+  SAT.markers.forEach(m => m.remove());
   SAT.markers = [];
 
   const visiblePois = DATA.pois.filter(p =>
@@ -1127,16 +1167,20 @@ function renderSatMarkers(){
   for (const p of visiblePois){
     const cat = DATA.catById[p.category_id];
     const [lat, lng] = poiLatLng(p);
-    const icon = L.divIcon({
-      className: '',
-      html: `<div class="sat-marker ${state.selectedPoiId === p.id ? 'active' : ''}" style="--c:${cat?.color || '#666'}"></div>`,
-      iconSize: [22, 22],
-      iconAnchor: [11, 11],
-    });
-    const marker = L.marker([lat, lng], { icon, riseOnHover: true, title: p.name })
-      .bindTooltip(p.name, { permanent: true, direction: 'right', offset: [12, 0], className: 'sat-label' })
+
+    const wrap = document.createElement('div');
+    wrap.className = 'sat-pin';
+    if (state.selectedPoiId === p.id) wrap.classList.add('active');
+    wrap.style.setProperty('--c', cat?.color || '#666');
+    wrap.innerHTML = `
+      <div class="sat-dot"></div>
+      <span class="sat-name">${p.name.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>
+    `;
+    wrap.addEventListener('click', () => openPoi(p.id));
+
+    const marker = new maplibregl.Marker({ element: wrap, anchor: 'center' })
+      .setLngLat([lng, lat])
       .addTo(SAT.map);
-    marker.on('click', () => openPoi(p.id));
     SAT.markers.push(marker);
   }
 }
@@ -1144,7 +1188,7 @@ function renderSatMarkers(){
 function satFlyTo(poi){
   if (!SAT.map) return;
   const [lat, lng] = poiLatLng(poi);
-  SAT.map.flyTo([lat, lng], Math.max(SAT.map.getZoom(), 18), { duration: 0.8 });
+  SAT.map.flyTo({ center: [lng, lat], zoom: Math.max(SAT.map.getZoom(), 17.5), speed: 1.2, curve: 1.6 });
 }
 
 // ---------- 12. Boot ----------

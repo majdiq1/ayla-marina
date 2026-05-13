@@ -452,34 +452,55 @@ img{ display: block; }
 .map-satellite .stage::after{ display: none; }
 /* Leaflet handles all touch — pass pointer events through stage to satmap */
 .map-satellite .stage{ touch-action: auto; }
-/* Brand the Leaflet markers consistently */
-.sat-marker{
-  width: 22px; height: 22px;
+/* MapLibre custom markers — colored dot + name label */
+.sat-pin{
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer; pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 200ms var(--ease-spring);
+}
+.sat-pin:hover{ transform: translateY(-2px); z-index: 5; }
+.sat-pin .sat-dot{
+  width: 16px; height: 16px;
   background: var(--c);
   border: 2.5px solid #fff;
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0,0,0,.32);
-  cursor: pointer;
 }
-.sat-marker.active{
-  width: 28px; height: 28px;
-  box-shadow: 0 0 0 3px var(--ayla-aqua), 0 4px 14px rgba(0,0,0,.35);
-}
-.sat-label{
+.sat-pin .sat-name{
+  margin-top: 4px;
   background: rgba(255,255,255,0.97);
   color: var(--ink);
   font-family: var(--sans);
   font-size: 11px;
   font-weight: 600;
-  padding: 3px 7px;
+  padding: 3px 8px;
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  box-shadow: 0 1px 3px rgba(0,0,0,.18), 0 0 0 0.5px rgba(0,0,0,.06);
   white-space: nowrap;
-  border: 0 !important;
+  letter-spacing: -0.01em;
+  pointer-events: none;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before,
-.leaflet-tooltip-left:before, .leaflet-tooltip-right:before{ display: none; }
-.leaflet-control-attribution{ font-size: 9px !important; opacity: 0.7; }
+.sat-pin.active .sat-dot{
+  width: 22px; height: 22px;
+  border-width: 3px;
+  box-shadow: 0 0 0 3px var(--ayla-aqua), 0 6px 18px rgba(0,0,0,.35);
+}
+.sat-pin.active .sat-name{
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 6;
+}
+.maplibregl-ctrl-attrib{ font-size: 10px !important; opacity: 0.7; }
+.maplibregl-ctrl-attrib-button{ background-color: rgba(255,255,255,0.9) !important; }
+.maplibregl-ctrl button{ background-color: rgba(255,255,255,0.94) !important; }
+.maplibregl-canvas{ outline: none; }
 
 /* ---------------------------------------------------------
    Map Style picker (top-left)
