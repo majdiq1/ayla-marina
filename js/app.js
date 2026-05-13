@@ -1083,74 +1083,38 @@ function initSatMap(){
   }
   const el = document.getElementById('satmap');
   if (!el) return;
+  console.log('[map] Initialising MapLibre…');
 
   SAT.map = new maplibregl.Map({
     container: el,
-    style: 'https://tiles.openfreemap.org/styles/liberty',
+    style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
     center: AYLA_CENTER,
     zoom: AYLA_ZOOM,
     minZoom: 14,
-    maxZoom: 19,
-    pitch: 35,           // slight tilt for premium 3D feel
-    bearing: -8,         // gentle rotation so the marina lays diagonal
+    maxZoom: 20,
     attributionControl: false,
   });
 
-  SAT.map.addControl(new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-right');
+  SAT.map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'top-right');
   SAT.map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
 
-  // Tint water + boost label contrast once the base style is loaded
+  SAT.map.on('error', e => {
+    console.warn('[map] error:', e?.error?.message || e);
+  });
+
   SAT.map.on('load', () => {
+    console.log('[map] Loaded');
+    // Light brand pass — only retint water (most-likely-to-exist layer).
     try {
-      // Repaint water in Ayla aqua
       const layers = SAT.map.getStyle().layers || [];
       layers.forEach(lyr => {
         if (/water/i.test(lyr.id) && lyr.type === 'fill'){
-          SAT.map.setPaintProperty(lyr.id, 'fill-color', '#76C4D0');
-          SAT.map.setPaintProperty(lyr.id, 'fill-opacity', 0.92);
-        }
-        if (lyr.type === 'fill' && /(landuse|land|earth)/i.test(lyr.id) && !/water/i.test(lyr.id)){
-          SAT.map.setPaintProperty(lyr.id, 'fill-color', '#FAF6EE');
-        }
-        if (lyr.type === 'fill' && /(building)/i.test(lyr.id)){
-          SAT.map.setPaintProperty(lyr.id, 'fill-color', '#E8E1D2');
-          SAT.map.setPaintProperty(lyr.id, 'fill-outline-color', '#C8BFAA');
-        }
-        if (lyr.type === 'line' && /(road|street|highway)/i.test(lyr.id)){
-          try { SAT.map.setPaintProperty(lyr.id, 'line-color', '#FFFFFF'); } catch(e){}
-        }
-        if (lyr.type === 'symbol'){
-          // Mute OSM labels so our POI labels dominate
-          try { SAT.map.setPaintProperty(lyr.id, 'text-opacity', 0.55); } catch(e){}
+          SAT.map.setPaintProperty(lyr.id, 'fill-color', '#86C9D5');
         }
       });
-
-      // 3D building extrusion if available
-      const buildingLayer = layers.find(l => /building/i.test(l.id) && l.type === 'fill');
-      if (buildingLayer){
-        SAT.map.addLayer({
-          id: 'ayla-3d-buildings',
-          source: buildingLayer.source,
-          'source-layer': buildingLayer['source-layer'],
-          type: 'fill-extrusion',
-          minzoom: 14.5,
-          paint: {
-            'fill-extrusion-color': '#E8E1D2',
-            'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
-            'fill-extrusion-base':   ['coalesce', ['get', 'render_min_height'], 0],
-            'fill-extrusion-opacity': 0.92,
-          }
-        });
-      }
-    } catch(e){ console.warn('style customization', e); }
-
+    } catch(e){ console.warn('[map] tint skipped', e); }
     SAT.initialized = true;
     renderSatMarkers();
-  });
-
-  // If style fails to load, mark initialised so markers still render with fallback BG
-  SAT.map.on('error', e => {
-    console.warn('[map] error', e?.error?.message || e);
   });
 }
 
