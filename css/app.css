@@ -431,6 +431,105 @@ img{ display: block; }
 }
 
 /* ---------------------------------------------------------
+   Satellite map (Leaflet) — hidden until user toggles
+   --------------------------------------------------------- */
+.satmap{
+  position: absolute; inset: 0;
+  z-index: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 280ms var(--ease-out), visibility 280ms;
+}
+body.map-satellite .satmap{
+  opacity: 1;
+  visibility: visible;
+}
+body.map-satellite .canvas,
+body.map-satellite .water-shimmer,
+body.map-satellite .boats,
+body.map-satellite .scale-bar{ display: none !important; }
+/* Brand the Leaflet markers consistently */
+.sat-marker{
+  width: 22px; height: 22px;
+  background: var(--c);
+  border: 2.5px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,.32);
+  cursor: pointer;
+}
+.sat-marker.active{
+  width: 28px; height: 28px;
+  box-shadow: 0 0 0 3px var(--ayla-aqua), 0 4px 14px rgba(0,0,0,.35);
+}
+.sat-label{
+  background: rgba(255,255,255,0.97);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  white-space: nowrap;
+  border: 0 !important;
+}
+.leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before, .leaflet-tooltip-right:before{ display: none; }
+.leaflet-control-attribution{ font-size: 9px !important; opacity: 0.7; }
+
+/* ---------------------------------------------------------
+   Map Style picker (top-left)
+   --------------------------------------------------------- */
+.map-style-picker{
+  position: fixed;
+  z-index: 32;
+  display: flex;
+  background: rgba(255,255,255,0.94);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-2);
+  padding: 4px;
+  gap: 2px;
+}
+.msp-btn{
+  border: 0; background: transparent;
+  padding: 7px 12px;
+  border-radius: 9px;
+  font-size: 12px; font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 160ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.msp-btn svg{ width: 15px; height: 15px; }
+.msp-btn:hover{ color: var(--ink); }
+.msp-btn.msp-active{
+  background: var(--ayla-aqua);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(14,79,88,.3);
+}
+@media (max-width: 959px){
+  .map-style-picker{
+    top: calc(var(--safe-top) + 14px);
+    left: 12px;
+  }
+  /* When mobile, push the topbar a bit down so the picker sits clear */
+  /* No change — the picker overlays at z 32, topbar at z 30, so picker is above */
+}
+@media (min-width: 960px){
+  .map-style-picker{
+    top: 24px;
+    left: calc(400px + 24px);
+  }
+}
+@media (min-width: 1280px){
+  .map-style-picker{ left: calc(440px + 24px); }
+}
+
+/* ---------------------------------------------------------
    Map tools: compass, +/- zoom, scale bar
    --------------------------------------------------------- */
 .map-tools{
@@ -616,22 +715,23 @@ img{ display: block; }
 
 .sheet-actions{
   margin-top: 20px;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
 }
 .act{
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
   background: var(--muted);
   border: 1px solid transparent;
-  border-radius: 14px;
-  padding: 12px 6px;
-  font-size: 11px; font-weight: 600;
+  border-radius: 12px;
+  padding: 10px 4px;
+  font-size: 10px; font-weight: 600;
   color: var(--ink);
   cursor: pointer;
   text-decoration: none;
-  min-height: 64px;
+  min-height: 60px;
   transition: transform 160ms var(--ease-out), background 160ms;
   -webkit-tap-highlight-color: transparent;
 }
+.act svg{ width: 20px; height: 20px; }
 .act:active{ transform: scale(.96); }
 .act svg{ width: 22px; height: 22px; }
 .act-primary{
@@ -780,6 +880,15 @@ img{ display: block; }
   .reset-btn{ bottom: calc(var(--safe-bottom) + 88px); }
   .scale-bar{ bottom: calc(var(--safe-bottom) + 84px); }
   .map-tools{ top: calc(var(--safe-top) + 130px); }
+  /* When a POI sheet is open, slide the tab bar down to give the sheet full reach */
+  body.poi-open .tabbar{
+    transform: translateY(140%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 280ms var(--ease-out), opacity 240ms;
+  }
+  /* Sheet content keeps some bottom space so action buttons clear the device safe area */
+  .sheet{ padding-bottom: calc(var(--safe-bottom) + 18px); }
 }
 
 /* ---------------------------------------------------------
