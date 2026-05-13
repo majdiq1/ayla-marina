@@ -1115,7 +1115,13 @@ function initSatMap(){
     } catch(e){ console.warn('[map] tint skipped', e); }
     SAT.initialized = true;
     renderSatMarkers();
+    // Force a resize in case the container size wasn't ready at init time
+    requestAnimationFrame(() => SAT.map.resize());
+    setTimeout(() => SAT.map.resize(), 500);
   });
+
+  // Resize on window changes too
+  window.addEventListener('resize', () => SAT.map?.resize());
 }
 
 function renderSatMarkers(){

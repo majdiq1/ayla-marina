@@ -433,10 +433,20 @@ img{ display: block; }
 /* ---------------------------------------------------------
    Satellite map (Leaflet) — hidden until user toggles
    --------------------------------------------------------- */
+/* Pin satmap to the viewport directly — guaranteed full dimensions,
+   independent of parent's intrinsic size */
 .satmap{
-  position: absolute; inset: 0;
-  z-index: 0;
-  /* Always visible in satellite-only mode */
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  width: 100vw;
+  height: 100dvh;
+  z-index: 1;        /* above body bg, below UI chrome (rail z30, tabbar z45) */
+}
+@media (min-width: 960px){
+  .satmap{ left: 400px; width: calc(100vw - 400px); }
+}
+@media (min-width: 1280px){
+  .satmap{ left: 440px; width: calc(100vw - 440px); }
 }
 .map-satellite .satmap{ opacity: 1; visibility: visible; }
 /* Satellite-only mode: hide every piece of the illustrated map UI */
