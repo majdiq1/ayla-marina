@@ -9,11 +9,14 @@ const AUTH_KEY = 'ayla_admin_auth_v1';
 const AUTH_TTL_MS = 6 * 60 * 60 * 1000;   // 6 hours
 
 async function loadData(){
+  // Cache-bust so a recently-deployed settings.json (password hash) is picked up
+  const v = '?v=' + Date.now();
+  const opts = { cache: 'no-store' };
   const [levels, categories, pois, settings] = await Promise.all([
-    fetch('data/levels.json').then(r => r.json()),
-    fetch('data/categories.json').then(r => r.json()),
-    fetch('data/pois.json').then(r => r.json()),
-    fetch('data/settings.json').then(r => r.json()),
+    fetch('data/levels.json' + v, opts).then(r => r.json()),
+    fetch('data/categories.json' + v, opts).then(r => r.json()),
+    fetch('data/pois.json' + v, opts).then(r => r.json()),
+    fetch('data/settings.json' + v, opts).then(r => r.json()),
   ]);
   DATA.levels = levels.sort((a, b) => a.sort_order - b.sort_order);
   DATA.categories = categories.sort((a, b) => a.sort_order - b.sort_order);

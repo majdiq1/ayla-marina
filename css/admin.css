@@ -61,6 +61,12 @@ input,select,textarea,button{font-family:inherit}
 .login-sub{margin:0 0 28px;color:var(--ink-2);font-size:14px}
 .login-form{display:flex;flex-direction:column;gap:14px;text-align:left}
 .login-error{color:var(--danger);font-size:13px;font-weight:500;text-align:center;margin:4px 0 0}
+.login-hint{
+  margin:16px 0 0;text-align:center;
+  font-size:11px;color:var(--ink-3);letter-spacing:.04em;
+  padding-top:14px;border-top:1px dashed var(--border);
+}
+.login-hint strong{color:var(--ayla-aqua-deep);font-weight:700;font-family:'SFMono-Regular',Menlo,monospace;letter-spacing:.05em}
 
 /* ----------- Common form ----------- */
 .field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;color:var(--ink-2)}
