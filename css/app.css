@@ -431,17 +431,61 @@ img{ display: block; }
 }
 
 /* ---------------------------------------------------------
-   Satellite map (Leaflet) — hidden until user toggles
+   Three.js 3D scene container
    --------------------------------------------------------- */
-/* MapLibre forces its container to position: relative — so we fill
-   .stage as a static block. Stage itself handles the desktop offset
-   from the left rail (via its own left: 400/440 in the desktop media). */
-.satmap{
+.scene3d{
   width: 100%;
   height: 100%;
-  z-index: 1;
+  position: relative;
+  background: linear-gradient(180deg, #BFE3E8 0%, #7AC3CC 40%, #5BAFB9 100%);
+  overflow: hidden;
+  cursor: grab;
 }
-.map-satellite .satmap{ opacity: 1; visibility: visible; }
+.scene3d:active{ cursor: grabbing; }
+.scene3d canvas{ display: block; outline: none; touch-action: none; }
+/* Floating CSS2D labels on top of 3D pins */
+.scene3d .pin3d-label{
+  background: rgba(255,255,255,0.97);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,.28), 0 0 0 0.5px rgba(0,0,0,.08);
+  pointer-events: none;
+  letter-spacing: -0.01em;
+  transform: translate(-50%, -100%);
+  position: absolute;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+.scene3d .pin3d-label.active{
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 6;
+}
+.scene3d .pin3d-cluster{
+  background: var(--c, var(--ayla-aqua));
+  color: #fff;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 14px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2.5px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  transform: translate(-50%, -50%);
+  position: absolute;
+  cursor: pointer;
+  pointer-events: auto;
+}
 /* Satellite-only mode: hide every piece of the illustrated map UI */
 .map-satellite .canvas,
 .map-satellite .water-shimmer,

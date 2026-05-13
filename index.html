@@ -13,9 +13,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/app.css">
-<!-- MapLibre GL JS — vector tiles, premium look -->
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" defer></script>
+<!-- Three.js as an ESM importmap -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
 </head>
 <body>
 
@@ -41,8 +47,8 @@
     <div id="pins" class="pins"></div>
   </div>
 
-  <!-- Real satellite map (Leaflet) -->
-  <div id="satmap" class="satmap" aria-hidden="false"></div>
+  <!-- Three.js 3D marina scene -->
+  <div id="scene3d" class="scene3d" aria-hidden="false"></div>
 
   <!-- Floating compass + zoom controls (top-right) -->
   <div class="map-tools">
