@@ -1,0 +1,384 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1700" preserveAspectRatio="xMidYMid meet" aria-label="Ayla Marina Village">
+  <defs>
+    <!-- Sea: bright aqua matching the source aerial render -->
+    <linearGradient id="seaGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2BA7BD"/>
+      <stop offset="50%" stop-color="#2EAFC5"/>
+      <stop offset="100%" stop-color="#3FBCD0"/>
+    </linearGradient>
+    <!-- Sandy beach gradient (warm yellow-tan) -->
+    <linearGradient id="sandGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F0DCA0"/>
+      <stop offset="100%" stop-color="#D9C282"/>
+    </linearGradient>
+    <!-- Cream paved land -->
+    <linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F4E8CC"/>
+      <stop offset="100%" stop-color="#E6D8B0"/>
+    </linearGradient>
+    <!-- Asphalt parking -->
+    <linearGradient id="asphaltGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5A5E62"/>
+      <stop offset="100%" stop-color="#454A50"/>
+    </linearGradient>
+    <!-- Building fill -->
+    <linearGradient id="bldgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8EFD4"/>
+      <stop offset="100%" stop-color="#E8D9B0"/>
+    </linearGradient>
+    <!-- Building roof shadow -->
+    <linearGradient id="roofGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C8B58A"/>
+      <stop offset="100%" stop-color="#A89568"/>
+    </linearGradient>
+    <!-- Wooden jetty -->
+    <linearGradient id="jettyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D8C49C"/>
+      <stop offset="100%" stop-color="#B49E72"/>
+    </linearGradient>
+    <!-- Water ripples pattern -->
+    <pattern id="waterShimmer" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M 0,40 Q 20,30 40,40 T 80,40" stroke="#FFFFFF" stroke-width="0.6" fill="none" opacity="0.25"/>
+      <path d="M 0,60 Q 20,50 40,60 T 80,60" stroke="#FFFFFF" stroke-width="0.5" fill="none" opacity="0.18"/>
+    </pattern>
+  </defs>
+
+  <!-- ──────── SEA ──────── -->
+  <rect width="1000" height="1700" fill="url(#seaGrad)"/>
+  <rect width="1000" height="1700" fill="url(#waterShimmer)"/>
+
+  <!-- ──────── SANDY BEACH (north-east + south) ──────── -->
+  <!-- North-east strip of sand visible in top-right of the source -->
+  <path d="M 1000,0 L 1000,300 Q 850,260 700,200 Q 850,80 1000,0 Z" fill="url(#sandGrad)" opacity="0.7"/>
+
+  <!-- ──────── MAIN PENINSULA — cream paved land ──────── -->
+  <!-- Traced loosely from the source aerial to capture the jagged east edge,
+       narrow neck in the north, and tapered south point. -->
+  <path d="
+    M 200,200
+    L 280,200 L 320,180 L 420,180 L 500,200 L 540,230
+    L 560,260 L 600,300 L 640,320 L 680,350
+    L 720,350 L 720,380 L 750,380 L 750,420 L 780,420
+    L 780,500 L 800,500 L 800,560 L 780,560 L 780,620
+    L 800,620 L 800,720 L 770,720 L 770,780 L 750,780
+    L 750,840 L 730,840 L 730,920 L 700,920 L 700,1020
+    L 720,1020 L 720,1080 L 700,1080 L 700,1140 L 670,1140
+    L 650,1170 L 620,1180 L 580,1170 L 540,1180 L 500,1200
+    L 480,1240 L 460,1280 L 420,1320 L 380,1350 L 340,1380
+    L 300,1380 L 260,1400 L 200,1430 L 160,1460 L 130,1500
+    L 110,1550 L 110,1620 L 140,1660 L 200,1670 L 280,1660
+    L 300,1620 L 280,1580 L 280,1520 L 320,1480 L 350,1460
+    L 380,1430 L 390,1390 L 380,1340 L 360,1290 L 340,1240
+    L 320,1200 L 280,1170 L 240,1140 L 200,1100 L 180,1050
+    L 180,950 L 200,900 L 220,860 L 220,800 L 200,760
+    L 180,720 L 170,680 L 170,620 L 180,560 L 180,500
+    L 200,450 L 220,400 L 220,340 L 200,280 L 200,200 Z"
+    fill="url(#landGrad)" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- ──────── PARKING LOT (east) — dark asphalt with stepped edge ──────── -->
+  <path d="
+    M 540,360 L 720,360 L 720,420 L 770,420 L 770,460 L 810,460
+    L 810,510 L 850,510 L 850,540 L 890,540 L 890,820 L 870,820
+    L 870,860 L 830,860 L 830,940 L 800,940 L 800,1000 L 770,1000
+    L 770,1050 L 740,1050 L 740,1120 L 700,1120 L 680,1100 L 660,1090
+    L 580,1090 L 540,1080 L 540,360 Z"
+    fill="url(#asphaltGrad)"/>
+
+  <!-- Parking lot WHITE PARKING-SPACE LINES (perpendicular dashes) -->
+  <g stroke="#E8E8E8" stroke-width="1.3" opacity="0.75">
+    <!-- Top zone parking rows -->
+    <g>
+      <line x1="560" y1="400" x2="560" y2="425"/>
+      <line x1="585" y1="400" x2="585" y2="425"/>
+      <line x1="610" y1="400" x2="610" y2="425"/>
+      <line x1="635" y1="400" x2="635" y2="425"/>
+      <line x1="660" y1="400" x2="660" y2="425"/>
+      <line x1="685" y1="400" x2="685" y2="425"/>
+      <line x1="710" y1="400" x2="710" y2="425"/>
+    </g>
+    <g>
+      <line x1="560" y1="470" x2="560" y2="495"/>
+      <line x1="585" y1="470" x2="585" y2="495"/>
+      <line x1="610" y1="470" x2="610" y2="495"/>
+      <line x1="635" y1="470" x2="635" y2="495"/>
+      <line x1="660" y1="470" x2="660" y2="495"/>
+      <line x1="685" y1="470" x2="685" y2="495"/>
+      <line x1="710" y1="470" x2="710" y2="495"/>
+      <line x1="735" y1="470" x2="735" y2="495"/>
+      <line x1="760" y1="470" x2="760" y2="495"/>
+    </g>
+    <g>
+      <line x1="560" y1="540" x2="560" y2="565"/>
+      <line x1="585" y1="540" x2="585" y2="565"/>
+      <line x1="610" y1="540" x2="610" y2="565"/>
+      <line x1="635" y1="540" x2="635" y2="565"/>
+      <line x1="660" y1="540" x2="660" y2="565"/>
+      <line x1="685" y1="540" x2="685" y2="565"/>
+      <line x1="710" y1="540" x2="710" y2="565"/>
+      <line x1="735" y1="540" x2="735" y2="565"/>
+      <line x1="760" y1="540" x2="760" y2="565"/>
+      <line x1="785" y1="540" x2="785" y2="565"/>
+      <line x1="810" y1="540" x2="810" y2="565"/>
+      <line x1="835" y1="540" x2="835" y2="565"/>
+      <line x1="860" y1="540" x2="860" y2="565"/>
+    </g>
+    <g>
+      <line x1="560" y1="610" x2="560" y2="635"/>
+      <line x1="585" y1="610" x2="585" y2="635"/>
+      <line x1="610" y1="610" x2="610" y2="635"/>
+      <line x1="635" y1="610" x2="635" y2="635"/>
+      <line x1="660" y1="610" x2="660" y2="635"/>
+      <line x1="685" y1="610" x2="685" y2="635"/>
+      <line x1="710" y1="610" x2="710" y2="635"/>
+      <line x1="735" y1="610" x2="735" y2="635"/>
+      <line x1="760" y1="610" x2="760" y2="635"/>
+      <line x1="785" y1="610" x2="785" y2="635"/>
+      <line x1="810" y1="610" x2="810" y2="635"/>
+      <line x1="835" y1="610" x2="835" y2="635"/>
+      <line x1="860" y1="610" x2="860" y2="635"/>
+    </g>
+    <g>
+      <line x1="560" y1="680" x2="560" y2="705"/>
+      <line x1="585" y1="680" x2="585" y2="705"/>
+      <line x1="610" y1="680" x2="610" y2="705"/>
+      <line x1="635" y1="680" x2="635" y2="705"/>
+      <line x1="660" y1="680" x2="660" y2="705"/>
+      <line x1="685" y1="680" x2="685" y2="705"/>
+      <line x1="710" y1="680" x2="710" y2="705"/>
+      <line x1="735" y1="680" x2="735" y2="705"/>
+      <line x1="760" y1="680" x2="760" y2="705"/>
+      <line x1="785" y1="680" x2="785" y2="705"/>
+      <line x1="810" y1="680" x2="810" y2="705"/>
+      <line x1="835" y1="680" x2="835" y2="705"/>
+      <line x1="860" y1="680" x2="860" y2="705"/>
+    </g>
+    <g>
+      <line x1="560" y1="750" x2="560" y2="775"/>
+      <line x1="585" y1="750" x2="585" y2="775"/>
+      <line x1="610" y1="750" x2="610" y2="775"/>
+      <line x1="635" y1="750" x2="635" y2="775"/>
+      <line x1="660" y1="750" x2="660" y2="775"/>
+      <line x1="685" y1="750" x2="685" y2="775"/>
+      <line x1="710" y1="750" x2="710" y2="775"/>
+      <line x1="735" y1="750" x2="735" y2="775"/>
+      <line x1="760" y1="750" x2="760" y2="775"/>
+      <line x1="785" y1="750" x2="785" y2="775"/>
+      <line x1="810" y1="750" x2="810" y2="775"/>
+      <line x1="835" y1="750" x2="835" y2="775"/>
+      <line x1="860" y1="750" x2="860" y2="775"/>
+    </g>
+  </g>
+
+  <!-- Tree islands in parking lot — rows of green pill shapes -->
+  <g fill="#7FAB85" stroke="#5C8364" stroke-width="0.5">
+    <!-- Vertical pill rows: each is a planter strip with two trees -->
+    <rect x="540" y="380" width="14" height="60" rx="7"/>
+    <rect x="540" y="450" width="14" height="60" rx="7"/>
+    <rect x="540" y="520" width="14" height="60" rx="7"/>
+    <rect x="540" y="590" width="14" height="60" rx="7"/>
+    <rect x="540" y="660" width="14" height="60" rx="7"/>
+    <rect x="540" y="730" width="14" height="60" rx="7"/>
+    <rect x="540" y="800" width="14" height="60" rx="7"/>
+    <rect x="540" y="870" width="14" height="60" rx="7"/>
+    <rect x="540" y="940" width="14" height="60" rx="7"/>
+
+    <rect x="640" y="450" width="14" height="60" rx="7"/>
+    <rect x="640" y="520" width="14" height="60" rx="7"/>
+    <rect x="640" y="590" width="14" height="60" rx="7"/>
+    <rect x="640" y="660" width="14" height="60" rx="7"/>
+    <rect x="640" y="730" width="14" height="60" rx="7"/>
+    <rect x="640" y="800" width="14" height="60" rx="7"/>
+    <rect x="640" y="870" width="14" height="60" rx="7"/>
+
+    <rect x="730" y="450" width="14" height="60" rx="7"/>
+    <rect x="730" y="520" width="14" height="60" rx="7"/>
+    <rect x="730" y="590" width="14" height="60" rx="7"/>
+    <rect x="730" y="660" width="14" height="60" rx="7"/>
+    <rect x="730" y="730" width="14" height="60" rx="7"/>
+    <rect x="730" y="800" width="14" height="60" rx="7"/>
+    <rect x="730" y="870" width="14" height="60" rx="7"/>
+
+    <rect x="820" y="540" width="14" height="60" rx="7"/>
+    <rect x="820" y="610" width="14" height="60" rx="7"/>
+    <rect x="820" y="680" width="14" height="60" rx="7"/>
+    <rect x="820" y="750" width="14" height="60" rx="7"/>
+    <rect x="820" y="820" width="14" height="60" rx="7"/>
+  </g>
+
+  <!-- ──────── JETTIES on the west (wooden walkways into the sea) ──────── -->
+  <g fill="url(#jettyGrad)" stroke="#8C7548" stroke-width="0.8">
+    <!-- Jetty 1 north (T-shape) -->
+    <rect x="80" y="270" width="120" height="14"/>
+    <rect x="60" y="284" width="40" height="60"/>
+    <!-- Jetty 2 -->
+    <rect x="80" y="450" width="100" height="12"/>
+    <!-- Jetty 3 (long T) -->
+    <rect x="40" y="600" width="140" height="14"/>
+    <rect x="40" y="614" width="14" height="60"/>
+    <!-- Jetty 4 -->
+    <rect x="40" y="760" width="140" height="12"/>
+    <!-- Jetty 5 (T-shape south) -->
+    <rect x="60" y="920" width="120" height="14"/>
+    <rect x="60" y="934" width="14" height="80"/>
+    <!-- Jetty 6 -->
+    <rect x="40" y="1100" width="140" height="12"/>
+    <!-- Jetty 7 far south -->
+    <rect x="40" y="1280" width="80" height="12"/>
+  </g>
+
+  <!-- ──────── BUILDINGS — angular cluster ──────── -->
+  <g fill="url(#bldgGrad)" stroke="url(#roofGrad)" stroke-width="1.2" stroke-linejoin="miter">
+    <!-- North-west cluster (Hyatt zone) -->
+    <polygon points="240,230 320,230 320,310 280,310 280,330 240,330"/>
+    <polygon points="330,230 410,230 410,290 380,290 380,310 330,310"/>
+    <polygon points="420,240 490,240 490,300 460,300 460,320 420,320"/>
+    <polygon points="270,340 350,340 350,400 270,400"/>
+    <polygon points="360,330 440,330 440,400 360,400"/>
+    <polygon points="450,330 530,340 530,410 450,410"/>
+
+    <!-- Central plaza buildings (around fountain) -->
+    <polygon points="250,430 320,430 320,490 280,490 280,510 250,510"/>
+    <polygon points="380,430 470,430 470,510 380,510"/>
+    <polygon points="480,440 560,440 560,520 480,520"/>
+
+    <!-- Mid-section -->
+    <polygon points="220,550 320,550 320,610 280,610 280,650 220,650"/>
+    <polygon points="340,560 430,560 430,650 340,650"/>
+    <polygon points="440,560 530,560 530,650 440,650"/>
+
+    <!-- South-mid cluster -->
+    <polygon points="220,680 310,680 310,770 220,770"/>
+    <polygon points="320,680 410,680 410,760 320,760"/>
+    <polygon points="420,690 510,690 510,770 420,770"/>
+
+    <!-- South cluster (closer to the beach) -->
+    <polygon points="200,800 290,800 290,890 200,890"/>
+    <polygon points="300,810 390,810 390,890 300,890"/>
+    <polygon points="400,810 480,810 480,900 400,900"/>
+
+    <!-- South-bottom cluster -->
+    <polygon points="190,920 280,920 280,1010 190,1010"/>
+    <polygon points="290,930 380,930 380,1020 290,1020"/>
+    <polygon points="390,930 470,930 470,1010 390,1010"/>
+  </g>
+
+  <!-- Building roof shadows (subtle right-bottom darker tone) -->
+  <g fill="rgba(0,0,0,0.08)">
+    <rect x="316" y="234" width="4" height="76"/>
+    <rect x="406" y="234" width="4" height="56"/>
+    <rect x="466" y="334" width="4" height="74"/>
+    <rect x="526" y="444" width="4" height="76"/>
+    <rect x="316" y="554" width="4" height="56"/>
+    <rect x="426" y="564" width="4" height="86"/>
+    <rect x="306" y="684" width="4" height="76"/>
+    <rect x="386" y="814" width="4" height="76"/>
+    <rect x="466" y="934" width="4" height="76"/>
+  </g>
+
+  <!-- ──────── CENTRAL PLAZA FOUNTAIN ──────── -->
+  <g>
+    <circle cx="340" cy="475" r="32" fill="#F4E8CC"/>
+    <circle cx="340" cy="475" r="22" fill="#76C4D0" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="340" cy="475" r="10" fill="#3AB0C8"/>
+    <circle cx="340" cy="475" r="3" fill="#FFFFFF"/>
+  </g>
+
+  <!-- ──────── SWIMMING POOLS ──────── -->
+  <g stroke="#FFFFFF" stroke-width="2">
+    <!-- Family pool near south -->
+    <ellipse cx="430" cy="1170" rx="22" ry="14" fill="#76C4D0"/>
+    <circle cx="430" cy="1170" r="6" fill="#3AB0C8"/>
+    <!-- Lagoon pool inside parking area entry -->
+    <circle cx="660" cy="540" r="14" fill="#76C4D0"/>
+  </g>
+
+  <!-- ──────── PALM TREES & GREENERY (many small clusters) ──────── -->
+  <g fill="#7FAB85">
+    <!-- North scattered -->
+    <circle cx="230" cy="220" r="6"/><circle cx="250" cy="228" r="5"/><circle cx="270" cy="215" r="5"/>
+    <circle cx="420" cy="215" r="6"/><circle cx="440" cy="220" r="5"/>
+    <circle cx="500" cy="225" r="6"/><circle cx="525" cy="218" r="5"/>
+
+    <!-- Around fountain -->
+    <circle cx="295" cy="445" r="5"/><circle cx="310" cy="450" r="4"/>
+    <circle cx="380" cy="430" r="5"/><circle cx="280" cy="490" r="4"/>
+    <circle cx="370" cy="520" r="5"/><circle cx="395" cy="515" r="4"/>
+    <circle cx="270" cy="520" r="4"/>
+
+    <!-- Mid greenery strips -->
+    <circle cx="330" cy="540" r="5"/><circle cx="345" cy="545" r="5"/>
+    <circle cx="430" cy="540" r="5"/><circle cx="445" cy="545" r="5"/>
+    <circle cx="535" cy="540" r="4"/>
+
+    <!-- South-mid -->
+    <circle cx="310" cy="660" r="5"/><circle cx="325" cy="665" r="4"/>
+    <circle cx="410" cy="660" r="5"/><circle cx="430" cy="665" r="5"/>
+    <circle cx="520" cy="660" r="5"/>
+
+    <!-- South cluster -->
+    <circle cx="290" cy="790" r="6"/><circle cx="305" cy="795" r="5"/>
+    <circle cx="395" cy="790" r="6"/><circle cx="410" cy="795" r="5"/>
+    <circle cx="485" cy="800" r="6"/><circle cx="500" cy="805" r="5"/>
+
+    <!-- South-bottom -->
+    <circle cx="285" cy="910" r="6"/><circle cx="300" cy="915" r="5"/>
+    <circle cx="380" cy="920" r="5"/><circle cx="475" cy="920" r="5"/>
+
+    <!-- Sea-side -->
+    <circle cx="200" cy="350" r="5"/><circle cx="210" cy="500" r="5"/>
+    <circle cx="200" cy="700" r="5"/><circle cx="195" cy="850" r="5"/>
+    <circle cx="200" cy="1050" r="5"/>
+
+    <!-- Bridge medians -->
+    <circle cx="385" cy="1200" r="5"/><circle cx="405" cy="1210" r="5"/>
+    <circle cx="450" cy="1230" r="5"/><circle cx="490" cy="1250" r="5"/>
+    <circle cx="380" cy="1280" r="5"/><circle cx="410" cy="1300" r="5"/>
+
+    <!-- Southern beach perimeter -->
+    <circle cx="200" cy="1380" r="5"/><circle cx="230" cy="1410" r="5"/>
+    <circle cx="265" cy="1440" r="5"/><circle cx="300" cy="1460" r="5"/>
+  </g>
+
+  <!-- Some palm trees with crown highlights (lighter top) -->
+  <g fill="#A6CFAB" opacity="0.6">
+    <circle cx="232" cy="218" r="2.4"/>
+    <circle cx="422" cy="213" r="2.4"/>
+    <circle cx="293" cy="443" r="2.2"/>
+    <circle cx="411" cy="658" r="2.4"/>
+    <circle cx="287" cy="788" r="2.4"/>
+  </g>
+
+  <!-- ──────── ORANGE BEACH UMBRELLAS / LOUNGERS (decorative) ──────── -->
+  <g>
+    <rect x="180" y="800" width="22" height="34" rx="2" fill="#E27A4E"/>
+    <rect x="180" y="838" width="22" height="34" rx="2" fill="#E27A4E"/>
+    <line x1="184" y1="804" x2="200" y2="830" stroke="#FFFFFF" stroke-width="0.8" opacity="0.5"/>
+    <line x1="184" y1="842" x2="200" y2="868" stroke="#FFFFFF" stroke-width="0.8" opacity="0.5"/>
+  </g>
+
+  <!-- ──────── BRIDGE CAUSEWAY (south-east, exits viewBox) ──────── -->
+  <g>
+    <polygon points="400,1250 540,1250 700,1480 850,1670 580,1670 470,1480 380,1290"
+             fill="#5A5E62" stroke="#3F4348" stroke-width="2"/>
+    <line x1="450" y1="1330" x2="700" y2="1620" stroke="#E8E8E8" stroke-width="2" stroke-dasharray="14 12" opacity="0.55"/>
+    <!-- Bridge median greens -->
+    <ellipse cx="490" cy="1390" rx="28" ry="8" fill="#7FAB85"/>
+    <ellipse cx="600" cy="1500" rx="32" ry="10" fill="#7FAB85"/>
+  </g>
+
+  <!-- ──────── COMPASS ROSE (top-right, subtle) ──────── -->
+  <g transform="translate(900 110)" opacity="0.7">
+    <circle r="30" fill="#FFFFFF" stroke="#3AB0C8" stroke-width="1.5"/>
+    <polygon points="0,-22 6,0 0,4 -6,0" fill="#3AB0C8"/>
+    <polygon points="0,22 6,0 0,-4 -6,0" fill="#1F7A8A" opacity="0.4"/>
+    <text x="0" y="-9" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#1F7A8A" font-weight="600">N</text>
+  </g>
+
+  <!-- ──────── EDITORIAL LABEL (subtle, top centered) ──────── -->
+  <text x="500" y="100" text-anchor="middle"
+        font-family="Georgia, serif" font-size="20" font-style="italic" font-weight="500"
+        fill="#FFFFFF" opacity="0.75" letter-spacing="3">
+    Ayla Marina Village
+  </text>
+  <line x1="380" y1="118" x2="620" y2="118" stroke="#FFFFFF" stroke-width="0.8" opacity="0.45"/>
+</svg>
