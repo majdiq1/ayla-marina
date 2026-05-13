@@ -139,6 +139,7 @@
   }
   .pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
   .pill-live{background:var(--shipped-soft);color:#047857}
+  .pill-preview{background:#FEF3C7;color:#B45309}
   .pill-phase2{background:var(--coming-soft);color:#6D28D9}
   .pill-phase3{background:var(--future-soft);color:#B45309}
 
@@ -458,8 +459,9 @@
     </div>
     <div class="legend">
       <span class="lg"><span class="pill pill-live">Live now</span></span>
-      <span class="lg"><span class="pill pill-phase2">Coming · Phase 2</span></span>
-      <span class="lg"><span class="pill pill-phase3">Future · Phase 3</span></span>
+      <span class="lg"><span class="pill pill-preview">Working preview</span></span>
+      <span class="lg"><span class="pill pill-phase2">Phase 2 · paid</span></span>
+      <span class="lg"><span class="pill pill-phase3">Phase 3 · paid</span></span>
     </div>
   </div>
 
@@ -479,27 +481,27 @@
       </div>
     </a>
 
-    <!-- Analytics dashboard -->
-    <a class="b live" href="dashboard.html" target="_blank">
+    <!-- Analytics dashboard — preview -->
+    <a class="b" href="dashboard.html" target="_blank">
       <div class="b-head">
         <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-        <span class="pill pill-live">Live now</span>
+        <span class="pill pill-preview">Preview</span>
       </div>
       <h3>Analytics dashboard</h3>
-      <p>Heatmap, top searches, peak hours, conversion funnel.</p>
+      <p>Heatmap, top searches, peak hours, conversion funnel — built and styled, sample data shown. Real telemetry wired up in Phase 2.</p>
       <div class="mini-bars">
         <span style="height:32%"></span><span style="height:48%"></span><span style="height:62%"></span><span style="height:88%"></span><span style="height:72%"></span><span style="height:54%"></span><span style="height:40%"></span><span style="height:68%"></span>
       </div>
     </a>
 
-    <!-- Admin console -->
-    <a class="b live" href="admin.html" target="_blank">
+    <!-- Admin console — preview (localStorage save layer; real backend ships with Tier 1) -->
+    <a class="b" href="admin.html" target="_blank">
       <div class="b-head">
         <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
-        <span class="pill pill-live">Live now</span>
+        <span class="pill pill-preview">Preview</span>
       </div>
       <h3>Admin console</h3>
-      <p>Tap-to-place pins, edit any place, upload logos, export JSON.</p>
+      <p>Tap-to-place pins, edit any place, upload logos, export JSON. UI fully working; real save-to-server backend included in Tier 1 onwards.</p>
       <div class="mini-list">
         <span style="--c:#1E40AF"><i></i>Hyatt Regency Aqaba Ayla</span>
         <span style="--c:#DC2626"><i></i>Tipsy Cow</span>
@@ -507,14 +509,14 @@
       </div>
     </a>
 
-    <!-- Real GPS coords -->
-    <div class="b live">
+    <!-- Real GPS coords — 45 of 55 mapped from Google Maps URLs -->
+    <div class="b">
       <div class="b-head">
         <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-        <span class="pill pill-live">Live now</span>
+        <span class="pill pill-preview">Preview</span>
       </div>
-      <h3>Real GPS coordinates</h3>
-      <p>Every place has its true lat/lng — directions open Google Maps to the exact spot.</p>
+      <h3>GPS coordinates · 45 / 55 mapped</h3>
+      <p>Most pins already open Google Maps to the exact spot. Final 10 are confirmed in Tier 1 setup (admin clicks each pin and locks the position).</p>
     </div>
 
     <!-- Mobile native feel -->
@@ -569,14 +571,14 @@
       <p>Every venue has its own URL. Tenants share their pin on Instagram or WhatsApp — driving footfall straight to their door without paid ads.</p>
     </div>
 
-    <!-- PWA installable -->
-    <div class="b live">
+    <!-- PWA installable — included in Tier 1 launch -->
+    <div class="b coming">
       <div class="b-head">
         <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg></div>
-        <span class="pill pill-live">Live now</span>
+        <span class="pill pill-phase2">Tier 1</span>
       </div>
       <h3>Installable PWA</h3>
-      <p>"Add to home screen" gives visitors an app icon. No app-store gatekeepers, works offline.</p>
+      <p>"Add to home screen" gives visitors an app icon with splash screen. Works offline after first visit. Configured in launch sprint.</p>
     </div>
 
     <!-- Desktop split view -->
