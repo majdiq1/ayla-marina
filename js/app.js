@@ -86,15 +86,20 @@ function clampTransform(){
   const sw = stage.clientWidth, sh = stage.clientHeight;
   const cw = (mapImg.naturalW || 1) * state.scale;
   const ch = (mapImg.naturalH || 1) * state.scale;
-  // Allow content to slide but not totally off-screen
-  const padX = Math.min(sw * 0.5, cw * 0.4);
-  const padY = Math.min(sh * 0.5, ch * 0.4);
-  const minTx = sw - cw - padX;
-  const maxTx = padX;
-  const minTy = sh - ch - padY;
-  const maxTy = padY;
-  state.tx = clamp(state.tx, Math.min(minTx, maxTx), Math.max(minTx, maxTx));
-  state.ty = clamp(state.ty, Math.min(minTy, maxTy), Math.max(minTy, maxTy));
+  // Tight clamp so the map doesn't visibly drift back to the user.
+  // When the map is smaller than the viewport, keep it centered.
+  if (cw <= sw){
+    state.tx = (sw - cw) / 2;
+  } else {
+    const padX = sw * 0.12;
+    state.tx = clamp(state.tx, sw - cw - padX, padX);
+  }
+  if (ch <= sh){
+    state.ty = (sh - ch) / 2;
+  } else {
+    const padY = sh * 0.12;
+    state.ty = clamp(state.ty, sh - ch - padY, padY);
+  }
 }
 
 function zoomAt(targetScale, cx, cy){
@@ -151,6 +156,10 @@ let moved = false;
 let downPin = null;
 
 stage.addEventListener('pointerdown', e => {
+  // Don't capture if user is tapping UI overlays inside the stage
+  if (e.target.closest('.map-tool, .map-tool-group, .reset-btn, .scale-bar')){
+    return;
+  }
   stage.setPointerCapture(e.pointerId);
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   moved = false;
@@ -400,6 +409,9 @@ function renderBoats(){
 
 // ---------- 4c. Auto-fit to filtered pins ----------
 function flyToFilteredBounds(){
+  // Mobile: don't reframe the map when the user touches a chip — too disorienting.
+  // The bottom sheet UI will show "X places match" feedback instead.
+  if (!window.matchMedia('(min-width: 960px)').matches) return;
   const visible = DATA.pois.filter(p =>
     p.level_id === state.levelId &&
     (state.activeCats.size === 0 || state.activeCats.has(p.category_id))
@@ -472,7 +484,7 @@ function renderChips(){
   all.textContent = 'All';
   all.addEventListener('click', () => {
     state.activeCats.clear();
-    renderChips(); renderPins(); flyToFilteredBounds();
+    renderChips(); renderPins(); flyToFilteredBounds(); updateFilterBadge?.();
   });
   wrap.appendChild(all);
   // Category chips
@@ -485,7 +497,7 @@ function renderChips(){
     chip.addEventListener('click', () => {
       if (state.activeCats.has(cat.id)) state.activeCats.delete(cat.id);
       else state.activeCats.add(cat.id);
-      renderChips(); renderPins(); flyToFilteredBounds();
+      renderChips(); renderPins(); flyToFilteredBounds(); updateFilterBadge?.();
     });
     wrap.appendChild(chip);
   }
@@ -872,6 +884,165 @@ function highlightListItem(id, on){
   }
 }
 
+// ---------- 11c. Mobile tab bar + sheets ----------
+function setActiveTab(name){
+  document.querySelectorAll('.tabbar .tab').forEach(t => {
+    t.classList.toggle('tab-active', t.dataset.tab === name);
+  });
+}
+
+function openMobileSheet(name){
+  const sheet = document.getElementById(name + '-sheet');
+  const backdrop = document.getElementById('sheet-backdrop');
+  if (!sheet) return;
+  // Close any other open mobile sheets first
+  document.querySelectorAll('.mobile-sheet[aria-hidden="false"]').forEach(s => s.setAttribute('aria-hidden', 'true'));
+  sheet.setAttribute('aria-hidden', 'false');
+  backdrop.classList.add('show');
+  setActiveTab(name);
+  haptic();
+}
+
+function closeMobileSheet(name){
+  const sheet = name ? document.getElementById(name + '-sheet') : document.querySelector('.mobile-sheet[aria-hidden="false"]');
+  if (sheet) sheet.setAttribute('aria-hidden', 'true');
+  document.getElementById('sheet-backdrop').classList.remove('show');
+  setActiveTab('map');
+}
+
+function renderFiltersGrid(){
+  const wrap = document.getElementById('filters-grid');
+  if (!wrap) return;
+  const counts = {};
+  for (const p of DATA.pois){
+    if (p.level_id !== state.levelId) continue;
+    counts[p.category_id] = (counts[p.category_id] || 0) + 1;
+  }
+  wrap.innerHTML = DATA.categories.map(cat => `
+    <button class="filter-cell ${state.activeCats.has(cat.id) ? 'on' : ''}" data-cat="${cat.id}" style="--c:${cat.color}">
+      <span class="dot"></span>
+      <span class="name">${cat.name}</span>
+      <span class="count">${counts[cat.id] || 0}</span>
+    </button>
+  `).join('');
+  wrap.querySelectorAll('.filter-cell').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.cat;
+      if (state.activeCats.has(id)) state.activeCats.delete(id);
+      else state.activeCats.add(id);
+      el.classList.toggle('on');
+      renderChips();
+      renderPins();
+      updateFilterBadge();
+    });
+  });
+}
+
+function updateFilterBadge(){
+  const badge = document.getElementById('filter-badge');
+  if (!badge) return;
+  if (state.activeCats.size === 0){
+    badge.hidden = true;
+  } else {
+    badge.hidden = false;
+    badge.textContent = state.activeCats.size;
+  }
+}
+
+function renderMobileList(){
+  const wrap = document.getElementById('list-sheet-content');
+  const title = document.getElementById('list-sheet-title');
+  if (!wrap) return;
+  const lvl = DATA.lvlById[state.levelId];
+  const pois = DATA.pois.filter(p =>
+    p.level_id === state.levelId &&
+    (state.activeCats.size === 0 || state.activeCats.has(p.category_id))
+  ).sort((a, b) => a.name.localeCompare(b.name));
+  if (title) title.textContent = `${pois.length} places · ${lvl?.name || ''}`;
+  if (!pois.length){
+    wrap.innerHTML = `<div class="search-empty"><p>No places match your filters.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = pois.map(p => {
+    const cat = DATA.catById[p.category_id];
+    const logo = p.logo
+      ? `<img src="${p.logo}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'initials',textContent:'${initials(p.name)}'}))">`
+      : `<span class="initials">${initials(p.name)}</span>`;
+    return `
+      <div class="result-item" data-id="${p.id}">
+        <div class="result-logo">${logo}</div>
+        <div class="result-body">
+          <p class="result-name">${escapeHtml(p.name)}</p>
+          <p class="result-meta"><span class="sw" style="background:${cat?.color||'#999'}"></span>${cat?.name||''}</p>
+        </div>
+        <span class="result-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+      </div>
+    `;
+  }).join('');
+  wrap.querySelectorAll('.result-item').forEach(el => {
+    el.addEventListener('click', () => {
+      closeMobileSheet();
+      openPoi(el.dataset.id);
+    });
+  });
+}
+
+function setupTabbar(){
+  document.querySelectorAll('.tabbar .tab').forEach(tab => {
+    tab.addEventListener('click', e => {
+      e.stopPropagation();
+      const t = tab.dataset.tab;
+      if (t === 'map'){
+        closeMobileSheet();
+        setActiveTab('map');
+      } else if (t === 'search'){
+        openSearch();
+        setActiveTab('search');
+      } else if (t === 'filters'){
+        renderFiltersGrid();
+        openMobileSheet('filters');
+      } else if (t === 'list'){
+        renderMobileList();
+        openMobileSheet('list');
+      }
+    });
+  });
+  document.getElementById('sheet-backdrop')?.addEventListener('click', () => closeMobileSheet());
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); closeMobileSheet(btn.dataset.close); });
+  });
+  document.getElementById('filters-reset')?.addEventListener('click', () => {
+    state.activeCats.clear();
+    renderChips(); renderPins(); renderFiltersGrid(); updateFilterBadge();
+  });
+  document.getElementById('filters-apply')?.addEventListener('click', () => closeMobileSheet('filters'));
+
+  // Drag-to-dismiss for mobile sheets
+  document.querySelectorAll('.mobile-sheet').forEach(sheet => {
+    const handle = sheet.querySelector('.mobile-sheet-handle');
+    let startY = 0, currentY = 0, dragging = false;
+    handle?.addEventListener('pointerdown', e => {
+      dragging = true; startY = e.clientY; currentY = 0;
+      sheet.classList.add('dragging');
+      handle.setPointerCapture(e.pointerId);
+    });
+    handle?.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      currentY = Math.max(0, e.clientY - startY);
+      sheet.style.transform = `translateY(${currentY}px)`;
+    });
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      sheet.classList.remove('dragging');
+      sheet.style.transform = '';
+      if (currentY > 80) closeMobileSheet();
+    };
+    handle?.addEventListener('pointerup', end);
+    handle?.addEventListener('pointercancel', end);
+  });
+}
+
 // ---------- 12. Boot ----------
 async function boot(){
   try {
@@ -888,7 +1059,9 @@ async function boot(){
   renderLevelSwitch();
   renderChips();
   setupDesktopEnhancements();
+  setupTabbar();
   await setLevel(state.levelId);
+  updateFilterBadge();
 
   // Deep link
   const params = new URLSearchParams(location.search);

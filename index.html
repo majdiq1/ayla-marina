@@ -18,10 +18,8 @@
 <!-- Splash -->
 <div id="splash" class="splash">
   <div class="splash-inner">
-    <div class="splash-mark">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C8 6 5 10 5 14a7 7 0 0 0 14 0c0-4-3-8-7-12z"/></svg>
-    </div>
-    <h1 class="splash-title">Ayla <span>Marina</span></h1>
+    <img class="splash-logo" src="images/brand/ayla-white-logo.svg" alt="Ayla" width="240" height="87">
+    <p class="splash-marina">Marina Village</p>
     <p class="splash-tag">Shops, dining & experiences by the sea</p>
   </div>
 </div>
@@ -149,6 +147,58 @@
   </header>
   <div id="search-results" class="search-results"></div>
 </section>
+
+<!-- Mobile bottom tab bar (hidden on desktop) -->
+<nav class="tabbar" id="tabbar" aria-label="Map menu">
+  <button class="tab" data-tab="search" aria-label="Search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span>Search</span>
+  </button>
+  <button class="tab" data-tab="list" aria-label="Places list">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    <span>Places</span>
+  </button>
+  <button class="tab tab-active" data-tab="map" aria-label="Map">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span>Map</span>
+  </button>
+  <button class="tab" data-tab="filters" aria-label="Filters">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+    <span>Filters</span>
+    <span id="filter-badge" class="tab-badge" hidden></span>
+  </button>
+</nav>
+
+<!-- Filters sheet (mobile) -->
+<aside id="filters-sheet" class="mobile-sheet" aria-hidden="true" aria-label="Filter by category">
+  <div class="mobile-sheet-handle"><span class="grab"></span></div>
+  <div class="mobile-sheet-head">
+    <h2>Filter by category</h2>
+    <button class="mobile-sheet-close" data-close="filters" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="filters-grid" class="filters-grid"></div>
+  <div class="mobile-sheet-foot">
+    <button id="filters-reset" class="btn-ghost">Clear all</button>
+    <button id="filters-apply" class="btn-primary">Done</button>
+  </div>
+</aside>
+
+<!-- Places list sheet (mobile) -->
+<aside id="list-sheet" class="mobile-sheet" aria-hidden="true" aria-label="Places list">
+  <div class="mobile-sheet-handle"><span class="grab"></span></div>
+  <div class="mobile-sheet-head">
+    <h2 id="list-sheet-title">All places</h2>
+    <button class="mobile-sheet-close" data-close="list" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="list-sheet-content" class="list-sheet-content"></div>
+</aside>
+
+<!-- Backdrop for mobile sheets -->
+<div id="sheet-backdrop" class="sheet-backdrop" aria-hidden="true"></div>
 
 <!-- Toast -->
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
