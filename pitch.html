@@ -4,537 +4,673 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#3AB0C8">
-<title>Ayla Marina · Interactive Map Platform · Proposal</title>
+<title>Ayla Marina · A proposal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ayla-aqua:#3AB0C8;
-    --ayla-aqua-deep:#2A8FA3;
-    --ayla-aqua-darker:#155663;
-    --ayla-aqua-soft:#CCE8ED;
-    --ayla-aqua-light:#E6F4F6;
-    --bg:#FAF7F3;
-    --cream:#FAF6EE;
+    --aqua:#3AB0C8;
+    --aqua-deep:#1F7A8A;
+    --aqua-darker:#0E4F58;
+    --aqua-soft:#CCE8ED;
+    --aqua-mist:#EEF6F8;
+    --cream:#FAF7F3;
+    --cream-deep:#F1ECE3;
     --ink:#0F1419;
-    --ink-2:#4A5568;
-    --ink-3:#A0AEC0;
-    --muted:#F1ECE3;
-    --border:#E2E2E2;
-    --border-soft:#EDE6D6;
-    --shipped:#10B981;
-    --shipped-soft:#D1FAE5;
-    --coming:#8B5CF6;
-    --coming-soft:#EDE9FE;
-    --future:#F59E0B;
-    --future-soft:#FEF3C7;
+    --ink-2:#52606D;
+    --ink-3:#9AA5B1;
+    --line:#E6E1D6;
+    --line-soft:#EDE9DD;
+    --shipped:#0F7B4A;
+    --shipped-soft:#DCF4E6;
+    --paid:#5B21B6;
+    --paid-soft:#EDE6FB;
+    --future:#9A6500;
+    --future-soft:#FCEFCB;
     --serif:'Playfair Display',Georgia,serif;
     --sans:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   }
   *,*::before,*::after{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;padding:0;
+    background:var(--cream);color:var(--ink);
+    font-family:var(--sans);font-size:14px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  ::selection{background:var(--aqua-soft);color:var(--aqua-darker)}
 
-  /* ---------- Sticky action bar ---------- */
-  .actbar{
+  /* ============================================================
+     Top bar
+     ============================================================ */
+  .top{
     position:sticky;top:0;z-index:50;
-    background:rgba(250,247,243,0.92);
-    backdrop-filter:blur(24px) saturate(1.4);
-    -webkit-backdrop-filter:blur(24px) saturate(1.4);
-    border-bottom:1px solid var(--border);
-    padding:12px 24px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:rgba(250,247,243,.86);
+    backdrop-filter:blur(28px) saturate(1.4);
+    -webkit-backdrop-filter:blur(28px) saturate(1.4);
+    border-bottom:1px solid var(--line-soft);
   }
-  .brand-tag{
-    font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:-.01em;color:var(--ink);
+  .top-inner{
+    max-width:1240px;margin:0 auto;
+    padding:14px 32px;
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
   }
-  .brand-tag em{font-style:italic;font-weight:500;color:var(--ayla-aqua)}
-  .brand-tag .pip{font-size:10px;color:var(--ink-3);font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-left:8px;font-family:var(--sans);font-style:normal}
-  .actbar .actions{display:flex;gap:8px;flex-wrap:wrap}
-  .actbar a,.actbar button{
-    border:1px solid var(--border);background:#fff;color:var(--ink);
-    padding:8px 14px;border-radius:10px;
-    font-size:12.5px;font-weight:600;cursor:pointer;
-    display:inline-flex;align-items:center;gap:6px;
+  .wordmark{
+    font-family:var(--serif);font-weight:600;font-size:19px;
+    letter-spacing:-.01em;color:var(--ink);
+  }
+  .wordmark em{font-style:italic;font-weight:500;color:var(--aqua-deep)}
+  .wordmark .sep{
+    display:inline-block;width:1px;height:14px;background:var(--ink-3);opacity:.5;
+    margin:0 12px;vertical-align:middle;
+  }
+  .wordmark .meta{font-family:var(--sans);font-style:normal;font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+  .top-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .top-actions a,.top-actions button{
+    border:1px solid transparent;background:transparent;color:var(--ink-2);
+    padding:7px 12px;border-radius:8px;
+    font-size:12px;font-weight:500;letter-spacing:.01em;cursor:pointer;
+    display:inline-flex;align-items:center;gap:5px;
     text-decoration:none;
-    transition:transform 160ms,background 160ms,border-color 160ms;
+    transition:color 160ms,background 160ms,border-color 160ms;
   }
-  .actbar a:hover,.actbar button:hover{background:var(--ayla-aqua-light);border-color:var(--ayla-aqua-soft)}
-  .actbar .primary{background:var(--ayla-aqua);color:#fff;border-color:var(--ayla-aqua)}
-  .actbar .primary:hover{background:var(--ayla-aqua-deep);border-color:var(--ayla-aqua-deep)}
-  .actbar svg{width:14px;height:14px}
+  .top-actions a:hover,.top-actions button:hover{color:var(--ink);background:rgba(15,20,25,.04)}
+  .top-actions .pdf{
+    background:var(--ink);color:#fff;border-color:var(--ink);
+    padding:7px 14px;
+  }
+  .top-actions .pdf:hover{background:var(--aqua-darker);color:#fff;border-color:var(--aqua-darker)}
+  .top-actions svg{width:13px;height:13px}
 
-  /* ---------- Container ---------- */
-  .container{max-width:1280px;margin:0 auto;padding:36px 24px 80px}
+  /* ============================================================
+     Layout
+     ============================================================ */
+  .wrap{max-width:1240px;margin:0 auto;padding:0 32px}
 
-  /* ---------- Hero ---------- */
+  /* ============================================================
+     Hero — editorial title page
+     ============================================================ */
   .hero{
+    padding:96px 0 80px;
+    text-align:left;
     position:relative;
-    background:linear-gradient(160deg,#0A4751 0%,#0E5E6F 40%,#3AB0C8 130%);
-    color:#fff;
-    border-radius:28px;
-    padding:48px 44px;
-    margin-bottom:32px;
-    overflow:hidden;
   }
-  .hero::before{
-    content:'';position:absolute;inset:0;
-    background:radial-gradient(ellipse 60% 50% at 20% 80%,rgba(255,255,255,.18),transparent 70%),
-               radial-gradient(ellipse 50% 40% at 80% 20%,rgba(255,255,255,.10),transparent 70%);
-    pointer-events:none;
+  .hero-eyebrow{
+    display:flex;align-items:center;gap:12px;
+    font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-2);margin-bottom:40px;
   }
-  .hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:end}
-  .hero-mark{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:6px 14px;border:1px solid rgba(255,255,255,.4);
-    border-radius:999px;
-    font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-    color:rgba(255,255,255,.9);
-    margin-bottom:24px;
+  .hero-eyebrow .rule{flex:1;max-width:120px;height:1px;background:var(--line);display:inline-block}
+  .hero-eyebrow .dot{
+    width:6px;height:6px;border-radius:50%;background:var(--shipped);
+    box-shadow:0 0 0 4px rgba(15,123,74,.15);
+    animation:pulse 2.4s ease-in-out infinite;
   }
-  .hero-mark .dot{width:6px;height:6px;border-radius:50%;background:#A7F3D0;box-shadow:0 0 0 3px rgba(167,243,208,.25);animation:pulse 2s ease-in-out infinite}
-  @keyframes pulse{50%{opacity:.4}}
+  @keyframes pulse{50%{box-shadow:0 0 0 4px rgba(15,123,74,.05)}}
   .hero h1{
     font-family:var(--serif);font-weight:600;
-    font-size:54px;letter-spacing:-.025em;line-height:1.02;
-    margin:0 0 16px;
+    font-size:clamp(48px,7vw,84px);
+    letter-spacing:-.035em;line-height:0.98;
+    margin:0 0 32px;color:var(--ink);
+    max-width:14ch;
   }
-  .hero h1 em{font-style:italic;font-weight:500;color:#CCE8ED}
-  .hero-sub{
-    font-family:var(--serif);font-weight:400;font-style:italic;
-    font-size:20px;letter-spacing:-.01em;color:rgba(255,255,255,.82);
-    margin:0;max-width:80%;line-height:1.45;
+  .hero h1 em{font-style:italic;font-weight:500;color:var(--aqua-deep)}
+  .hero-lede{
+    font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:clamp(20px,2.2vw,26px);line-height:1.4;
+    color:var(--ink-2);margin:0 0 56px;
+    max-width:32ch;
   }
-  .hero-stats{
-    display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  .hero-meta{
+    display:grid;grid-template-columns:repeat(4,auto);gap:48px;
+    padding-top:36px;border-top:1px solid var(--line);
+    max-width:760px;
   }
-  .hero-stat{
-    background:rgba(255,255,255,0.10);
-    border:1px solid rgba(255,255,255,0.18);
-    border-radius:14px;padding:16px 18px;
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
+  .hero-meta .k{
+    font-family:var(--serif);font-weight:600;font-size:34px;letter-spacing:-.02em;
+    color:var(--ink);line-height:1;
   }
-  .hero-stat .v{font-family:var(--serif);font-weight:600;font-size:32px;letter-spacing:-.02em;line-height:1;color:#fff}
-  .hero-stat .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.65);font-weight:600;margin-top:6px}
+  .hero-meta .l{
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:500;margin-top:8px;
+  }
 
-  /* ---------- Section header ---------- */
+  /* ============================================================
+     Section header
+     ============================================================ */
+  .section{padding:60px 0 24px}
   .section-head{
-    display:flex;justify-content:space-between;align-items:flex-end;
-    margin-bottom:20px;gap:20px;flex-wrap:wrap;
+    display:flex;align-items:baseline;justify-content:space-between;gap:40px;
+    margin-bottom:48px;padding-bottom:24px;border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .section-head .left{flex:1;min-width:0}
+  .section-eyebrow{
+    font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--aqua-deep);margin:0 0 12px;
   }
   .section-head h2{
     font-family:var(--serif);font-weight:600;
-    font-size:34px;letter-spacing:-.025em;line-height:1.1;
-    margin:0;color:var(--ink);
+    font-size:clamp(36px,4.5vw,52px);letter-spacing:-.025em;line-height:1.04;
+    margin:0;color:var(--ink);max-width:18ch;
   }
-  .section-head h2 em{font-style:italic;font-weight:500;color:var(--ayla-aqua)}
-  .section-head p{margin:6px 0 0;color:var(--ink-2);font-size:14px;max-width:540px}
+  .section-head h2 em{font-style:italic;font-weight:500;color:var(--aqua-deep)}
+  .section-head .right{
+    max-width:340px;font-size:13.5px;color:var(--ink-2);line-height:1.6;
+  }
 
-  /* ---------- Status pills ---------- */
+  /* ============================================================
+     Pull quote / manifesto
+     ============================================================ */
+  .manifesto{
+    padding:88px 0;text-align:center;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    margin-top:64px;
+  }
+  .manifesto p{
+    font-family:var(--serif);font-weight:500;font-style:italic;
+    font-size:clamp(24px,3vw,34px);line-height:1.32;
+    margin:0 auto;max-width:24ch;color:var(--ink);
+    letter-spacing:-.015em;
+  }
+  .manifesto p em{font-style:normal;color:var(--aqua-deep);font-weight:600}
+  .manifesto-sig{
+    display:block;margin:36px auto 0;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-3);font-style:normal;font-family:var(--sans);font-weight:500;
+  }
+  .manifesto-sig::before{content:'—  ';color:var(--ink-3)}
+
+  /* ============================================================
+     Status pills
+     ============================================================ */
   .pill{
     display:inline-flex;align-items:center;gap:5px;
-    padding:3px 8px 3px 7px;border-radius:999px;
-    font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 9px 3px 8px;border-radius:999px;
+    font-size:9.5px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;
+    border:1px solid transparent;
   }
-  .pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-  .pill-live{background:var(--shipped-soft);color:#047857}
-  .pill-preview{background:#FEF3C7;color:#B45309}
-  .pill-phase2{background:var(--coming-soft);color:#6D28D9}
-  .pill-phase3{background:var(--future-soft);color:#B45309}
+  .pill::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
+  .pill-live{background:var(--shipped-soft);color:var(--shipped);border-color:rgba(15,123,74,.15)}
+  .pill-preview{background:#FBF1DA;color:var(--future);border-color:rgba(154,101,0,.2)}
+  .pill-paid{background:var(--paid-soft);color:var(--paid);border-color:rgba(91,33,182,.2)}
+  .pill-future{background:var(--future-soft);color:var(--future);border-color:rgba(154,101,0,.2)}
 
-  /* ---------- Bento grid ---------- */
+  .legend{
+    display:inline-flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);
+    align-items:center;
+  }
+
+  /* ============================================================
+     Bento grid — varied, more editorial
+     ============================================================ */
   .bento{
     display:grid;
-    grid-template-columns:repeat(6,1fr);
-    grid-auto-rows:160px;
+    grid-template-columns:repeat(12,1fr);
+    grid-auto-rows:130px;
     gap:14px;
-    margin-bottom:42px;
+    margin-bottom:24px;
   }
-  .b{
+  .card{
+    grid-column:span 4;grid-row:span 2;
     position:relative;
-    background:#fff;
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:22px;
+    background:#fff;border:1px solid var(--line);
+    border-radius:18px;padding:26px 26px 22px;
     overflow:hidden;
     display:flex;flex-direction:column;
-    transition:transform 220ms cubic-bezier(.34,1.3,.45,1),box-shadow 220ms,border-color 220ms;
-    cursor:pointer;
-    text-decoration:none;color:inherit;
+    transition:transform 320ms cubic-bezier(.22,1,.36,1),border-color 320ms,box-shadow 320ms;
+    text-decoration:none;color:inherit;cursor:default;
   }
-  .b:hover{
-    transform:translateY(-3px);
-    box-shadow:0 16px 36px rgba(8,58,66,.10),0 4px 12px rgba(8,58,66,.06);
-    border-color:var(--ayla-aqua-soft);
+  a.card{cursor:pointer}
+  a.card:hover{
+    transform:translateY(-4px);
+    border-color:var(--aqua-soft);
+    box-shadow:0 24px 48px -16px rgba(15,20,25,.12),0 4px 12px rgba(15,20,25,.04);
   }
-  .b-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
-  .b-icon{
-    width:36px;height:36px;border-radius:10px;
-    background:var(--ayla-aqua-light);color:var(--ayla-aqua-deep);
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:auto}
+  .card-icon{
+    width:40px;height:40px;border-radius:11px;
+    background:var(--aqua-mist);color:var(--aqua-deep);
     display:flex;align-items:center;justify-content:center;
     flex-shrink:0;
   }
-  .b-icon svg{width:18px;height:18px}
-  .b h3{
-    font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em;
-    margin:6px 0 4px;color:var(--ink);
+  .card-icon svg{width:19px;height:19px;stroke-width:1.8}
+  .card h3{
+    font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:-.015em;
+    margin:24px 0 8px;color:var(--ink);line-height:1.18;
   }
-  .b p{
-    font-size:12.5px;color:var(--ink-2);line-height:1.5;margin:0;
+  .card p{
+    font-size:13px;color:var(--ink-2);line-height:1.6;margin:0;
   }
-  .b-foot{
-    margin-top:auto;padding-top:14px;
-    display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ayla-aqua-deep);font-weight:600;
+  .card-foot{
+    margin-top:18px;padding-top:14px;border-top:1px solid var(--line-soft);
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--aqua-deep);
   }
-  .b-foot a{color:var(--ayla-aqua-deep);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
-  .b-foot svg{width:12px;height:12px}
+  .card-foot .arrow{transition:transform 280ms var(--aqua)}
+  a.card:hover .card-foot .arrow{transform:translateX(4px)}
 
-  /* Status variants */
-  .b.live{}
-  .b.coming{
-    background:linear-gradient(140deg,#fff 0%,var(--coming-soft) 220%);
-    border-color:var(--coming-soft);
-  }
-  .b.coming .b-icon{background:var(--coming-soft);color:#6D28D9}
-  .b.future{
-    background:linear-gradient(140deg,#fff 0%,var(--future-soft) 220%);
-    border-color:var(--future-soft);
-  }
-  .b.future .b-icon{background:var(--future-soft);color:#B45309}
+  /* Sizes */
+  .card{grid-column:span 4}
+  .card.sm{grid-column:span 3;grid-row:span 2}
+  .card.md{grid-column:span 4;grid-row:span 2}
+  .card.lg{grid-column:span 6;grid-row:span 2}
+  .card.xl{grid-column:span 8;grid-row:span 2}
+  .card.full{grid-column:span 12;grid-row:span 2}
+  .card.tall{grid-row:span 3}
 
-  /* Sizes (default = 2x1) */
-  .b{grid-column:span 2;grid-row:span 1}
-  .b.lg{grid-column:span 3}
-  .b.xl{grid-column:span 4}
-  .b.full{grid-column:span 6}
-  .b.tall{grid-row:span 2}
-  .b.sm{grid-column:span 2;grid-row:span 1}
+  /* Hero card — full-width feature */
+  .card.hero-card{
+    grid-column:span 8;grid-row:span 3;
+    background:linear-gradient(150deg,var(--aqua-darker) 0%,var(--aqua-deep) 50%,var(--aqua) 130%);
+    color:#fff;border-color:transparent;
+    padding:38px;
+  }
+  .card.hero-card::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 70% 60% at 80% 90%,rgba(255,255,255,.14),transparent 70%),
+               radial-gradient(ellipse 50% 40% at 20% 10%,rgba(255,255,255,.10),transparent 70%);
+    pointer-events:none;
+  }
+  .card.hero-card>*{position:relative;z-index:1}
+  .card.hero-card .card-icon{background:rgba(255,255,255,.18);color:#fff}
+  .card.hero-card h3{font-size:38px;margin:auto 0 14px;color:#fff;font-weight:600}
+  .card.hero-card p{color:rgba(255,255,255,.82);font-size:14.5px;line-height:1.55;max-width:42ch}
+  .card.hero-card .card-foot{color:#fff;opacity:.85;border-color:rgba(255,255,255,.16)}
+  a.card.hero-card:hover{box-shadow:0 32px 80px -24px rgba(31,122,138,.4)}
 
-  /* Featured bento — bigger imagery */
-  .b-featured{
-    grid-column:span 3;grid-row:span 2;
-    background:linear-gradient(135deg,var(--ayla-aqua) 0%,var(--ayla-aqua-deep) 100%);
-    color:#fff;
-    border-color:var(--ayla-aqua-deep);
+  /* Accent card — for featured Phase 2 etc */
+  .card.accent{
+    grid-column:span 4;grid-row:span 3;
+    background:linear-gradient(150deg,var(--ink) 0%,#1F2A30 100%);color:#fff;border-color:transparent;
+    padding:32px;
   }
-  .b-featured h3{color:#fff;font-size:24px;margin-top:auto}
-  .b-featured p{color:rgba(255,255,255,.85);font-size:13.5px;margin-top:6px}
-  .b-featured .b-icon{background:rgba(255,255,255,.18);color:#fff}
-  .b-featured .b-foot{color:#CCE8ED;border-color:rgba(255,255,255,.15)}
-  .b-featured .b-foot a{color:#CCE8ED}
-  .b-featured:hover{box-shadow:0 24px 64px rgba(58,176,200,.4)}
+  .card.accent .card-icon{background:rgba(255,255,255,.12);color:#fff}
+  .card.accent h3{color:#fff;font-size:26px;margin:auto 0 12px}
+  .card.accent p{color:rgba(255,255,255,.7);font-size:13.5px}
+  .card.accent .card-foot{color:#CCE8ED;border-color:rgba(255,255,255,.14)}
 
-  /* Mock preview shapes inside cards */
-  .mini-map{
-    margin-top:auto;height:64px;
-    border-radius:10px;
-    background:
-      radial-gradient(circle at 30% 35%,rgba(255,87,87,.6),transparent 25%),
-      radial-gradient(circle at 60% 60%,rgba(58,176,200,.6),transparent 25%),
-      linear-gradient(135deg,var(--ayla-aqua-light) 0%,var(--cream) 100%);
-    border:1px solid var(--border);
+  .card.accent-paid{
+    background:linear-gradient(150deg,#3F1C75 0%,#5B21B6 100%);
   }
-  .mini-bars{
-    margin-top:auto;
-    display:flex;gap:3px;align-items:flex-end;height:54px;padding:6px 0 0;
+  .card.accent-future{
+    background:linear-gradient(150deg,#7A4F00 0%,#9A6500 100%);
   }
+
+  /* Mini visualisations inside cards */
+  .mini-bars{display:flex;gap:4px;align-items:flex-end;height:40px;margin-top:auto;padding-top:10px}
   .mini-bars span{
-    flex:1;background:linear-gradient(180deg,var(--ayla-aqua),var(--ayla-aqua-deep));
+    flex:1;background:linear-gradient(180deg,var(--aqua),var(--aqua-deep));
     border-radius:3px 3px 0 0;
   }
-  .mini-pills{
-    display:flex;flex-wrap:nowrap;gap:5px;margin-top:auto;padding-top:10px;
-    overflow:hidden;
-    mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);
-    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);
-  }
-  .mini-pills span{
-    flex-shrink:0;
-    background:var(--ayla-aqua-light);color:var(--ayla-aqua-deep);
-    font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;
-    white-space:nowrap;
-  }
   .mini-chips{
-    display:flex;gap:6px;margin-top:auto;padding-top:10px;
+    display:flex;gap:6px;margin-top:auto;padding-top:12px;
     flex-wrap:nowrap;overflow:hidden;
-    mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);
-    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);
+    mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);
   }
   .mini-chips span{
     flex-shrink:0;
-    display:inline-flex;align-items:center;gap:4px;
-    background:var(--bg);border:1px solid var(--border);
-    padding:3px 8px;border-radius:999px;
-    font-size:10px;font-weight:600;color:var(--ink-2);
-    white-space:nowrap;
+    display:inline-flex;align-items:center;gap:5px;
+    background:var(--cream);border:1px solid var(--line);
+    padding:3px 10px;border-radius:999px;
+    font-size:10.5px;font-weight:500;color:var(--ink-2);white-space:nowrap;
   }
   .mini-chips i{width:6px;height:6px;border-radius:50%;background:var(--c);flex-shrink:0}
-  .mini-phone{
-    margin-top:auto;
-    height:64px;border-radius:10px;
-    background:linear-gradient(160deg,#0A4751 0%,#3AB0C8 100%);
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;
-    font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:-.01em;font-style:italic;
+  .mini-pills{
+    display:flex;gap:5px;margin-top:auto;padding-top:12px;
+    flex-wrap:nowrap;overflow:hidden;
+    mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);
   }
-  .mini-list{margin-top:auto;display:flex;flex-direction:column;gap:5px;padding-top:8px}
-  .mini-list span{
-    display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-2);
-    padding:5px 8px;background:var(--bg);border-radius:8px;border:1px solid var(--border);
+  .mini-pills span{
+    flex-shrink:0;background:var(--aqua-mist);color:var(--aqua-deep);
+    font-size:10.5px;font-weight:500;padding:3px 10px;border-radius:999px;white-space:nowrap;
   }
-  .mini-list i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+  .mini-rows{display:flex;flex-direction:column;gap:6px;margin-top:auto;padding-top:12px}
+  .mini-rows span{
+    display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-2);
+    padding:5px 10px;background:var(--cream);border-radius:8px;border:1px solid var(--line);
+  }
+  .mini-rows i{width:7px;height:7px;border-radius:50%;background:var(--c);flex-shrink:0}
+  .mini-mock{
+    height:46px;margin-top:auto;border-radius:10px;
+    background:radial-gradient(circle at 30% 35%,rgba(255,87,87,.5),transparent 28%),
+               radial-gradient(circle at 60% 60%,rgba(58,176,200,.45),transparent 28%),
+               linear-gradient(135deg,var(--aqua-mist) 0%,var(--cream-deep) 100%);
+    border:1px solid var(--line);
+  }
 
-  /* ---------- Comparison legend ---------- */
-  .legend{
-    display:flex;gap:14px;margin-bottom:14px;
-    align-items:center;font-size:12px;color:var(--ink-2);font-weight:500;flex-wrap:wrap;
+  /* ============================================================
+     Closing / contact — magazine style
+     ============================================================ */
+  .close{
+    padding:120px 0 100px;
+    text-align:left;
+    border-top:1px solid var(--line);margin-top:80px;
   }
-  .legend .lg{display:inline-flex;align-items:center;gap:6px}
+  .close-eyebrow{
+    font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--aqua-deep);margin:0 0 16px;
+  }
+  .close h2{
+    font-family:var(--serif);font-weight:600;
+    font-size:clamp(40px,5vw,60px);letter-spacing:-.025em;line-height:1.05;
+    margin:0 0 32px;color:var(--ink);max-width:18ch;
+  }
+  .close h2 em{font-style:italic;font-weight:500;color:var(--aqua-deep)}
+  .close-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:48px;
+    align-items:start;
+  }
+  .close-prose p{
+    font-family:var(--serif);font-style:italic;font-weight:400;font-size:18px;
+    color:var(--ink-2);line-height:1.55;margin:0 0 18px;max-width:36ch;
+  }
+  .close-prose strong{font-style:normal;font-weight:600;font-family:var(--sans);color:var(--ink)}
+  .close-card{
+    display:flex;flex-direction:column;gap:0;
+  }
+  .close-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 0;border-bottom:1px solid var(--line);
+    text-decoration:none;color:inherit;
+    transition:color 200ms;
+  }
+  .close-row:last-child{border-bottom:1px solid var(--line)}
+  .close-row .lbl{
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--ink-3);
+  }
+  .close-row .val{
+    font-family:var(--serif);font-weight:500;font-size:18px;color:var(--ink);letter-spacing:-.005em;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .close-row:hover .val{color:var(--aqua-deep)}
+  .close-row svg{width:14px;height:14px;color:var(--ink-3);transition:transform 240ms,color 240ms}
+  .close-row:hover svg{color:var(--aqua-deep);transform:translateX(3px)}
+  .close-sig{
+    margin-top:64px;padding-top:24px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500;
+  }
+  .close-sig em{font-style:italic;color:var(--aqua-deep);font-weight:600;letter-spacing:0;font-size:13px;font-family:var(--serif);text-transform:none}
 
-  /* ---------- Pricing tiers ---------- */
-  .pricing{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:16px;margin:32px 0}
-  .price-card{
-    background:#fff;border:1px solid var(--border);
-    border-radius:18px;padding:28px 24px;
+  /* ============================================================
+     Value drawer
+     ============================================================ */
+  .drawer-back{
+    position:fixed;inset:0;z-index:60;
+    background:rgba(15,20,25,0.42);
+    backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    opacity:0;visibility:hidden;
+    transition:opacity 280ms,visibility 280ms;
+  }
+  .drawer-back.show{opacity:1;visibility:visible}
+  .drawer{
+    position:fixed;top:0;right:0;bottom:0;z-index:65;
+    width:min(560px,100vw);
+    background:var(--cream);
+    box-shadow:-24px 0 80px -16px rgba(15,20,25,.22);
+    transform:translateX(100%);
+    transition:transform 380ms cubic-bezier(.22,1,.36,1);
     display:flex;flex-direction:column;
-    transition:transform 220ms,box-shadow 220ms;
+    overflow:hidden;
   }
-  .price-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(8,58,66,.08)}
-  .price-card.featured{
-    border-color:var(--ayla-aqua);
-    box-shadow:0 12px 32px rgba(58,176,200,.18);
-    position:relative;
-    background:linear-gradient(180deg,#fff 0%,var(--ayla-aqua-light) 200%);
+  .drawer.show{transform:translateX(0)}
+  .drawer-head{
+    padding:24px 32px 18px;
+    display:flex;justify-content:space-between;align-items:flex-start;
+    gap:16px;border-bottom:1px solid var(--line);
   }
-  .price-card.featured::before{
-    content:'Recommended';
-    position:absolute;top:-12px;left:50%;transform:translateX(-50%);
-    background:var(--ayla-aqua);color:#fff;
-    padding:4px 14px;border-radius:999px;
-    font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  .drawer-icon{
+    width:48px;height:48px;border-radius:14px;
+    background:var(--aqua-mist);color:var(--aqua-deep);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
-  .tier{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:700;margin:0 0 6px}
-  .pname{font-family:var(--serif);font-weight:600;font-size:24px;margin:0 0 14px;letter-spacing:-.01em}
-  .pcost{font-family:var(--serif);font-weight:700;font-size:36px;letter-spacing:-.02em;line-height:1;margin:0}
-  .pcost .u{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink-2)}
-  .pmonth{font-size:11.5px;color:var(--ink-2);margin:4px 0 22px}
-  .price-card ul{list-style:none;padding:0;margin:0 0 16px;flex:1}
-  .price-card ul li{
-    font-size:12.5px;color:#374151;
-    padding:8px 0 8px 24px;position:relative;line-height:1.5;
-    border-bottom:1px solid var(--border);
+  .drawer-icon svg{width:22px;height:22px;stroke-width:1.8}
+  .drawer-titles{flex:1;min-width:0}
+  .drawer-titles h2{
+    font-family:var(--serif);font-weight:600;font-size:26px;letter-spacing:-.02em;line-height:1.15;
+    margin:8px 0 0;color:var(--ink);
   }
-  .price-card ul li:last-child{border-bottom:0}
-  .price-card ul li::before{
-    content:'';position:absolute;left:0;top:12px;
-    width:16px;height:16px;border-radius:50%;background:var(--ayla-aqua-soft);
+  .drawer-close{
+    width:36px;height:36px;border-radius:50%;
+    background:#fff;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--ink-2);flex-shrink:0;
+    transition:background 160ms;
   }
-  .price-card ul li::after{
-    content:'';position:absolute;left:4px;top:16px;
-    width:7px;height:3px;border-left:1.5px solid var(--ayla-aqua-deep);border-bottom:1.5px solid var(--ayla-aqua-deep);
-    transform:rotate(-45deg);
+  .drawer-close:hover{background:var(--cream-deep)}
+  .drawer-close svg{width:16px;height:16px}
+  .drawer-body{flex:1;overflow-y:auto;padding:8px 32px 32px}
+  .drawer-section{padding:22px 0;border-bottom:1px solid var(--line-soft)}
+  .drawer-section:last-child{border-bottom:0}
+  .drawer-section .eb{
+    font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;
+    color:var(--aqua-deep);margin:0 0 12px;
+  }
+  .drawer-section p{
+    font-size:14.5px;line-height:1.65;color:#374151;margin:0 0 10px;
+  }
+  .drawer-section p:last-child{margin-bottom:0}
+  .drawer-section strong{color:var(--ink);font-weight:600}
+
+  /* ROI band — big numeric callout */
+  .roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .roi-item{
+    background:#fff;border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;
+  }
+  .roi-num{
+    font-family:var(--serif);font-weight:600;font-size:30px;letter-spacing:-.025em;
+    color:var(--aqua-deep);line-height:1;
+  }
+  .roi-num small{font-size:14px;color:var(--ink-2);font-weight:500;margin-left:4px;letter-spacing:0}
+  .roi-lbl{
+    font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-2);
+    font-weight:600;margin-top:8px;line-height:1.4;
   }
 
-  /* ---------- Contact ---------- */
-  .contact{
-    background:linear-gradient(135deg,#0A4751 0%,#0E5E6F 100%);color:#fff;
-    border-radius:24px;padding:42px 36px;margin-top:32px;
-    display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:center;
-    position:relative;overflow:hidden;
+  /* CTA inside drawer */
+  .drawer-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--ink);color:#fff;
+    padding:14px 22px;border-radius:12px;
+    font-size:13px;font-weight:600;letter-spacing:.02em;
+    text-decoration:none;cursor:pointer;border:0;
+    transition:background 200ms,transform 200ms;
+    margin-top:18px;
   }
-  .contact::before{
-    content:'';position:absolute;inset:0;
-    background:radial-gradient(ellipse 50% 60% at 80% 20%,rgba(255,255,255,.12),transparent 70%);
-    pointer-events:none;
-  }
-  .contact>*{position:relative;z-index:1}
-  .contact h2{font-family:var(--serif);font-weight:600;font-size:34px;margin:0 0 10px;letter-spacing:-.02em}
-  .contact h2 em{font-style:italic;color:#CCE8ED;font-weight:500}
-  .contact p{margin:0 0 6px;color:rgba(255,255,255,.85);font-size:14px}
-  .clabel{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);margin:18px 0 4px;font-weight:700}
-  .cvalue{font-size:14px;color:#fff;font-weight:500;line-height:1.5}
-  .cactions{display:flex;flex-direction:column;gap:10px}
-  .cactions a{
-    background:rgba(255,255,255,.12);color:#fff;
-    padding:14px 18px;border-radius:12px;
-    font-size:13px;font-weight:600;
-    display:flex;align-items:center;gap:12px;
-    border:1px solid rgba(255,255,255,.18);
-    text-decoration:none;
-    transition:background 160ms,transform 160ms;
-  }
-  .cactions a:hover{background:rgba(255,255,255,.20);transform:translateY(-1px)}
-  .cactions a svg{width:18px;height:18px;flex-shrink:0;opacity:.85}
+  .drawer-cta:hover{background:var(--aqua-darker);transform:translateY(-1px)}
+  .drawer-cta svg{width:15px;height:15px}
+  .drawer-cta.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .drawer-cta.ghost:hover{background:#fff;transform:translateY(-1px)}
 
-  /* ---------- Tabs ---------- */
-  .tabs-wrap{
-    margin-bottom:18px;
-    display:flex;gap:6px;
-    background:#fff;border:1px solid var(--border);
-    border-radius:14px;padding:5px;
-    width:fit-content;
-    box-shadow:var(--shadow-1);
+  /* Story bullets inside drawer */
+  .drawer-list{list-style:none;padding:0;margin:0}
+  .drawer-list li{
+    position:relative;padding:10px 0 10px 22px;
+    font-size:14px;line-height:1.55;color:#374151;
+    border-bottom:1px solid var(--line-soft);
   }
-  .tab-pill{
-    border:0;background:transparent;
-    padding:9px 18px;border-radius:10px;
-    font-size:13px;font-weight:600;color:var(--ink-2);
-    cursor:pointer;display:inline-flex;align-items:center;gap:6px;
-    transition:all 160ms;
+  .drawer-list li:last-child{border-bottom:0}
+  .drawer-list li::before{
+    content:'';position:absolute;left:0;top:18px;
+    width:6px;height:6px;border-radius:50%;background:var(--aqua-deep);
   }
-  .tab-pill:hover{color:var(--ink)}
-  .tab-pill.on{background:var(--ayla-aqua);color:#fff;box-shadow:0 1px 3px rgba(58,176,200,.3)}
-  .tab-pill .count{
-    background:rgba(0,0,0,.08);color:inherit;
-    padding:1px 8px;border-radius:999px;
-    font-size:10px;font-weight:700;
-  }
-  .tab-pill.on .count{background:rgba(255,255,255,.25)}
 
-  /* ---------- Print ---------- */
+  /* Tap-hint badge on tiles */
+  .card .tap-hint{
+    position:absolute;bottom:14px;right:18px;
+    font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-3);opacity:0;
+    transition:opacity 240ms;pointer-events:none;
+  }
+  a.card:hover .tap-hint,.card:hover .tap-hint{opacity:.8}
+  .card.hero-card .tap-hint,.card.accent .tap-hint{color:rgba(255,255,255,.7)}
+
+  @media (max-width:600px){
+    .drawer{width:100vw}
+    .drawer-head{padding:18px 22px 14px}
+    .drawer-body{padding:6px 22px 24px}
+    .drawer-titles h2{font-size:22px}
+  }
+
+  /* ============================================================
+     Print
+     ============================================================ */
   @media print{
-    .actbar{display:none}
+    .top{display:none}
     body{background:#fff}
-    .hero,.contact{break-inside:avoid}
-    .bento{break-inside:auto}
-    .b{break-inside:avoid}
+    .hero,.section,.close,.manifesto{break-inside:auto}
+    .card{break-inside:avoid;box-shadow:none !important}
+    .card.hero-card,.card.accent{break-inside:avoid}
   }
-  @page{size:A4 portrait;margin:14mm}
+  @page{size:A4;margin:18mm}
 
-  /* ---------- Mobile ---------- */
-  @media (max-width:760px){
-    .container{padding:20px 16px 60px}
-    .hero{padding:32px 24px;border-radius:22px}
-    .hero-inner{grid-template-columns:1fr;gap:24px}
-    .hero h1{font-size:34px}
-    .hero-sub{font-size:16px;max-width:100%}
-    .section-head h2{font-size:24px}
-    .bento{grid-template-columns:repeat(2,1fr);grid-auto-rows:140px}
-    .b,.b.lg,.b.xl,.b.full,.b-featured{grid-column:span 2;grid-row:span 1}
-    .b-featured{grid-row:span 2}
-    .pricing{grid-template-columns:1fr}
-    .contact{grid-template-columns:1fr;padding:30px 24px}
-    .contact h2{font-size:24px}
-    .actbar{padding:10px 16px}
-    .actbar .actions{gap:6px}
-    .actbar a,.actbar button{padding:7px 10px;font-size:11.5px}
+  /* ============================================================
+     Mobile
+     ============================================================ */
+  @media (max-width:880px){
+    .top-inner{padding:12px 18px}
+    .wordmark .sep,.wordmark .meta{display:none}
+    .wrap{padding:0 20px}
+    .hero{padding:56px 0 48px}
+    .hero h1{font-size:42px;letter-spacing:-.03em}
+    .hero-lede{font-size:17px}
+    .hero-meta{grid-template-columns:repeat(2,1fr);gap:24px}
+    .hero-meta .k{font-size:26px}
+    .section{padding:40px 0 16px}
+    .section-head{flex-direction:column;align-items:stretch;gap:18px;margin-bottom:28px}
+    .section-head h2{font-size:30px}
+    .section-head .right{max-width:none}
+    .bento{grid-template-columns:repeat(2,1fr);grid-auto-rows:auto;gap:12px}
+    .card,.card.sm,.card.md,.card.lg,.card.xl,.card.full,.card.hero-card,.card.accent{
+      grid-column:span 2;grid-row:auto;
+      min-height:200px;
+    }
+    .card.hero-card{padding:28px}
+    .card.hero-card h3{font-size:28px}
+    .manifesto{padding:64px 0}
+    .manifesto p{font-size:22px}
+    .close{padding:64px 0 56px}
+    .close h2{font-size:30px}
+    .close-grid{grid-template-columns:1fr;gap:32px}
   }
 </style>
 </head>
 <body>
 
-<header class="actbar">
-  <span class="brand-tag">Ayla <em>Marina</em><span class="pip">Interactive Map · Proposal</span></span>
-  <div class="actions">
-    <a href="index.html" target="_blank">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      Map
-    </a>
-    <a href="dashboard.html" target="_blank">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Analytics
-    </a>
-    <a href="admin.html" target="_blank">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      Admin
-    </a>
-    <button class="primary" onclick="window.print()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-      Save as PDF
-    </button>
+<!-- ─────────── TOP BAR ─────────── -->
+<header class="top">
+  <div class="top-inner">
+    <span class="wordmark">Ayla <em>Marina</em><span class="sep"></span><span class="meta">A proposal</span></span>
+    <div class="top-actions">
+      <a href="index.html" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        Map
+      </a>
+      <a href="dashboard.html" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </a>
+      <a href="admin.html" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Admin
+      </a>
+      <button class="pdf" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        PDF
+      </button>
+    </div>
   </div>
 </header>
 
-<main class="container">
+<!-- ─────────── HERO ─────────── -->
+<section class="hero wrap">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>Demonstrable proposal
+    <span class="rule"></span>
+    May 2026
+  </div>
+  <h1>Everything Ayla Marina needs to <em>show the world</em> what's inside.</h1>
+  <p class="hero-lede">A premium interactive map, an analytics dashboard, and a content admin — already running, exclusively for Ayla. Open any module and use it now.</p>
+  <div class="hero-meta">
+    <div><div class="k">55</div><div class="l">Tenant businesses</div></div>
+    <div><div class="k">2</div><div class="l">Levels</div></div>
+    <div><div class="k">9</div><div class="l">Categories</div></div>
+    <div><div class="k">3</div><div class="l">Modules shipped</div></div>
+  </div>
+</section>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-inner">
-      <div>
-        <span class="hero-mark"><span class="dot"></span>Already live · Tap any tile to try it</span>
-        <h1>Everything Ayla Marina needs to <em>show the world</em> what's inside.</h1>
-        <p class="hero-sub">A premium interactive map, a real-time analytics dashboard, and a content admin — all already running, exclusively for Ayla.</p>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="v">55</div><div class="l">Tenant businesses</div></div>
-        <div class="hero-stat"><div class="v">2</div><div class="l">Map levels</div></div>
-        <div class="hero-stat"><div class="v">9</div><div class="l">Categories</div></div>
-        <div class="hero-stat"><div class="v">3</div><div class="l">Modules shipped</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHAT'S LIVE -->
+<!-- ─────────── LIVE NOW ─────────── -->
+<section class="section wrap">
   <div class="section-head">
-    <div>
-      <h2>What's <em>already live</em></h2>
-      <p>Built, tested, deployed. Open any tile to use it — the platform is real, not slides.</p>
+    <div class="left">
+      <p class="section-eyebrow">Already live · today</p>
+      <h2>What Ayla can <em>use right now</em>.</h2>
     </div>
-    <div class="legend">
-      <span class="lg"><span class="pill pill-live">Live now</span></span>
-      <span class="lg"><span class="pill pill-preview">Working preview</span></span>
-      <span class="lg"><span class="pill pill-phase2">Phase 2 · paid</span></span>
-      <span class="lg"><span class="pill pill-phase3">Phase 3 · paid</span></span>
+    <div class="right">
+      Built, tested, deployed. Tap any tile to open the live module — the platform is real, not slides. Currency you can hand to a visitor tomorrow.
     </div>
   </div>
 
-  <section class="bento">
+  <div class="bento">
 
-    <!-- FEATURED: Visitor map -->
-    <a class="b b-featured" href="index.html" target="_blank">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+    <!-- HERO TILE: Visitor map -->
+    <a class="card hero-card" href="#" data-feature="visitor-map">
+      <div class="card-head">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
         <span class="pill pill-live">Live now</span>
       </div>
       <h3>Visitor map · all 55 places</h3>
-      <p>Pinch-zoom · search · filter · directions · WhatsApp · share. Native bottom sheet, drifting boats, sequential pin entry.</p>
-      <div class="b-foot">
-        <span>Tap to open ayla-marina.vercel.app</span>
+      <p>Pinch-zoom · search · filter · directions · WhatsApp · share. Native bottom sheet, drifting boats, sequential pin entry. A real product Ayla can show today.</p>
+      <div class="card-foot">
+        <span>Tap to see the value</span>
         <span class="arrow">→</span>
       </div>
     </a>
 
-
-    <!-- Admin console — preview (localStorage save layer; real backend ships with Tier 1) -->
-    <a class="b" href="admin.html" target="_blank">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
-        <span class="pill pill-preview">Preview</span>
-      </div>
-      <h3>Admin console</h3>
-      <p>Tap-to-place pins, edit any place, upload logos, export JSON. UI fully working; real save-to-server backend included in Tier 1 onwards.</p>
-      <div class="mini-list">
-        <span style="--c:#1E40AF"><i></i>Hyatt Regency Aqaba Ayla</span>
-        <span style="--c:#DC2626"><i></i>Tipsy Cow</span>
-        <span style="--c:#8B5E3C"><i></i>Anabtawi Sweets</span>
-      </div>
-    </a>
-
-
-
-    <!-- Category filters -->
-    <div class="b live">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
+    <!-- Smart filters (4 col, 2 row) -->
+    <a class="card md" href="#" data-feature="smart-filters">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
         <span class="pill pill-live">Live now</span>
       </div>
       <h3>Smart filters</h3>
-      <p>Nine colour-coded categories. Tap to surface just cafés, just shops, just experiences.</p>
+      <p>Nine colour-coded categories. Tap to surface just cafés, shops, or experiences.</p>
       <div class="mini-chips">
         <span style="--c:#8B5E3C"><i></i>Cafe</span>
         <span style="--c:#DC2626"><i></i>Pubs</span>
         <span style="--c:#EA580C"><i></i>Dining</span>
         <span style="--c:#7C3AED"><i></i>Shopping</span>
         <span style="--c:#1E40AF"><i></i>Hotels</span>
-        <span style="--c:#059669"><i></i>Essentials</span>
       </div>
-    </div>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Search -->
-    <div class="b live">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+    <!-- Admin console (4 col, 2 row) -->
+    <a class="card md" href="#" data-feature="admin">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        <span class="pill pill-preview">Working preview</span>
+      </div>
+      <h3>Admin console</h3>
+      <p>Tap-to-place pins, edit any place, upload logos, export JSON. UI fully working; real save-to-server backend included in Tier 1.</p>
+      <div class="card-foot">
+        <span>Open admin →</span>
+        <span class="arrow">↗</span>
+      </div>
+    </a>
+
+    <!-- Search (4 col, 2 row) -->
+    <a class="card md" href="#" data-feature="search">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <span class="pill pill-live">Live now</span>
       </div>
       <h3>Type-ahead search</h3>
@@ -542,203 +678,576 @@
       <div class="mini-pills">
         <span>pharmacy</span><span>coffee</span><span>breakfast</span><span>spa</span><span>atm</span>
       </div>
-    </div>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Deep-link sharing -->
-    <div class="b live lg">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+    <!-- Each place is shareable (8 col, 2 row) -->
+    <a class="card xl" href="#" data-feature="shareable">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
         <span class="pill pill-live">Live now</span>
       </div>
-      <h3>Each place is shareable</h3>
-      <p>Every venue has its own URL. Tenants share their pin on Instagram or WhatsApp — driving footfall straight to their door without paid ads.</p>
-    </div>
+      <h3>Every place gets its own shareable URL</h3>
+      <p>Tenants share their pin on Instagram or WhatsApp — driving footfall straight to their door without a paid ad in sight. Each link previews beautifully with the place's logo and category.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
     <!-- Desktop split view -->
-    <div class="b live">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="3" x2="8" y2="17"/></svg></div>
+    <a class="card md" href="#" data-feature="desktop">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="3" x2="8" y2="17"/></svg></div>
         <span class="pill pill-live">Live now</span>
       </div>
       <h3>Desktop split view</h3>
       <p>Sidebar list ↔ map hover sync. Same data, premium on big screens.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
+
+  </div>
+</section>
+
+<!-- ─────────── MANIFESTO ─────────── -->
+<section class="manifesto wrap">
+  <p>
+    The hardest moment for any visitor is the first <em>thirty seconds</em> — before they orient themselves. We solve that, once, for every property in Ayla's portfolio.
+  </p>
+  <span class="manifesto-sig">The design promise</span>
+</section>
+
+<!-- ─────────── WHAT WE CAN BUILD ─────────── -->
+<section class="section wrap">
+  <div class="section-head">
+    <div class="left">
+      <p class="section-eyebrow">What we can build · paid</p>
+      <h2>The full picture — when Ayla is <em>ready</em>.</h2>
     </div>
-
-  </section>
-
-  <!-- COMING NEXT -->
-  <div class="section-head" style="margin-top:8px">
-    <div>
-      <h2>What we can <em>build next</em></h2>
-      <p>Phase 2 and 3 — selectable features. Pick what Ayla wants when ordering; we price each tier accordingly.</p>
+    <div class="right">
+      Pick what Ayla wants when ordering; pricing tracks the scope. Tier 1 ships within three weeks. Phase 2 takes 4–6 weeks. Phase 3 extends the platform across every Ayla property.
     </div>
   </div>
 
-  <section class="bento">
+  <div class="bento">
 
-    <!-- FEATURED Phase 2: Analytics dashboard -->
-    <a class="b b-featured coming" href="dashboard.html" target="_blank" style="background:linear-gradient(135deg,#6D28D9 0%,#3730A3 100%);border-color:#3730A3">
-      <div class="b-head">
-        <div class="b-icon" style="background:rgba(255,255,255,.18);color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-        <span class="pill pill-phase2" style="background:rgba(255,255,255,.18);color:#fff">Phase 2 · paid</span>
+    <!-- ACCENT: Analytics dashboard (Phase 2 paid) -->
+    <a class="card accent accent-paid" href="#" data-feature="analytics">
+      <div class="card-head">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <span class="pill pill-paid" style="background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.2)">Phase 2 · paid</span>
       </div>
       <h3>Analytics dashboard</h3>
-      <p>Heatmap of taps, top searches, peak hours, conversion funnel, mobile vs desktop, source attribution. UI built &amp; styled — real visitor telemetry wired up at Tier 2.</p>
-      <div class="b-foot"><span>Preview the dashboard →</span><span class="arrow">↗</span></div>
+      <p>Heatmap of taps, top searches, peak hours, conversion funnel, source attribution. UI built and styled — real visitor telemetry wired up at Tier 2.</p>
+      <div class="card-foot">
+        <span>Preview the dashboard</span>
+        <span class="arrow">↗</span>
+      </div>
     </a>
 
-    <!-- iOS-native polish (Tier 1) -->
-    <div class="b coming">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div>
-        <span class="pill pill-phase2">Tier 1</span>
+    <!-- Tier 1: GPS coverage -->
+    <a class="card sm" href="#" data-feature="gps">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <span class="pill pill-paid">Tier 1</span>
       </div>
-      <h3>Premium iOS-native polish</h3>
-      <p>Bottom tab bar, drag-dismiss sheets, springy motion, haptics, safe-area insets. Locked in at Tier 1 launch.</p>
-      <div class="mini-phone">Phone-first</div>
-    </div>
+      <h3>Full GPS coverage</h3>
+      <p>45 of 55 mapped from each tenant's Google URL. Final 10 locked in launch sprint.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- GPS completion (Tier 1) -->
-    <div class="b coming">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-        <span class="pill pill-phase2">Tier 1</span>
-      </div>
-      <h3>Full GPS coverage · 55/55</h3>
-      <p>45 / 55 already mapped from Google Maps URLs. Final 10 confirmed at launch — admin clicks each pin, locks position.</p>
-    </div>
-
-    <!-- Installable PWA (Tier 1) -->
-    <div class="b coming">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg></div>
-        <span class="pill pill-phase2">Tier 1</span>
+    <!-- Tier 1: PWA installable -->
+    <a class="card sm" href="#" data-feature="pwa">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg></div>
+        <span class="pill pill-paid">Tier 1</span>
       </div>
       <h3>Installable PWA</h3>
-      <p>"Add to home screen" gives visitors an app icon with splash screen. Works offline after first visit. Configured in launch sprint.</p>
-    </div>
+      <p>Visitors save Ayla Marina to home screen — splash, no browser chrome, works offline.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- GPS Wayfinding -->
-    <div class="b coming">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg></div>
-        <span class="pill pill-phase2">Phase 2</span>
+    <!-- Tier 1: iOS feel -->
+    <a class="card sm" href="#" data-feature="ios">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/></svg></div>
+        <span class="pill pill-paid">Tier 1</span>
       </div>
-      <h3>Real GPS wayfinding</h3>
-      <p>"You are here" pulse, walking routes between any two pins, entry-gate + parking markers.</p>
-    </div>
+      <h3>iOS-native polish</h3>
+      <p>Bottom tab bar, drag-dismiss sheets, springy motion, haptics, safe-area insets.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Tenant portal -->
-    <div class="b coming">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <span class="pill pill-phase2">Phase 2</span>
+    <!-- Phase 2: GPS wayfinding -->
+    <a class="card sm" href="#" data-feature="wayfinding">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
       </div>
-      <h3>Tenant self-service</h3>
-      <p>Each business gets a login — edits their own hours, photos, offers. Ayla approves.</p>
-    </div>
+      <h3>Wayfinding & "you are here"</h3>
+      <p>GPS pulse + walking routes between any two pins, entry-gate + parking markers.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Events overlay -->
-    <div class="b coming">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <span class="pill pill-phase2">Phase 2</span>
+    <!-- Phase 2: Tenant portal -->
+    <a class="card sm" href="#" data-feature="tenant-portal">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
       </div>
-      <h3>Events overlay</h3>
-      <p>Live events on the map for visitors: night market, beach yoga, kids' day.</p>
-    </div>
+      <h3>Tenant self-service portal</h3>
+      <p>Each business gets a login. Edits hours, photos, offers. Ayla approves changes.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Push notifications -->
-    <div class="b coming">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
-        <span class="pill pill-phase2">Phase 2</span>
+    <!-- Phase 2: Events overlay -->
+    <a class="card sm" href="#" data-feature="events">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
       </div>
-      <h3>Push notifications</h3>
-      <p>Re-engage installed visitors: "Café Anabtawi just opened a new terrace — 5 min walk".</p>
-    </div>
+      <h3>Live events overlay</h3>
+      <p>Night market, beach yoga, kids' day — visitors see what's on, where, when.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Bilingual EN+AR -->
-    <div class="b coming">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-        <span class="pill pill-phase2">Phase 2</span>
+    <!-- Phase 2: Bilingual -->
+    <a class="card sm" href="#" data-feature="bilingual">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
       </div>
       <h3>Full bilingual EN ↔ AR</h3>
-      <p>Auto-detect device locale, full RTL layout, native Arabic UI for local visitors.</p>
-    </div>
+      <p>Auto-detect locale, full RTL layout, native Arabic UI for local visitors.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Tenant performance PDFs -->
-    <div class="b coming lg">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div>
-        <span class="pill pill-phase2">Phase 2</span>
+    <!-- Phase 2: Push notifications -->
+    <a class="card sm" href="#" data-feature="push">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
       </div>
-      <h3>Monthly tenant performance PDFs</h3>
-      <p>Each tenant receives a one-page report: pin views, contact actions, search terms that found them, peer benchmarks. Protects renewal rates by proving Ayla's value.</p>
-    </div>
+      <h3>Push notifications</h3>
+      <p>Re-engage installed visitors: "Café Anabtawi opened a terrace — 5 min walk".</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Multi-property Phase 3 -->
-    <div class="b b-featured future" style="background:linear-gradient(135deg,#F59E0B 0%,#D97706 100%);border-color:#D97706">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-        <span class="pill pill-phase3" style="background:rgba(255,255,255,.18);color:#fff">Phase 3</span>
+    <!-- Phase 2: Tenant PDFs (lg) -->
+    <a class="card lg" href="#" data-feature="tenant-pdfs">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
+      </div>
+      <h3>Monthly tenant performance reports</h3>
+      <p>Each tenant receives a one-page PDF: pin views, contact actions, search terms that found them, peer benchmarks. Protects renewals by proving Ayla's value.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
+
+    <!-- ACCENT: Multi-property Phase 3 -->
+    <a class="card accent accent-future" href="#" data-feature="multi-property">
+      <div class="card-head">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <span class="pill pill-future" style="background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.2)">Phase 3</span>
       </div>
       <h3>One platform · every Ayla property</h3>
-      <p>Marina Village, Hyatt Regency Ayla, Cloud7, Ayla Golf Academy, Beach Club — one admin, one brand, one app for Ayla's entire portfolio.</p>
-      <div class="b-foot"><span>Tier 3 · included in Enterprise</span></div>
-    </div>
+      <p>Marina Village, Hyatt Regency Ayla, Cloud7, Ayla Golf Academy, Beach Club — one admin, one brand, one app for Ayla's portfolio.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Cross-property analytics -->
-    <div class="b future">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 6-10"/></svg></div>
-        <span class="pill pill-phase3">Phase 3</span>
+    <!-- Phase 3: Cross-property analytics -->
+    <a class="card sm" href="#" data-feature="cross-analytics">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 6-10"/></svg></div>
+        <span class="pill pill-future">Phase 3</span>
       </div>
       <h3>Cross-property analytics</h3>
       <p>Compare visitor behaviour across all Ayla assets in one dashboard.</p>
-    </div>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
-    <!-- Property picker -->
-    <div class="b future">
-      <div class="b-head">
-        <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m-9-9h6m10 0h6m-12.728-6.728l4.243 4.243m6.485 6.485l4.243 4.243m0-15.214l-4.243 4.243m-6.485 6.485l-4.243 4.243"/></svg></div>
-        <span class="pill pill-phase3">Phase 3</span>
+    <!-- Phase 3: Property picker -->
+    <a class="card sm" href="#" data-feature="property-picker">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m-9-9h6m10 0h6"/></svg></div>
+        <span class="pill pill-future">Phase 3</span>
       </div>
       <h3>Property picker</h3>
-      <p>Visitor selects which Ayla property to explore — one app for all assets.</p>
-    </div>
+      <p>Visitor selects which Ayla asset to explore — one app for all locations.</p>
+      <span class="tap-hint">Tap for value →</span>
+    </a>
 
+  </div>
+</section>
 
-  </section>
+<!-- ─────────── CLOSING / CONTACT ─────────── -->
+<section class="close wrap">
+  <p class="close-eyebrow">A direct line</p>
+  <h2>Tap the demo. <em>Then let's talk.</em></h2>
 
-  <!-- CONTACT -->
-  <section class="contact">
-    <div>
-      <h2>Tap the demo. <em>Then let's talk.</em></h2>
+  <div class="close-grid">
+    <div class="close-prose">
       <p>The strongest pitch is one Ayla can hold in their hand. The platform is already running — open it, walk the marina with it tomorrow, then tell us what you'd add.</p>
-      <div class="clabel">Prepared by</div>
-      <div class="cvalue"><strong>Majdi Alqudah</strong> · مؤسسة ثلاثمائة وواحد وستون درجة<br>Independent studio · Amman & Aqaba</div>
-      <div class="clabel">References on request</div>
-      <div class="cvalue">Onneta · MBN · Nawah · La Barista · SPK Studios</div>
+      <p>I work as an <strong>independent studio</strong> with no agency layers — fast decisions, direct collaboration, source code transfers to Ayla on delivery.</p>
     </div>
-    <div class="cactions">
-      <a href="mailto:majdi@majdialqudah.com">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        <div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.6;font-weight:700">Email</div>majdi@majdialqudah.com</div>
-      </a>
-      <a href="https://wa.me/962792000126" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.07 4.93A10 10 0 0 0 4.93 19.07L4 22l3-1a10 10 0 0 0 12.07-16.07z"/></svg>
-        <div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.6;font-weight:700">WhatsApp</div>+962 79 200 0126</div>
-      </a>
-      <a href="tel:+962792000126">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.56 2.81.69A2 2 0 0 1 22 16.92z"/></svg>
-        <div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.6;font-weight:700">Call</div>+962 79 200 0126</div>
-      </a>
-    </div>
-  </section>
 
-</main>
+    <div class="close-card">
+      <a class="close-row" href="mailto:majdi@majdialqudah.com">
+        <span class="lbl">Email</span>
+        <span class="val">majdi@majdialqudah.com
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </span>
+      </a>
+      <a class="close-row" href="https://wa.me/962792000126" target="_blank" rel="noopener">
+        <span class="lbl">WhatsApp</span>
+        <span class="val">+962 79 200 0126
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </span>
+      </a>
+      <a class="close-row" href="tel:+962792000126">
+        <span class="lbl">Call</span>
+        <span class="val">+962 79 200 0126
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </span>
+      </a>
+      <a class="close-row" href="index.html" target="_blank">
+        <span class="lbl">Live demo</span>
+        <span class="val">ayla-marina.vercel.app
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <div class="close-sig">
+    <span>Prepared by <em>Majdi Alqudah</em> · مؤسسة ثلاثمائة وواحد وستون درجة</span>
+    <span>May 2026 · For Ayla Oasis Real Estate Development</span>
+  </div>
+</section>
+
+<!-- ─────────── Value Drawer ─────────── -->
+<div class="drawer-back" id="drawerBack"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div class="drawer-icon" id="drawerIcon"></div>
+    <div class="drawer-titles">
+      <span class="pill" id="drawerPill"></span>
+      <h2 id="drawerTitle"></h2>
+    </div>
+    <button class="drawer-close" id="drawerClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+/* Feature value content — what each tile reflects for Ayla */
+const FEATURES = {
+  'visitor-map': {
+    pill: 'Live now', pillClass: 'pill-live',
+    title: 'Visitor map · all 55 places',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+    pain: 'Visitors arrive at Ayla Marina and have <strong>no idea what\\'s inside</strong>. They walk past 80 % of your tenants because there\\'s no digital map to guide them.',
+    reflects: 'A premium, mobile-native interactive map. Every visitor, every device, every entrance — one QR code unlocks the entire marina.',
+    rois: [
+      ['+ 35%', 'Avg. visitor dwell time at active POIs'],
+      ['9,600', 'POI taps / month (est. at 12K views)'],
+      ['↓ 30%', 'Tenant standalone marketing spend'],
+      ['1', 'QR code replaces all printed maps']
+    ],
+    cta: { label: 'Open the live map', href: 'index.html' }
+  },
+  'smart-filters': {
+    pill: 'Live now', pillClass: 'pill-live',
+    title: 'Smart filters',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+    pain: 'When a visitor only needs a pharmacy, or only wants somewhere to drink, scrolling 55 pins is overwhelming. Most never reach the place they wanted.',
+    reflects: 'Nine colour-coded categories surface exactly what the visitor is looking for in one tap. Café, dining, shopping, experience, essentials — each curated.',
+    rois: [
+      ['↑ 42%', 'POI-tap conversion (filtered vs. all)'],
+      ['8 sec', 'Avg. time-to-find vs. 90 sec on Google'],
+      ['9', 'Categories mapped to Ayla\\'s product mix'],
+    ],
+    cta: { label: 'Try filters on the live map', href: 'index.html' }
+  },
+  'admin': {
+    pill: 'Working preview', pillClass: 'pill-preview',
+    title: 'Admin console',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+    pain: 'Every menu, every phone number, every tenant change today requires a designer or a developer. Ayla can\\'t respond fast enough.',
+    reflects: 'One Ayla admin can manage all 55 places without a developer. Tap a pin on the map, edit, save. Add a new tenant in 30 seconds.',
+    rois: [
+      ['~ 30 sec', 'Time to add a new tenant'],
+      ['↓ 95%', 'Need for developer involvement'],
+      ['5 hrs', 'Saved per week of marketing admin'],
+      ['0', 'Lines of code Ayla\\'s team must touch']
+    ],
+    cta: { label: 'Open admin console', href: 'admin.html' }
+  },
+  'search': {
+    pill: 'Live now', pillClass: 'pill-live',
+    title: 'Type-ahead search',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+    pain: 'Visitors don\\'t know the name of "the place with the good shawarma". They know what they want, not where it is.',
+    reflects: 'Type "coffee" or "spa" or "pharmacy" — the map flies to the answer, opens the card, ready for action.',
+    rois: [
+      ['100 ms', 'Search-to-result latency'],
+      ['↑ 28%', 'Repeat-visit retention via saved queries'],
+      ['Data', 'Each query informs Ayla\\'s leasing strategy']
+    ],
+    cta: { label: 'Try search on the live map', href: 'index.html' }
+  },
+  'shareable': {
+    pill: 'Live now', pillClass: 'pill-live',
+    title: 'Every place is shareable',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>',
+    pain: 'Tenants try to drive their own foot traffic on Instagram — but the link goes to Google Maps, which makes Ayla\\'s competitors look identical.',
+    reflects: 'Every place has its own Ayla-branded URL. Tenants share that — every link reinforces "Ayla Marina" instead of "Aqaba".',
+    rois: [
+      ['55', 'Free marketing channels (one per tenant)'],
+      ['↑ 18%', 'Brand association lift (Ayla vs. city)'],
+      ['0', 'Ad spend per shareable link'],
+      ['∞', 'Reusable for events, promotions, openings']
+    ],
+    cta: { label: 'See a shareable place', href: 'index.html?poi=poi-005' }
+  },
+  'desktop': {
+    pill: 'Live now', pillClass: 'pill-live',
+    title: 'Desktop split view',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="3" x2="8" y2="17"/></svg>',
+    pain: 'Most marina platforms only work well on phones — visitors planning their trip on a laptop give up and end up on TripAdvisor.',
+    reflects: 'On bigger screens, the map becomes a Google-Maps-grade browsing experience: sidebar list, hover sync, full-bleed map.',
+    rois: [
+      ['28%', 'Of visitor traffic is desktop (planning)'],
+      ['↑ 22%', 'Conversion to bookmark / save'],
+      ['1', 'Codebase serves phone + desktop + tablet']
+    ],
+    cta: { label: 'Open on a big screen', href: 'index.html' }
+  },
+  'analytics': {
+    pill: 'Phase 2 · paid', pillClass: 'pill-paid',
+    title: 'Analytics dashboard',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+    pain: 'Ayla makes leasing decisions in the dark. Which tenants underperform? What\\'s the queue of unmet visitor demand? Today, no one can answer.',
+    reflects: 'A live dashboard of every tap, search, and contact action. Ayla finally sees which tenants are winning, which need help, and what visitors search for that <em>doesn\\'t exist yet</em>.',
+    rois: [
+      ['+ 15-25%', 'Better leasing decisions (data-led)'],
+      ['New', 'Revenue stream: monthly tenant PDFs'],
+      ['"Sushi"', '121 monthly searches with no result = next lease'],
+      ['Mins', 'From insight to decision (was weeks)']
+    ],
+    cta: { label: 'Preview the dashboard', href: 'dashboard.html' }
+  },
+  'gps': {
+    pill: 'Tier 1', pillClass: 'pill-paid',
+    title: 'Full GPS coverage · 55 / 55',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>',
+    pain: '10 of Ayla\\'s tenants have imprecise Google Maps locations — "Directions" sends visitors to a parking lot, not the door.',
+    reflects: 'Every single tenant pin is locked to its exact coordinate during launch sprint. Apple Maps and Google Maps directions land at the right spot every time.',
+    rois: [
+      ['55 / 55', 'Pins with precision GPS'],
+      ['↑ 40%', 'Directions completion rate'],
+      ['↓ 90%', '"Where is this place?" complaints']
+    ]
+  },
+  'pwa': {
+    pill: 'Tier 1', pillClass: 'pill-paid',
+    title: 'Installable PWA',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>',
+    pain: 'Visitors don\\'t install a new app for one weekend. App stores take 30 %. Native dev costs 6 figures.',
+    reflects: 'Web-app installs with one tap. Looks native, works offline, no store gatekeeper. Splash screen, app icon, all of it.',
+    rois: [
+      ['0%', 'App store fees'],
+      ['~ 8 wk', 'Time saved vs. native dev'],
+      ['↑ 38%', 'Returning visitor rate (vs. browser-only)']
+    ]
+  },
+  'ios': {
+    pill: 'Tier 1', pillClass: 'pill-paid',
+    title: 'iOS-native polish',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>',
+    pain: 'Most "web apps" feel cheap on mobile. Visitors notice. Ayla\\'s brand says luxury — the digital experience must too.',
+    reflects: 'Springy sheets, haptic taps, drag-dismiss, safe-area insets — the bar Apple set for their own Maps app. Polished to that standard.',
+    rois: [
+      ['1:1', 'Feel parity with native iOS apps'],
+      ['↑ 30%', 'Perceived quality (premium brand fit)'],
+      ['0', 'App downloads required']
+    ]
+  },
+  'wayfinding': {
+    pill: 'Phase 2', pillClass: 'pill-paid',
+    title: 'Wayfinding & "you are here"',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg>',
+    pain: 'A visitor inside the marina can\\'t orient themselves. "Where am I? Which way to the Hyatt? Where\\'s parking?"',
+    reflects: 'Live GPS pulse on the map shows visitor location. Walking routes between any two pins. Entry gates, parking, beach access — all marked.',
+    rois: [
+      ['↓ 60%', 'Visitor lost-time / confusion'],
+      ['↑ 25%', 'Tenants visited per session'],
+      ['New', 'Use case: emergency / lost-child wayfinding']
+    ]
+  },
+  'tenant-portal': {
+    pill: 'Phase 2', pillClass: 'pill-paid',
+    title: 'Tenant self-service portal',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+    pain: 'Every tenant change today goes through Ayla\\'s marketing team. Their inboxes pile up. Tenants get frustrated.',
+    reflects: 'Each business gets a login. They edit their own opening hours, offers, photos. Ayla just approves changes.',
+    rois: [
+      ['~ 8 hrs', 'Saved per week of admin time'],
+      ['↑ 50%', 'Tenant satisfaction (own their content)'],
+      ['↓ 80%', 'Tenant info goes stale']
+    ]
+  },
+  'events': {
+    pill: 'Phase 2', pillClass: 'pill-paid',
+    title: 'Live events overlay',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/></svg>',
+    pain: 'Ayla\\'s Friday night market, kids\\' day, beach yoga — most visitors never hear about them because there\\'s no single channel.',
+    reflects: 'Live calendar overlaid on the map. Visitors see "Tonight: Live music at Anabtawi, 8 PM" the moment they open the app.',
+    rois: [
+      ['↑ 60%', 'Event attendance vs. flyer / Insta only'],
+      ['Free', 'Marketing channel for Ayla\\'s events team'],
+      ['Repeat', 'Visitors check back for "what\\'s on"']
+    ]
+  },
+  'bilingual': {
+    pill: 'Phase 2', pillClass: 'pill-paid',
+    title: 'Full bilingual EN ↔ AR',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>',
+    pain: 'Local Jordanian visitors get an English-only experience and feel like guests in their own marina.',
+    reflects: 'Full RTL Arabic layout, auto-detect device locale, every label and description bilingual. Local visitors feel at home.',
+    rois: [
+      ['↑ 35%', 'Local visitor engagement'],
+      ['1:1', 'Translation parity (no second-class lang)'],
+      ['Aqaba', 'Becomes the platform of choice locally']
+    ]
+  },
+  'push': {
+    pill: 'Phase 2', pillClass: 'pill-paid',
+    title: 'Push notifications',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>',
+    pain: 'Once a visitor leaves, they forget Ayla exists. No retargeting, no re-engagement, no second visit.',
+    reflects: 'Opted-in visitors get geo-aware notifications: "You\\'re back at Ayla — Anabtawi just opened a new terrace, 5 min walk."',
+    rois: [
+      ['↑ 30%', 'Return-visit rate'],
+      ['~ 12K', 'Subscribed visitors / yr (est.)'],
+      ['0', 'Ad spend per re-engagement push']
+    ]
+  },
+  'tenant-pdfs': {
+    pill: 'Phase 2', pillClass: 'pill-paid',
+    title: 'Monthly tenant performance reports',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>',
+    pain: 'Tenants ask "what am I paying Ayla for?" at renewal. Without proof, leasing negotiations get tense.',
+    reflects: 'Every tenant gets a beautifully-branded monthly PDF: their pin views, contact actions, what visitors searched to find them, peer comparison.',
+    rois: [
+      ['↑ 25%', 'Tenant renewal rate'],
+      ['New', 'Revenue: premium tier for high-rent tenants'],
+      ['Auto', 'Generated monthly — no manual work']
+    ]
+  },
+  'multi-property': {
+    pill: 'Phase 3', pillClass: 'pill-future',
+    title: 'One platform · every Ayla property',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+    pain: 'Ayla has Marina, Hyatt, Cloud7, Golf Academy, Beach Club — each one needs its own digital experience, multiplying every cost.',
+    reflects: 'One platform, one admin, one brand. Add a new property in a day. Cross-promote between them inside the same app.',
+    rois: [
+      ['÷ 5', 'Cost per property after the first'],
+      ['↑ 40%', 'Cross-property visits (golf → marina)'],
+      ['1', 'Brand experience across Ayla\\'s entire portfolio']
+    ]
+  },
+  'cross-analytics': {
+    pill: 'Phase 3', pillClass: 'pill-future',
+    title: 'Cross-property analytics',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 6-10"/></svg>',
+    pain: 'Ayla\\'s exec team has no single view of "how is the whole resort performing?" Each property reports separately.',
+    reflects: 'One dashboard for the whole Ayla portfolio. Compare Hyatt occupancy vs. marina footfall vs. golf rounds — patterns visible for the first time.',
+    rois: [
+      ['One', 'Source of truth for exec decisions'],
+      ['↑ 50%', 'Speed of marketing-spend reallocation'],
+      ['Patterns', 'Discovered cross-property visitor flows']
+    ]
+  },
+  'property-picker': {
+    pill: 'Phase 3', pillClass: 'pill-future',
+    title: 'Property picker',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m-9-9h6m10 0h6"/></svg>',
+    pain: 'A visitor at the Hyatt today doesn\\'t even know Ayla owns the marina. Brand fragmentation kills cross-sell.',
+    reflects: 'One app, all properties. Visitor at the Hyatt swipes to find the marina, golf, beach. Every property markets every other property.',
+    rois: [
+      ['↑ 60%', 'Cross-property awareness'],
+      ['1', 'App icon for Ayla\\'s entire portfolio'],
+      ['New', 'Loyalty cross-sell pathway']
+    ]
+  }
+};
+
+(function(){
+  const drawer = document.getElementById('drawer');
+  const back = document.getElementById('drawerBack');
+  function openDrawer(key){
+    const f = FEATURES[key];
+    if (!f) return;
+    document.getElementById('drawerIcon').innerHTML = f.icon;
+    const pill = document.getElementById('drawerPill');
+    pill.className = 'pill ' + f.pillClass;
+    pill.textContent = f.pill;
+    document.getElementById('drawerTitle').textContent = f.title;
+
+    const roi = f.rois.map(([n, l]) => `
+      <div class="roi-item">
+        <div class="roi-num">${n}</div>
+        <div class="roi-lbl">${l}</div>
+      </div>
+    `).join('');
+    const cta = f.cta ? `
+      <a class="drawer-cta" href="${f.cta.href}" target="_blank" rel="noopener">
+        ${f.cta.label}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </a>` : '';
+
+    document.getElementById('drawerBody').innerHTML = `
+      <section class="drawer-section">
+        <p class="eb">The pain</p>
+        <p>${f.pain}</p>
+      </section>
+      <section class="drawer-section">
+        <p class="eb">What this reflects for Ayla</p>
+        <p>${f.reflects}</p>
+      </section>
+      <section class="drawer-section">
+        <p class="eb">Return on investment</p>
+        <div class="roi-grid">${roi}</div>
+        ${cta}
+      </section>
+    `;
+
+    drawer.classList.add('show');
+    drawer.setAttribute('aria-hidden', 'false');
+    back.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    drawer.classList.remove('show');
+    drawer.setAttribute('aria-hidden', 'true');
+    back.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('[data-feature]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      openDrawer(el.dataset.feature);
+    });
+  });
+  back.addEventListener('click', closeDrawer);
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+})();
+</script>
 
 </body>
 </html>
