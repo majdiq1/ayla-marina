@@ -832,6 +832,56 @@
       <span class="tap-hint">Tap for value →</span>
     </a>
 
+    <!-- Phase 2: AI concierge -->
+    <a class="card" data-feature="ai-concierge">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 4 4 1.5-4 1.5L12 13l-1.5-4-4-1.5 4-1.5z"/><path d="M19 14l1 2.5 2.5 1-2.5 1L19 21l-1-2.5-2.5-1 2.5-1z"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
+      </div>
+      <h3>AI concierge</h3>
+      <p>"Find me a quiet café with sea view" — chat surfaces matches across all 55 tenants.</p>
+    </a>
+
+    <!-- Tier 1: Opening hours -->
+    <a class="card" data-feature="hours">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <span class="pill pill-paid">Tier 1</span>
+      </div>
+      <h3>Live opening hours</h3>
+      <p>Green-dot "open now" status. Tenants update their own hours via the portal.</p>
+    </a>
+
+    <!-- Phase 2: Photos & reviews -->
+    <a class="card" data-feature="photos-reviews">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8 12 2"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
+      </div>
+      <h3>Photos &amp; reviews per place</h3>
+      <p>3–5 photos and verified visitor reviews on every place card.</p>
+    </a>
+
+    <!-- Phase 2: Save / favorites -->
+    <a class="card" data-feature="favorites">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div>
+        <span class="pill pill-paid">Phase 2</span>
+      </div>
+      <h3>My Ayla weekend</h3>
+      <p>Save favourite places, build a walking itinerary, share the trip with friends.</p>
+    </a>
+
+    <!-- Phase 3: Loyalty program -->
+    <a class="card" data-feature="loyalty">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/></svg></div>
+        <span class="pill pill-future">Phase 3</span>
+      </div>
+      <h3>Ayla loyalty wallet</h3>
+      <p>One points wallet across all 55 tenants — spend at Anabtawi, redeem at Mirchi.</p>
+    </a>
+
     <!-- Phase 2: Tenant PDFs (lg) -->
     <a class="card lg" data-feature="tenant-pdfs">
       <div class="card-head">
@@ -1146,6 +1196,70 @@ const FEATURES = {
       ['↑ 25%', 'Tenant renewal rate'],
       ['New', 'Revenue: premium tier for high-rent tenants'],
       ['Auto', 'Generated monthly — no manual work']
+    ]
+  },
+  'ai-concierge': {
+    pill: 'Phase 2 · paid', pillClass: 'pill-paid',
+    title: 'AI concierge',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 4 4 1.5-4 1.5L12 13l-1.5-4-4-1.5 4-1.5z"/><path d="M19 14l1 2.5 2.5 1-2.5 1L19 21l-1-2.5-2.5-1 2.5-1z"/></svg>',
+    pain: 'Visitors default to what they know — chains, big brands, places near the entrance. Hidden gems in Ayla\'s tenant mix never get discovered.',
+    reflects: 'An AI assistant trained on every tenant, menu, mood and category. Visitor asks in natural language — "somewhere romantic for tonight" — and gets curated picks with reasons.',
+    rois: [
+      ['+ 40%', 'Long-tail tenant discovery'],
+      ['New', 'Revenue: sponsored mentions for premium tenants'],
+      ['1st', 'AI-led concierge in any Aqaba marina'],
+      ['24/7', 'Always-on, no concierge desk staffing']
+    ]
+  },
+  'hours': {
+    pill: 'Tier 1', pillClass: 'pill-paid',
+    title: 'Live opening hours',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    pain: 'Visitor walks five minutes to a café that\'s closed. First impression of Ayla — wasted trip, frustration.',
+    reflects: 'Every pin shows green "open now" or grey "closed". Tenants update their own hours via the portal. Closed places can be hidden with one filter.',
+    rois: [
+      ['0', 'Wasted walks to closed venues'],
+      ['↑ 28%', 'Visitor satisfaction (no friction)'],
+      ['Auto', 'Tenants self-manage — no Ayla intervention']
+    ]
+  },
+  'photos-reviews': {
+    pill: 'Phase 2 · paid', pillClass: 'pill-paid',
+    title: 'Photos & reviews per place',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8 12 2"/></svg>',
+    pain: 'Without photos, visitors can\'t tell if a café is worth walking to. Decision paralysis kills exploration — most visitors stop at the first place they see.',
+    reflects: 'Every place card carries 3–5 high-quality photos plus verified visitor reviews and a star rating. Social proof at zero marketing cost.',
+    rois: [
+      ['+ 60%', 'Tap-to-action conversion'],
+      ['+ 30%', 'Trust score vs. unknown places'],
+      ['Free', 'Marketing via visitor-generated content'],
+      ['Sortable', 'Filter & sort by rating']
+    ]
+  },
+  'favorites': {
+    pill: 'Phase 2 · paid', pillClass: 'pill-paid',
+    title: 'My Ayla weekend · save & plan',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+    pain: 'First-time visitors discover ten places they want to try, then forget by next visit. The marina\'s long tail of tenants never gets the second chance.',
+    reflects: 'Visitor heart-saves places to a personal list, builds a walking itinerary with auto-optimised order, shares the plan with friends or family.',
+    rois: [
+      ['+ 40%', 'Return-visit rate (saved lists pull back)'],
+      ['↑ 22%', 'Average tenants visited per trip'],
+      ['Shared', 'Each itinerary spreads to 2–3 new visitors'],
+      ['Local', 'Stored on device — privacy-safe, no auth']
+    ]
+  },
+  'loyalty': {
+    pill: 'Phase 3', pillClass: 'pill-future',
+    title: 'Ayla loyalty wallet',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/></svg>',
+    pain: 'Visitors pick one favourite tenant per trip. No reason to try something new, no system that rewards exploring all of Ayla.',
+    reflects: 'One points wallet across all 55 tenants. Earn points at Anabtawi, redeem at Mirchi. The whole village becomes one rewarding game.',
+    rois: [
+      ['+ 35%', 'Repeat-visit frequency'],
+      ['+ 25%', 'Cross-tenant trial rate'],
+      ['Lever', 'Ayla-wide gift cards as new revenue product'],
+      ['Renewal', 'Tenants want to stay because loyalty drives sales']
     ]
   },
   'multi-property': {
