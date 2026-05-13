@@ -210,6 +210,7 @@
     display:grid;
     grid-template-columns:repeat(12,1fr);
     grid-auto-rows:130px;
+    grid-auto-flow:dense;     /* back-fill empty cells with later items */
     gap:14px;
     margin-bottom:24px;
   }
@@ -252,9 +253,9 @@
   .card-foot .arrow{transition:transform 280ms var(--aqua)}
   a.card:hover .card-foot .arrow{transform:translateX(4px)}
 
-  /* Sizes */
-  .card{grid-column:span 4}
-  .card.sm{grid-column:span 3;grid-row:span 2}
+  /* Sizes — only 4, 6, 8, 12 cols so 12-col grid tiles cleanly */
+  .card{grid-column:span 4;grid-row:span 2}
+  .card.sm{grid-column:span 4;grid-row:span 2}
   .card.md{grid-column:span 4;grid-row:span 2}
   .card.lg{grid-column:span 6;grid-row:span 2}
   .card.xl{grid-column:span 8;grid-row:span 2}
