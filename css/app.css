@@ -500,6 +500,45 @@ img{ display: block; }
   font-weight: 700;
   z-index: 6;
 }
+/* Pin label readability on satellite imagery: stronger shadow + white outline */
+.sat-pin .sat-name{
+  box-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.1), 0 0 12px rgba(255,255,255,0.4);
+  text-shadow: none;
+}
+
+/* Cluster badge — appears when several POIs sit on top of each other */
+.sat-cluster{
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--c);
+  color: #fff;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 15px;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4), 0 0 0 4px rgba(255,255,255,0.35);
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 200ms var(--ease-spring);
+  position: relative;
+}
+.sat-cluster:hover{ transform: scale(1.1); z-index: 6; }
+.sat-cluster:active{ transform: scale(0.95); }
+.sat-cluster::after{
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  animation: clusterPulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes clusterPulse{
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%      { transform: scale(1.15); opacity: 0; }
+}
 .maplibregl-ctrl-attrib{ font-size: 10px !important; opacity: 0.7; }
 .maplibregl-ctrl-attrib-button{ background-color: rgba(255,255,255,0.9) !important; }
 .maplibregl-ctrl button{ background-color: rgba(255,255,255,0.94) !important; }

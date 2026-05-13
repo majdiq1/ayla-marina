@@ -1085,13 +1085,39 @@ function initSatMap(){
   if (!el) return;
   console.log('[map] Initialising MapLibre…');
 
+  // Custom MapLibre style: Esri satellite imagery + light place-name overlay
+  const satelliteStyle = {
+    version: 8,
+    glyphs: 'https://basemaps.cartocdn.com/fonts/{fontstack}/{range}.pbf',
+    sources: {
+      esri: {
+        type: 'raster',
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: 'Imagery © Esri'
+      },
+      reference: {
+        type: 'raster',
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],
+        tileSize: 256,
+        maxzoom: 19
+      }
+    },
+    layers: [
+      { id: 'background', type: 'background', paint: { 'background-color': '#1a2530' }},
+      { id: 'satellite', type: 'raster', source: 'esri' },
+      { id: 'reference', type: 'raster', source: 'reference', paint: { 'raster-opacity': 0.75 }}
+    ]
+  };
+
   SAT.map = new maplibregl.Map({
     container: el,
-    style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+    style: satelliteStyle,
     center: AYLA_CENTER,
     zoom: AYLA_ZOOM,
     minZoom: 14,
-    maxZoom: 20,
+    maxZoom: 19,
     attributionControl: false,
   });
 
@@ -1104,23 +1130,15 @@ function initSatMap(){
 
   SAT.map.on('load', () => {
     console.log('[map] Loaded');
-    // Light brand pass — only retint water (most-likely-to-exist layer).
-    try {
-      const layers = SAT.map.getStyle().layers || [];
-      layers.forEach(lyr => {
-        if (/water/i.test(lyr.id) && lyr.type === 'fill'){
-          SAT.map.setPaintProperty(lyr.id, 'fill-color', '#86C9D5');
-        }
-      });
-    } catch(e){ console.warn('[map] tint skipped', e); }
     SAT.initialized = true;
     renderSatMarkers();
-    // Force a resize in case the container size wasn't ready at init time
     requestAnimationFrame(() => SAT.map.resize());
     setTimeout(() => SAT.map.resize(), 500);
   });
 
-  // Resize on window changes too
+  // Re-cluster as the user zooms or pans
+  SAT.map.on('moveend', () => renderSatMarkers());
+  SAT.map.on('zoomend', () => renderSatMarkers());
   window.addEventListener('resize', () => SAT.map?.resize());
 }
 
@@ -1134,24 +1152,79 @@ function renderSatMarkers(){
     (state.activeCats.size === 0 || state.activeCats.has(p.category_id))
   );
 
-  for (const p of visiblePois){
-    const cat = DATA.catById[p.category_id];
+  // Project each POI to screen pixel coords
+  const projected = visiblePois.map(p => {
     const [lat, lng] = poiLatLng(p);
+    const pt = SAT.map.project([lng, lat]);
+    return { poi: p, lat, lng, x: pt.x, y: pt.y };
+  });
 
-    const wrap = document.createElement('div');
-    wrap.className = 'sat-pin';
-    if (state.selectedPoiId === p.id) wrap.classList.add('active');
-    wrap.style.setProperty('--c', cat?.color || '#666');
-    wrap.innerHTML = `
-      <div class="sat-dot"></div>
-      <span class="sat-name">${p.name.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>
-    `;
-    wrap.addEventListener('click', () => openPoi(p.id));
+  // Greedy screen-space cluster: any point within CLUSTER_RADIUS px of an
+  // existing cluster joins that cluster.
+  const CLUSTER_RADIUS = 38; // px
+  const clusters = [];
+  for (const pt of projected){
+    let joined = null;
+    for (const c of clusters){
+      const dx = pt.x - c.cx;
+      const dy = pt.y - c.cy;
+      if (Math.hypot(dx, dy) < CLUSTER_RADIUS){
+        joined = c;
+        break;
+      }
+    }
+    if (joined){
+      joined.items.push(pt);
+      joined.cx = (joined.cx * (joined.items.length - 1) + pt.x) / joined.items.length;
+      joined.cy = (joined.cy * (joined.items.length - 1) + pt.y) / joined.items.length;
+    } else {
+      clusters.push({ cx: pt.x, cy: pt.y, items: [pt] });
+    }
+  }
 
-    const marker = new maplibregl.Marker({ element: wrap, anchor: 'center' })
-      .setLngLat([lng, lat])
-      .addTo(SAT.map);
-    SAT.markers.push(marker);
+  // Render: single-item clusters as normal pin, multi-item as "+N" badge
+  for (const c of clusters){
+    if (c.items.length === 1){
+      const { poi, lat, lng } = c.items[0];
+      const cat = DATA.catById[poi.category_id];
+      const wrap = document.createElement('div');
+      wrap.className = 'sat-pin';
+      if (state.selectedPoiId === poi.id) wrap.classList.add('active');
+      wrap.style.setProperty('--c', cat?.color || '#666');
+      wrap.innerHTML = `
+        <div class="sat-dot"></div>
+        <span class="sat-name">${escapeHtml(poi.name)}</span>
+      `;
+      wrap.addEventListener('click', e => { e.stopPropagation(); openPoi(poi.id); });
+      const marker = new maplibregl.Marker({ element: wrap, anchor: 'center' })
+        .setLngLat([lng, lat]).addTo(SAT.map);
+      SAT.markers.push(marker);
+    } else {
+      // Cluster badge — average lat/lng, count
+      const sumLat = c.items.reduce((s, it) => s + it.lat, 0);
+      const sumLng = c.items.reduce((s, it) => s + it.lng, 0);
+      const lat = sumLat / c.items.length;
+      const lng = sumLng / c.items.length;
+      // Dominant category color (most common in this cluster)
+      const counts = {};
+      c.items.forEach(it => counts[it.poi.category_id] = (counts[it.poi.category_id] || 0) + 1);
+      const topCat = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+      const color = DATA.catById[topCat]?.color || '#0E4F58';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'sat-cluster';
+      wrap.style.setProperty('--c', color);
+      wrap.innerHTML = `<span class="sat-cluster-n">${c.items.length}</span>`;
+      wrap.addEventListener('click', e => {
+        e.stopPropagation();
+        // Zoom in toward the cluster — labels separate as we zoom
+        const z = Math.min((SAT.map.getZoom() || 16) + 1.8, SAT.map.getMaxZoom());
+        SAT.map.flyTo({ center: [lng, lat], zoom: z, speed: 1.2 });
+      });
+      const marker = new maplibregl.Marker({ element: wrap, anchor: 'center' })
+        .setLngLat([lng, lat]).addTo(SAT.map);
+      SAT.markers.push(marker);
+    }
   }
 }
 
