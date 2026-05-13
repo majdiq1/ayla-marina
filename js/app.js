@@ -156,6 +156,8 @@ let moved = false;
 let downPin = null;
 
 stage.addEventListener('pointerdown', e => {
+  // Satellite-only mode: let Leaflet handle all gestures
+  if (document.documentElement.classList.contains('map-satellite')) return;
   // Don't capture if user is tapping UI overlays inside the stage
   if (e.target.closest('.map-tool, .map-tool-group, .reset-btn, .scale-bar')){
     return;
@@ -292,7 +294,9 @@ function renderPins(){
   }
   updateLabelVisibility();
   renderRailList();
-  if (typeof renderSatMarkers === 'function' && document.body.classList.contains('map-satellite')) renderSatMarkers();
+  if (typeof renderSatMarkers === 'function' && document.documentElement.classList.contains('map-satellite')){
+    renderSatMarkers();
+  }
 }
 
 // Show labels by default; collision dedup keeps it readable when crowded
@@ -452,8 +456,11 @@ async function setLevel(lvlId){
   state.levelId = lvlId;
   const lvl = DATA.lvlById[lvlId];
   if (!lvl) return;
-  await loadLevelImage(lvl);
-  renderBoats();
+  // Skip illustrated image load when satellite is the only map
+  if (!document.documentElement.classList.contains('map-satellite')){
+    await loadLevelImage(lvl);
+    renderBoats();
+  }
   renderPins();
   renderLevelSwitch();
   closeSheet();
@@ -602,7 +609,11 @@ function openPoi(id){
   sheet.setAttribute('aria-hidden', 'false');
   document.body.classList.add('poi-open');
   renderPins();
-  flyToPin(poi);
+  if (document.documentElement.classList.contains('map-satellite')){
+    satFlyTo(poi);
+  } else {
+    flyToPin(poi);
+  }
   haptic();
   pushDeepLink(poi.id);
 }
@@ -1044,36 +1055,59 @@ function setupTabbar(){
   });
 }
 
-// ---------- 11d. Satellite map (Leaflet + Esri tiles) ----------
-const SAT = { map: null, markers: [], ready: false, initialized: false };
-const AYLA_CENTER = [29.5462, 34.9905];  // Ayla Marina, Aqaba
-const AYLA_ZOOM   = 17;
+// ---------- Satellite map (Leaflet + Esri tiles) ----------
+const SAT = { map: null, markers: [], initialized: false };
+const AYLA_CENTER = [29.5462, 34.9905];
+const AYLA_ZOOM   = 17.5;
+// Bounds used to estimate lat/lng for POIs that only have pin_x / pin_y on the illustrated map.
+// Bounds derived from the marina silhouette in the PNG vs. Esri imagery.
+const MARINA_BOUNDS = {
+  ground: { nw: [29.5487, 34.9886], se: [29.5448, 34.9925] },
+  marina: { nw: [29.5478, 34.9888], se: [29.5450, 34.9912] }
+};
 
-function ensureSatMap(){
-  if (SAT.initialized || typeof L === 'undefined') return;
+function poiLatLng(poi){
+  if (poi.lat && poi.lng) return [poi.lat, poi.lng];
+  const lvl = DATA.lvlById[poi.level_id];
+  const slug = lvl?.slug || 'ground';
+  const b = MARINA_BOUNDS[slug] || MARINA_BOUNDS.ground;
+  const lat = b.nw[0] + (poi.pin_y / 100) * (b.se[0] - b.nw[0]);
+  const lng = b.nw[1] + (poi.pin_x / 100) * (b.se[1] - b.nw[1]);
+  return [lat, lng];
+}
+
+function initSatMap(){
+  if (SAT.initialized) return;
+  if (typeof L === 'undefined'){
+    console.warn('[satmap] Leaflet not ready, retrying…');
+    setTimeout(initSatMap, 200);
+    return;
+  }
   const el = document.getElementById('satmap');
   if (!el) return;
+
   SAT.map = L.map(el, {
-    zoomControl: false,
+    zoomControl: false,        // we'll position our own
     attributionControl: true,
     minZoom: 15,
-    maxZoom: 19,
+    maxZoom: 20,
+    zoomSnap: 0.5,
+    tap: true,
+    inertia: true,
   }).setView(AYLA_CENTER, AYLA_ZOOM);
 
-  // Esri World Imagery — free, no key
+  L.control.zoom({ position: 'topright' }).addTo(SAT.map);
+
+  // Esri World Imagery
   L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    {
-      attribution: 'Imagery © Esri',
-      maxNativeZoom: 19,
-      maxZoom: 20,
-    }
+    { attribution: 'Imagery © Esri', maxNativeZoom: 19, maxZoom: 20 }
   ).addTo(SAT.map);
 
-  // A subtle reference layer (street names) over satellite
+  // Subtle place labels (streets / landmarks) over satellite
   L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-    { maxNativeZoom: 19, opacity: 0.75 }
+    { maxNativeZoom: 19, opacity: 0.8 }
   ).addTo(SAT.map);
 
   SAT.initialized = true;
@@ -1082,24 +1116,24 @@ function ensureSatMap(){
 
 function renderSatMarkers(){
   if (!SAT.map) return;
-  // Clear existing
   SAT.markers.forEach(m => SAT.map.removeLayer(m));
   SAT.markers = [];
 
   const visiblePois = DATA.pois.filter(p =>
-    p.lat && p.lng &&
+    p.level_id === state.levelId &&
     (state.activeCats.size === 0 || state.activeCats.has(p.category_id))
   );
 
   for (const p of visiblePois){
     const cat = DATA.catById[p.category_id];
+    const [lat, lng] = poiLatLng(p);
     const icon = L.divIcon({
       className: '',
       html: `<div class="sat-marker ${state.selectedPoiId === p.id ? 'active' : ''}" style="--c:${cat?.color || '#666'}"></div>`,
       iconSize: [22, 22],
       iconAnchor: [11, 11],
     });
-    const marker = L.marker([p.lat, p.lng], { icon, riseOnHover: true })
+    const marker = L.marker([lat, lng], { icon, riseOnHover: true, title: p.name })
       .bindTooltip(p.name, { permanent: true, direction: 'right', offset: [12, 0], className: 'sat-label' })
       .addTo(SAT.map);
     marker.on('click', () => openPoi(p.id));
@@ -1107,31 +1141,10 @@ function renderSatMarkers(){
   }
 }
 
-function setMapStyle(style){
-  const isSat = style === 'satellite';
-  document.body.classList.toggle('map-satellite', isSat);
-  document.querySelectorAll('.msp-btn').forEach(b => {
-    b.classList.toggle('msp-active', b.dataset.style === style);
-  });
-  if (isSat){
-    ensureSatMap();
-    // Leaflet needs a recalc after the container becomes visible
-    setTimeout(() => { SAT.map?.invalidateSize(); }, 320);
-    renderSatMarkers();
-  } else {
-    // Switching back — make sure illustrated transforms re-apply
-    fitMapToStage();
-  }
-  haptic();
-}
-
-function setupMapStylePicker(){
-  document.querySelectorAll('.msp-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      setMapStyle(btn.dataset.style);
-    });
-  });
+function satFlyTo(poi){
+  if (!SAT.map) return;
+  const [lat, lng] = poiLatLng(poi);
+  SAT.map.flyTo([lat, lng], Math.max(SAT.map.getZoom(), 18), { duration: 0.8 });
 }
 
 // ---------- 12. Boot ----------
@@ -1151,7 +1164,7 @@ async function boot(){
   renderChips();
   setupDesktopEnhancements();
   setupTabbar();
-  setupMapStylePicker();
+  initSatMap();
   await setLevel(state.levelId);
   updateFilterBadge();
 

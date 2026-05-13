@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0E4F58">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script>document.documentElement.classList.add('map-satellite');</script>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Ayla Marina</title>
@@ -40,20 +41,8 @@
     <div id="pins" class="pins"></div>
   </div>
 
-  <!-- Satellite map (real GPS) — hidden by default, toggled by Map Style picker -->
-  <div id="satmap" class="satmap" aria-hidden="true"></div>
-
-  <!-- Map Style picker (top-left) -->
-  <div class="map-style-picker">
-    <button class="msp-btn msp-active" data-style="illustrated" aria-label="Illustrated map">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-      <span>Map</span>
-    </button>
-    <button class="msp-btn" data-style="satellite" aria-label="Satellite view">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      <span>Satellite</span>
-    </button>
-  </div>
+  <!-- Real satellite map (Leaflet) -->
+  <div id="satmap" class="satmap" aria-hidden="false"></div>
 
   <!-- Floating compass + zoom controls (top-right) -->
   <div class="map-tools">

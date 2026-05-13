@@ -436,18 +436,22 @@ img{ display: block; }
 .satmap{
   position: absolute; inset: 0;
   z-index: 0;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 280ms var(--ease-out), visibility 280ms;
+  /* Always visible in satellite-only mode */
 }
-body.map-satellite .satmap{
-  opacity: 1;
-  visibility: visible;
-}
-body.map-satellite .canvas,
-body.map-satellite .water-shimmer,
-body.map-satellite .boats,
-body.map-satellite .scale-bar{ display: none !important; }
+.map-satellite .satmap{ opacity: 1; visibility: visible; }
+/* Satellite-only mode: hide every piece of the illustrated map UI */
+.map-satellite .canvas,
+.map-satellite .water-shimmer,
+.map-satellite .boats,
+.map-satellite .scale-bar,
+.map-satellite .map-tools,
+.map-satellite .reset-btn,
+.map-satellite .map-style-picker{ display: none !important; }
+.map-satellite .stage{ background: #1a2530; }
+.map-satellite .stage::before,
+.map-satellite .stage::after{ display: none; }
+/* Leaflet handles all touch — pass pointer events through stage to satmap */
+.map-satellite .stage{ touch-action: auto; }
 /* Brand the Leaflet markers consistently */
 .sat-marker{
   width: 22px; height: 22px;
