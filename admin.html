@@ -67,6 +67,20 @@
     </div>
   </header>
 
+  <!-- Section tabs (Places / Categories) -->
+  <nav class="section-tabs">
+    <div class="section-tabs-inner">
+      <a href="#list" class="sec-tab" data-section="list">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        Places <span class="sec-count" id="sec-count-list">—</span>
+      </a>
+      <a href="#cats" class="sec-tab" data-section="cats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Categories <span class="sec-count" id="sec-count-cats">—</span>
+      </a>
+    </div>
+  </nav>
+
   <!-- View: POI list -->
   <main id="view-list" class="view view-list">
     <div class="page-head">
@@ -217,6 +231,104 @@
     </div>
   </main>
 </div>
+
+<!-- View: Categories list -->
+<main id="view-cats" class="view view-cats" hidden>
+  <div class="page-head">
+    <div>
+      <h1>Categories</h1>
+      <p id="cat-count" class="page-sub">— categories</p>
+    </div>
+    <button id="new-cat-btn" class="btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New category
+    </button>
+  </div>
+
+  <div class="cat-grid" id="cat-grid"></div>
+</main>
+
+<!-- View: Category edit -->
+<main id="view-cat-edit" class="view view-cat-edit" hidden>
+  <div class="edit-head">
+    <button id="back-cats-btn" class="btn-ghost-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <h1 id="cat-edit-title">Edit category</h1>
+    <div class="edit-actions">
+      <button id="cat-delete-btn" class="btn-danger-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Delete
+      </button>
+      <button id="cat-save-btn" class="btn-primary">Save changes</button>
+    </div>
+  </div>
+
+  <div class="cat-edit-grid">
+    <!-- Live preview -->
+    <div class="cat-preview">
+      <p class="cat-preview-label">Pin preview</p>
+      <div class="cat-pin-preview" id="cat-pin-preview"></div>
+      <p class="cat-preview-meta" id="cat-preview-meta">—</p>
+    </div>
+
+    <!-- Form -->
+    <div class="cat-form">
+      <div class="form-group">
+        <h2>Identity</h2>
+        <label class="field">
+          <span>Name (English) *</span>
+          <input id="cf-name" type="text" required>
+        </label>
+        <label class="field">
+          <span>Name (Arabic)</span>
+          <input id="cf-name-ar" type="text" dir="rtl">
+        </label>
+        <label class="field">
+          <span>URL slug</span>
+          <input id="cf-slug" type="text" placeholder="cafe">
+        </label>
+      </div>
+
+      <div class="form-group">
+        <h2>Pin colour</h2>
+        <p class="form-hint">Every pin in this category appears in this colour on the map.</p>
+        <div class="color-picker-row">
+          <div class="color-preview-large" id="cf-color-preview"></div>
+          <div class="color-input-wrap">
+            <input id="cf-color" type="color" value="#3AB0C8">
+            <input id="cf-color-hex" type="text" value="#3AB0C8" maxlength="7" placeholder="#3AB0C8">
+          </div>
+        </div>
+        <p class="form-sublabel">Or pick a preset</p>
+        <div class="color-swatches" id="cf-swatches"></div>
+      </div>
+
+      <div class="form-group">
+        <h2>Display</h2>
+        <label class="field">
+          <span>Icon (Lucide name)</span>
+          <select id="cf-icon">
+            <option value="coffee">coffee · ☕</option>
+            <option value="bed">bed · 🛏</option>
+            <option value="shopping-bag">shopping-bag · 🛍</option>
+            <option value="wine">wine · 🍷</option>
+            <option value="heart">heart · ♡</option>
+            <option value="landmark">landmark · 🏛</option>
+            <option value="utensils">utensils · 🍽</option>
+            <option value="compass">compass · 🧭</option>
+            <option value="sparkles">sparkles · ✨</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Sort order</span>
+          <input id="cf-sort" type="number" min="0" max="99" value="0">
+        </label>
+      </div>
+    </div>
+  </div>
+</main>
 
 <!-- Toast -->
 <div id="toast" class="toast" role="status" aria-live="polite"></div>

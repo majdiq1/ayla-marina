@@ -19,9 +19,9 @@ async function loadData(){
     fetch('data/settings.json' + v, opts).then(r => r.json()),
   ]);
   DATA.levels = levels.sort((a, b) => a.sort_order - b.sort_order);
-  DATA.categories = categories.sort((a, b) => a.sort_order - b.sort_order);
   // Apply any saved overrides on top of the JSON
   const overrides = readOverrides();
+  DATA.categories = mergeCategoryOverrides(categories, overrides).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   DATA.pois = mergeOverrides(pois, overrides);
   DATA.settings = settings;
   DATA.catById = Object.fromEntries(DATA.categories.map(c => [c.id, c]));
@@ -55,6 +55,22 @@ function mergeOverrides(pois, overrides){
   return result;
 }
 
+function mergeCategoryOverrides(cats, overrides){
+  let result = [...cats];
+  const byId = Object.fromEntries(result.map((c, i) => [c.id, i]));
+  for (const [id, edit] of Object.entries(overrides.catUpdates || {})){
+    if (id in byId) Object.assign(result[byId[id]], edit);
+  }
+  for (const newCat of overrides.catAdds || []){
+    result.push(newCat);
+  }
+  if (overrides.catDeletes?.length){
+    const delSet = new Set(overrides.catDeletes);
+    result = result.filter(c => !delSet.has(c.id));
+  }
+  return result;
+}
+
 function persistEdit(poiId, partial){
   const o = readOverrides();
   o.updates = o.updates || {};
@@ -81,6 +97,33 @@ function persistDelete(poiId){
   if (o.adds) o.adds = o.adds.filter(p => p.id !== poiId);
   writeOverrides(o);
   DATA.pois = DATA.pois.filter(p => p.id !== poiId);
+}
+
+function persistCatEdit(id, partial){
+  const o = readOverrides();
+  o.catUpdates = o.catUpdates || {};
+  o.catUpdates[id] = { ...(o.catUpdates[id] || {}), ...partial };
+  writeOverrides(o);
+  const idx = DATA.categories.findIndex(c => c.id === id);
+  if (idx >= 0) Object.assign(DATA.categories[idx], partial);
+  DATA.catById = Object.fromEntries(DATA.categories.map(c => [c.id, c]));
+}
+function persistCatAdd(cat){
+  const o = readOverrides();
+  o.catAdds = o.catAdds || [];
+  o.catAdds.push(cat);
+  writeOverrides(o);
+  DATA.categories.push(cat);
+  DATA.catById = Object.fromEntries(DATA.categories.map(c => [c.id, c]));
+}
+function persistCatDelete(id){
+  const o = readOverrides();
+  o.catDeletes = [...new Set([...(o.catDeletes || []), id])];
+  if (o.catUpdates) delete o.catUpdates[id];
+  if (o.catAdds) o.catAdds = o.catAdds.filter(c => c.id !== id);
+  writeOverrides(o);
+  DATA.categories = DATA.categories.filter(c => c.id !== id);
+  DATA.catById = Object.fromEntries(DATA.categories.map(c => [c.id, c]));
 }
 
 // ---------- 2. Auth ----------
@@ -122,21 +165,46 @@ function currentRoute(){
   const h = location.hash || '#list';
   if (h.startsWith('#edit/')) return { name: 'edit', id: h.slice(6) };
   if (h === '#new') return { name: 'edit', id: null };
+  if (h.startsWith('#cat/')) return { name: 'cat-edit', id: h.slice(5) };
+  if (h === '#cat-new') return { name: 'cat-edit', id: null };
+  if (h === '#cats') return { name: 'cats' };
   return { name: 'list' };
 }
 
 function navigate(){
   if (!isAuthed()){ showLogin(); return; }
   const r = currentRoute();
+  // Hide all views, then show one
+  ['#view-list','#view-edit','#view-cats','#view-cat-edit'].forEach(s => { const el = $(s); if (el) el.hidden = true; });
+  // Section-tab active state
+  document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('on'));
+  if (r.name === 'list' || r.name === 'edit'){
+    document.querySelector('.sec-tab[data-section="list"]')?.classList.add('on');
+  } else {
+    document.querySelector('.sec-tab[data-section="cats"]')?.classList.add('on');
+  }
+
   if (r.name === 'list'){
     $('#view-list').hidden = false;
-    $('#view-edit').hidden = true;
     renderList();
   } else if (r.name === 'edit'){
-    $('#view-list').hidden = true;
     $('#view-edit').hidden = false;
     renderEdit(r.id);
+  } else if (r.name === 'cats'){
+    $('#view-cats').hidden = false;
+    renderCatList();
+  } else if (r.name === 'cat-edit'){
+    $('#view-cat-edit').hidden = false;
+    renderCatEdit(r.id);
   }
+  refreshSectionCounts();
+}
+
+function refreshSectionCounts(){
+  const cl = document.getElementById('sec-count-list');
+  const cc = document.getElementById('sec-count-cats');
+  if (cl) cl.textContent = DATA.pois.length;
+  if (cc) cc.textContent = DATA.categories.length;
 }
 window.addEventListener('hashchange', navigate);
 
@@ -429,6 +497,160 @@ function onDeletePoi(){
 
 function round2(n){ return Math.round(n * 100) / 100; }
 
+// ---------- 5b. Categories ----------
+const PRESET_SWATCHES = [
+  '#3AB0C8', '#0E4F58', '#1E40AF', '#7C3AED', '#DC2626', '#EA580C',
+  '#92400E', '#8B5E3C', '#059669', '#10B981', '#0891B2', '#C026D3',
+  '#F59E0B', '#FBBF24', '#84CC16', '#EF4444', '#EC4899', '#6B7280'
+];
+const ICON_SVGS = {
+  coffee:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>',
+  bed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>',
+  'shopping-bag':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+  wine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5V3H7v7a5 5 0 0 0 5 5z"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  landmark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>',
+  utensils:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>',
+  compass:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>',
+  sparkles:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/></svg>',
+};
+
+function renderCatList(){
+  const wrap = $('#cat-grid');
+  if (!wrap) return;
+  const counts = {};
+  DATA.pois.forEach(p => { counts[p.category_id] = (counts[p.category_id] || 0) + 1; });
+  $('#cat-count').textContent = `${DATA.categories.length} categories`;
+  wrap.innerHTML = DATA.categories.map(c => `
+    <div class="cat-card" data-id="${escAttr(c.id)}" style="--c:${escAttr(c.color)}">
+      <div class="swatch-lg">${ICON_SVGS[c.icon] || ICON_SVGS.compass}</div>
+      <div class="cat-meta">
+        <p class="cat-name">${escHtml(c.name)}</p>
+        <p class="cat-sub">${counts[c.id] || 0} place${(counts[c.id] || 0) === 1 ? '' : 's'} · ${escHtml(c.color.toUpperCase())}</p>
+      </div>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('.cat-card').forEach(el => {
+    el.addEventListener('click', () => { location.hash = `#cat/${el.dataset.id}`; });
+  });
+}
+
+let catEditState = { cat: null, color: '#3AB0C8' };
+
+function renderCatEdit(id){
+  const cat = id ? DATA.categories.find(c => c.id === id) : null;
+  catEditState.cat = cat;
+  catEditState.color = cat?.color || '#3AB0C8';
+
+  $('#cat-edit-title').textContent = cat ? `Edit · ${cat.name}` : 'Add a new category';
+  $('#cat-delete-btn').hidden = !cat;
+
+  $('#cf-name').value = cat?.name || '';
+  $('#cf-name-ar').value = cat?.name_ar || '';
+  $('#cf-slug').value = cat?.slug || '';
+  $('#cf-color').value = catEditState.color;
+  $('#cf-color-hex').value = catEditState.color.toUpperCase();
+  $('#cf-icon').value = cat?.icon || 'compass';
+  $('#cf-sort').value = cat?.sort_order ?? 0;
+
+  renderSwatches();
+  refreshCatPreview();
+}
+
+function renderSwatches(){
+  const wrap = $('#cf-swatches');
+  if (!wrap) return;
+  wrap.innerHTML = PRESET_SWATCHES.map(c => `
+    <div class="color-swatch ${c.toLowerCase() === catEditState.color.toLowerCase() ? 'on' : ''}" style="--c:${c}" data-color="${c}"></div>
+  `).join('');
+  wrap.querySelectorAll('.color-swatch').forEach(el => {
+    el.addEventListener('click', () => {
+      const c = el.dataset.color;
+      setCatColor(c);
+    });
+  });
+}
+
+function setCatColor(hex){
+  catEditState.color = hex;
+  $('#cf-color').value = hex;
+  $('#cf-color-hex').value = hex.toUpperCase();
+  renderSwatches();
+  refreshCatPreview();
+}
+
+function refreshCatPreview(){
+  const c = catEditState.color;
+  document.documentElement.style.setProperty('--c', c);
+  const preview = $('#cat-pin-preview');
+  if (preview){
+    preview.style.setProperty('--c', c);
+    preview.innerHTML = `<div class="pin-body">${ICON_SVGS[$('#cf-icon').value] || ICON_SVGS.compass}</div>`;
+  }
+  const meta = $('#cat-preview-meta');
+  if (meta) meta.textContent = ($('#cf-name').value || 'Category name') + ' · ' + c.toUpperCase();
+  $('#cf-color-preview').style.setProperty('--c', c);
+}
+
+// Wire up category form events
+$('#cf-color')?.addEventListener('input', e => setCatColor(e.target.value));
+$('#cf-color-hex')?.addEventListener('input', e => {
+  let v = e.target.value.trim();
+  if (!v.startsWith('#')) v = '#' + v;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) setCatColor(v);
+});
+$('#cf-name')?.addEventListener('input', refreshCatPreview);
+$('#cf-icon')?.addEventListener('change', refreshCatPreview);
+
+$('#cat-save-btn')?.addEventListener('click', () => {
+  const name = $('#cf-name').value.trim();
+  if (!name){ toast('Category name is required', 'err'); $('#cf-name').focus(); return; }
+  const hex = $('#cf-color-hex').value.trim().toUpperCase();
+  if (!/^#[0-9A-F]{6}$/.test(hex)){ toast('Invalid colour hex — use format #RRGGBB', 'err'); return; }
+  const partial = {
+    name,
+    name_ar: $('#cf-name-ar').value.trim() || null,
+    slug: $('#cf-slug').value.trim() || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    color: hex,
+    icon: $('#cf-icon').value,
+    sort_order: parseInt($('#cf-sort').value, 10) || 0,
+  };
+  if (catEditState.cat){
+    persistCatEdit(catEditState.cat.id, partial);
+    toast(`Saved · ${name}`, 'ok');
+  } else {
+    const id = 'cat-' + (partial.slug || Date.now().toString(36));
+    persistCatAdd({ id, ...partial });
+    toast(`Added · ${name}`, 'ok');
+  }
+  setTimeout(() => { location.hash = '#cats'; }, 500);
+});
+
+$('#cat-delete-btn')?.addEventListener('click', () => {
+  if (!catEditState.cat) return;
+  const inUse = DATA.pois.filter(p => p.category_id === catEditState.cat.id).length;
+  if (inUse > 0){
+    if (!confirm(`${inUse} places use this category. Delete anyway? Those places will lose their category.`)) return;
+  } else {
+    if (!confirm(`Delete "${catEditState.cat.name}"?`)) return;
+  }
+  persistCatDelete(catEditState.cat.id);
+  toast('Category deleted', 'ok');
+  setTimeout(() => { location.hash = '#cats'; }, 500);
+});
+
+$('#back-cats-btn')?.addEventListener('click', () => { location.hash = '#cats'; });
+$('#new-cat-btn')?.addEventListener('click', () => { location.hash = '#cat-new'; });
+
+// Section tab clicks
+document.querySelectorAll('.sec-tab').forEach(t => {
+  t.addEventListener('click', e => {
+    e.preventDefault();
+    const sec = t.dataset.section;
+    location.hash = sec === 'cats' ? '#cats' : '#list';
+  });
+});
+
 // ---------- 6. Export JSON ----------
 $('#export-btn')?.addEventListener('click', () => {
   const json = JSON.stringify(DATA.pois.map(p => ({
@@ -458,6 +680,23 @@ $('#export-btn')?.addEventListener('click', () => {
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
   toast('Downloaded pois.json — commit to the repo and Vercel will redeploy', 'ok');
+  // Also offer categories.json if any cat changes exist
+  const o = readOverrides();
+  if ((o.catUpdates && Object.keys(o.catUpdates).length) || (o.catAdds && o.catAdds.length) || (o.catDeletes && o.catDeletes.length)){
+    setTimeout(() => {
+      const catJson = JSON.stringify(DATA.categories.map(c => ({
+        id: c.id, slug: c.slug, name: c.name, name_ar: c.name_ar ?? null,
+        color: c.color, icon: c.icon, sort_order: c.sort_order ?? 0,
+      })), null, 2);
+      const b = new Blob([catJson], { type: 'application/json' });
+      const u = URL.createObjectURL(b);
+      const a = document.createElement('a');
+      a.href = u; a.download = 'categories.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(u);
+      toast('Also downloaded categories.json', 'ok');
+    }, 1200);
+  }
 });
 
 // ---------- 7. Login form ----------
