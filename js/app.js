@@ -156,8 +156,6 @@ let moved = false;
 let downPin = null;
 
 stage.addEventListener('pointerdown', e => {
-  // Satellite-only mode: let Leaflet handle all gestures
-  if (document.documentElement.classList.contains('map-satellite')) return;
   // Don't capture if user is tapping UI overlays inside the stage
   if (e.target.closest('.map-tool, .map-tool-group, .reset-btn, .scale-bar')){
     return;
@@ -294,9 +292,6 @@ function renderPins(){
   }
   updateLabelVisibility();
   renderRailList();
-  if (typeof buildPins === 'function' && SCENE.initialized){
-    buildPins(SCENE.three.THREE, SCENE.scene);
-  }
 }
 
 // Show labels by default; collision dedup keeps it readable when crowded
@@ -456,11 +451,8 @@ async function setLevel(lvlId){
   state.levelId = lvlId;
   const lvl = DATA.lvlById[lvlId];
   if (!lvl) return;
-  // Skip illustrated image load when satellite is the only map
-  if (!document.documentElement.classList.contains('map-satellite')){
-    await loadLevelImage(lvl);
-    renderBoats();
-  }
+  await loadLevelImage(lvl);
+  renderBoats();
   renderPins();
   renderLevelSwitch();
   closeSheet();
@@ -609,8 +601,7 @@ function openPoi(id){
   sheet.setAttribute('aria-hidden', 'false');
   document.body.classList.add('poi-open');
   renderPins();
-  sceneFlyToPoi(poi);
-  updatePinSelectionState();
+  flyToPin(poi);
   haptic();
   pushDeepLink(poi.id);
 }
@@ -1053,373 +1044,6 @@ function setupTabbar(){
 }
 
 
-// ---------- 3D Marina (Three.js) ----------
-const SCENE = {
-  three: null, renderer: null, labelRenderer: null,
-  scene: null, camera: null, controls: null,
-  pinObjects: [], boats: [], buildings: [],
-  raycaster: null, pointer: null, initialized: false, clock: null,
-};
-
-const ORIGIN_LAT = 29.5468;
-const ORIGIN_LNG = 34.9900;
-const METRES_PER_DEG_LAT = 111320;
-const MARINA_BOUNDS = {
-  ground: { nw: [29.5487, 34.9886], se: [29.5448, 34.9925] },
-  marina: { nw: [29.5478, 34.9888], se: [29.5450, 34.9912] }
-};
-function poiLatLng(poi){
-  if (poi.lat && poi.lng) return [poi.lat, poi.lng];
-  const lvl = DATA.lvlById[poi.level_id];
-  const slug = lvl?.slug || 'ground';
-  const b = MARINA_BOUNDS[slug] || MARINA_BOUNDS.ground;
-  return [
-    b.nw[0] + (poi.pin_y / 100) * (b.se[0] - b.nw[0]),
-    b.nw[1] + (poi.pin_x / 100) * (b.se[1] - b.nw[1]),
-  ];
-}
-function poiToWorld(poi){
-  const [lat, lng] = poiLatLng(poi);
-  const x = (lng - ORIGIN_LNG) * METRES_PER_DEG_LAT * Math.cos(ORIGIN_LAT * Math.PI / 180);
-  const z = -(lat - ORIGIN_LAT) * METRES_PER_DEG_LAT;
-  return [x, z];
-}
-
-async function initScene3D(){
-  if (SCENE.initialized) return;
-  const THREE = await import('three');
-  const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
-  const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
-  SCENE.three = { THREE, OrbitControls, CSS2DRenderer, CSS2DObject };
-  console.log('[3d] Three.js loaded');
-
-  const container = document.getElementById('scene3d');
-  if (!container) return;
-
-  const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x9CC9D2, 0.0028);
-  SCENE.scene = scene;
-
-  const camera = new THREE.PerspectiveCamera(
-    45, container.clientWidth / container.clientHeight, 0.5, 2000
-  );
-  camera.position.set(-90, 130, 160);
-  SCENE.camera = camera;
-
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true, alpha: true, powerPreference: 'high-performance'
-  });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
-  container.appendChild(renderer.domElement);
-  SCENE.renderer = renderer;
-
-  const labelRenderer = new CSS2DRenderer();
-  labelRenderer.setSize(container.clientWidth, container.clientHeight);
-  labelRenderer.domElement.style.position = 'absolute';
-  labelRenderer.domElement.style.top = '0';
-  labelRenderer.domElement.style.left = '0';
-  labelRenderer.domElement.style.pointerEvents = 'none';
-  container.appendChild(labelRenderer.domElement);
-  SCENE.labelRenderer = labelRenderer;
-
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 0, 0);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.minDistance = 40;
-  controls.maxDistance = 320;
-  controls.minPolarAngle = Math.PI * 0.18;
-  controls.maxPolarAngle = Math.PI * 0.46;
-  controls.minAzimuthAngle = -Math.PI * 0.65;
-  controls.maxAzimuthAngle =  Math.PI * 0.65;
-  controls.update();
-  SCENE.controls = controls;
-
-  // Lights
-  scene.add(new THREE.HemisphereLight(0xE8F4F8, 0xC9B996, 0.85));
-  const sun = new THREE.DirectionalLight(0xFFE9C2, 1.2);
-  sun.position.set(80, 140, 60);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.left = -120; sun.shadow.camera.right = 120;
-  sun.shadow.camera.top = 120;   sun.shadow.camera.bottom = -120;
-  sun.shadow.bias = -0.0002;
-  scene.add(sun);
-  const fill = new THREE.DirectionalLight(0xB3E0E8, 0.35);
-  fill.position.set(-60, 50, -40);
-  scene.add(fill);
-
-  // Water
-  const water = new THREE.Mesh(
-    new THREE.PlaneGeometry(2000, 2000),
-    new THREE.MeshStandardMaterial({
-      color: 0x3AB0C8, roughness: 0.35, metalness: 0.15,
-      transparent: true, opacity: 0.92
-    })
-  );
-  water.rotation.x = -Math.PI / 2;
-  water.position.y = -0.5;
-  water.receiveShadow = true;
-  scene.add(water);
-  SCENE.water = water;
-
-  // Ground
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(220, 260),
-    new THREE.MeshStandardMaterial({ color: 0xFAF6EE, roughness: 0.95 })
-  );
-  ground.rotation.x = -Math.PI / 2;
-  ground.receiveShadow = true;
-  scene.add(ground);
-
-  // Marina dock
-  const dock = new THREE.Mesh(
-    new THREE.PlaneGeometry(140, 18),
-    new THREE.MeshStandardMaterial({ color: 0xC8BFAA, roughness: 0.9 })
-  );
-  dock.rotation.x = -Math.PI / 2;
-  dock.position.set(0, 0.05, 60);
-  dock.receiveShadow = true;
-  scene.add(dock);
-
-  buildBuildings(THREE, scene);
-  buildBoats(THREE, scene);
-  buildPins(THREE, scene);
-
-  SCENE.raycaster = new THREE.Raycaster();
-  SCENE.pointer = new THREE.Vector2();
-  renderer.domElement.addEventListener('click', onPinClick, { passive: true });
-  renderer.domElement.addEventListener('touchend', e => onPinClick(e.changedTouches[0]), { passive: true });
-  window.addEventListener('resize', onSceneResize);
-
-  SCENE.clock = new THREE.Clock();
-  SCENE.initialized = true;
-  animate();
-}
-
-function onSceneResize(){
-  const container = document.getElementById('scene3d');
-  if (!container || !SCENE.renderer) return;
-  SCENE.camera.aspect = container.clientWidth / container.clientHeight;
-  SCENE.camera.updateProjectionMatrix();
-  SCENE.renderer.setSize(container.clientWidth, container.clientHeight);
-  SCENE.labelRenderer.setSize(container.clientWidth, container.clientHeight);
-}
-
-function buildBuildings(THREE, scene){
-  const visible = DATA.pois.filter(p => p.lat && p.lng);
-  const groups = [];
-  for (const poi of visible){
-    const [x, z] = poiToWorld(poi);
-    let g = groups.find(gr => Math.hypot(gr.cx - x, gr.cz - z) < 14);
-    if (g){
-      g.items.push({ poi, x, z });
-      g.cx = (g.cx * (g.items.length - 1) + x) / g.items.length;
-      g.cz = (g.cz * (g.items.length - 1) + z) / g.items.length;
-    } else {
-      groups.push({ cx: x, cz: z, items: [{ poi, x, z }] });
-    }
-  }
-  for (const g of groups){
-    const h = 4 + g.items.length * 0.8 + Math.random() * 2;
-    const w = 8 + g.items.length * 1.4 + Math.random() * 4;
-    const d = 8 + g.items.length * 1.4 + Math.random() * 4;
-    const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(w, h, d),
-      new THREE.MeshStandardMaterial({
-        color: new THREE.Color().lerpColors(
-          new THREE.Color(0xE8E1D2),
-          new THREE.Color(0xC8BFAA),
-          Math.random() * 0.4
-        ),
-        roughness: 0.85,
-      })
-    );
-    mesh.position.set(g.cx, h / 2, g.cz);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    scene.add(mesh);
-    SCENE.buildings.push(mesh);
-
-    const roof = new THREE.Mesh(
-      new THREE.BoxGeometry(w + 0.8, 0.4, d + 0.8),
-      new THREE.MeshStandardMaterial({ color: 0xA08F70, roughness: 0.9 })
-    );
-    roof.position.set(g.cx, h + 0.2, g.cz);
-    roof.castShadow = true;
-    scene.add(roof);
-  }
-}
-
-function buildBoats(THREE, scene){
-  const positions = [
-    [-65, 35], [-78, 20], [-72, -15], [-90, -5],
-    [70, 55], [88, 40], [95, 20],
-    [-30, 80], [30, 78], [50, 75],
-  ];
-  for (const [x, z] of positions){
-    const grp = new THREE.Group();
-    const hull = new THREE.Mesh(
-      new THREE.BoxGeometry(3.5, 0.7, 1.5),
-      new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 })
-    );
-    hull.position.y = 0.35; hull.castShadow = true;
-    grp.add(hull);
-    const cabin = new THREE.Mesh(
-      new THREE.BoxGeometry(1.6, 0.7, 1.1),
-      new THREE.MeshStandardMaterial({ color: 0xCFE8EE, roughness: 0.5 })
-    );
-    cabin.position.set(0.2, 1.1, 0); cabin.castShadow = true;
-    grp.add(cabin);
-    grp.position.set(x, 0.2, z);
-    grp.rotation.y = Math.random() * Math.PI * 2;
-    grp.userData = {
-      baseX: x, baseZ: z,
-      bobOffset: Math.random() * Math.PI * 2,
-      driftSpeed: 0.08 + Math.random() * 0.06,
-    };
-    scene.add(grp);
-    SCENE.boats.push(grp);
-  }
-}
-
-function buildPins(THREE, scene){
-  const { CSS2DObject } = SCENE.three;
-  SCENE.pinObjects.forEach(p => {
-    scene.remove(p.group);
-    p.group.traverse(o => {
-      if (o.geometry) o.geometry.dispose();
-      if (o.material) o.material.dispose();
-    });
-  });
-  SCENE.pinObjects = [];
-
-  const filtered = DATA.pois.filter(p =>
-    p.level_id === state.levelId &&
-    (state.activeCats.size === 0 || state.activeCats.has(p.category_id))
-  );
-
-  for (const poi of filtered){
-    const cat = DATA.catById[poi.category_id];
-    const colour = new THREE.Color(cat?.color || '#666');
-    const [x, z] = poiToWorld(poi);
-
-    const group = new THREE.Group();
-    const stem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.18, 0.18, 6, 8),
-      new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 })
-    );
-    stem.position.y = 3; stem.castShadow = true;
-    group.add(stem);
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(1.6, 18, 14),
-      new THREE.MeshStandardMaterial({
-        color: colour, roughness: 0.35, metalness: 0.15,
-        emissive: colour, emissiveIntensity: 0.12
-      })
-    );
-    head.position.y = 7; head.castShadow = true;
-    head.userData.poiId = poi.id;
-    group.add(head);
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(2.5, 3, 32),
-      new THREE.MeshBasicMaterial({
-        color: colour, transparent: true, opacity: 0.55, side: THREE.DoubleSide
-      })
-    );
-    ring.position.y = 0.05; ring.rotation.x = -Math.PI / 2;
-    group.add(ring);
-
-    group.position.set(x, 0, z);
-    scene.add(group);
-
-    const labelEl = document.createElement('div');
-    labelEl.className = 'pin3d-label';
-    labelEl.textContent = poi.name;
-    labelEl.addEventListener('click', e => { e.stopPropagation(); openPoi(poi.id); });
-    const label = new CSS2DObject(labelEl);
-    label.position.set(0, 10, 0);
-    group.add(label);
-
-    SCENE.pinObjects.push({ poi, group, head, ring, labelEl });
-  }
-  updatePinSelectionState();
-}
-
-function updatePinSelectionState(){
-  for (const p of SCENE.pinObjects){
-    const isActive = state.selectedPoiId === p.poi.id;
-    p.labelEl.classList.toggle('active', isActive);
-    p.head.scale.setScalar(isActive ? 1.5 : 1);
-  }
-}
-
-function onPinClick(e){
-  if (!SCENE.scene || !SCENE.camera || !SCENE.renderer) return;
-  const rect = SCENE.renderer.domElement.getBoundingClientRect();
-  SCENE.pointer.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1;
-  SCENE.pointer.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
-  SCENE.raycaster.setFromCamera(SCENE.pointer, SCENE.camera);
-  const heads = SCENE.pinObjects.map(p => p.head);
-  const hits = SCENE.raycaster.intersectObjects(heads, false);
-  if (hits.length) openPoi(hits[0].object.userData.poiId);
-}
-
-function animate(){
-  if (!SCENE.initialized) return;
-  requestAnimationFrame(animate);
-  const t = SCENE.clock.elapsedTime;
-
-  for (const b of SCENE.boats){
-    b.position.y = 0.2 + Math.sin(t * 0.8 + b.userData.bobOffset) * 0.14;
-    b.rotation.z = Math.sin(t * 0.6 + b.userData.bobOffset) * 0.04;
-    b.position.x = b.userData.baseX + Math.sin(t * b.userData.driftSpeed) * 6;
-  }
-  for (const p of SCENE.pinObjects){
-    const pulse = (Math.sin(t * 1.6 + p.poi.pin_x * 0.02) + 1) / 2;
-    p.ring.scale.setScalar(1 + pulse * 0.4);
-    p.ring.material.opacity = 0.55 - pulse * 0.4;
-  }
-  SCENE.controls.update();
-  SCENE.clock.getDelta();
-  SCENE.renderer.render(SCENE.scene, SCENE.camera);
-  SCENE.labelRenderer.render(SCENE.scene, SCENE.camera);
-}
-
-function sceneFlyToPoi(poi){
-  if (!SCENE.initialized) return;
-  const [x, z] = poiToWorld(poi);
-  const cam = SCENE.camera, target = SCENE.controls.target;
-  const camStart = { x: cam.position.x, y: cam.position.y, z: cam.position.z };
-  const tgtStart = { x: target.x, y: target.y, z: target.z };
-  const camEnd = { x: x - 30, y: 70, z: z + 50 };
-  const tgtEnd = { x, y: 0, z };
-  const dur = 800, t0 = performance.now();
-  function step(now){
-    const t = Math.min(1, (now - t0) / dur);
-    const e = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2;
-    cam.position.set(
-      camStart.x + (camEnd.x - camStart.x) * e,
-      camStart.y + (camEnd.y - camStart.y) * e,
-      camStart.z + (camEnd.z - camStart.z) * e
-    );
-    target.set(
-      tgtStart.x + (tgtEnd.x - tgtStart.x) * e,
-      tgtStart.y + (tgtEnd.y - tgtStart.y) * e,
-      tgtStart.z + (tgtEnd.z - tgtStart.z) * e
-    );
-    SCENE.controls.update();
-    if (t < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
 // ---------- 12. Boot ----------
 async function boot(){
   try {
@@ -1437,7 +1061,6 @@ async function boot(){
   renderChips();
   setupDesktopEnhancements();
   setupTabbar();
-  initScene3D().catch(err => console.error('[3d] init failed', err));
   await setLevel(state.levelId);
   updateFilterBadge();
 
