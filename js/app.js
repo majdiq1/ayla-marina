@@ -316,18 +316,35 @@ function dedupeLabels(){
   // Reset
   allPins.forEach(p => p.querySelector('.pin-label')?.classList.remove('collide'));
 
+  // Higher-importance categories win label space in crowded zones
+  const CATEGORY_PRIORITY = {
+    'cat-hotel':         -5000,
+    'cat-heritage':      -4000,
+    'cat-experience':    -3500,
+    'cat-essentials':    -3000,
+    'cat-dining':        -2000,
+    'cat-cafe':          -1500,
+    'cat-pub':           -1000,
+    'cat-shopping':       -500,
+    'cat-entertainment':  -100,
+  };
   const items = allPins.map(p => {
     const label = p.querySelector('.pin-label');
     if (!label) return null;
     const rect = label.getBoundingClientRect();
     if (rect.width === 0) return null;
+    const id = p.dataset.id;
+    const poi = id ? DATA.pois.find(x => x.id === id) : null;
+    const catPriority = poi ? (CATEGORY_PRIORITY[poi.category_id] || 0) : 0;
     return {
       el: p,
       label,
       rect,
       active: p.classList.contains('active'),
-      // priority: shorter names win ties (visually lighter); active wins all
-      priority: p.classList.contains('active') ? -10000 : (p.querySelector('.pin-label').textContent || '').length,
+      // active > category importance > shorter name
+      priority: p.classList.contains('active')
+        ? -100000
+        : catPriority + (label.textContent || '').length,
     };
   }).filter(Boolean);
 
@@ -337,7 +354,7 @@ function dedupeLabels(){
   const kept = [];
   // More aggressive padding on mobile so labels never visually touch
   const isWide = window.matchMedia('(min-width: 960px)').matches;
-  const pad = isWide ? 7 : 14;
+  const pad = isWide ? 10 : 16;
   for (const it of items){
     const collides = kept.some(k => rectsOverlap(it.rect, k.rect, pad));
     if (collides){
