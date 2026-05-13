@@ -243,19 +243,33 @@
     flex:1;background:linear-gradient(180deg,var(--ayla-aqua),var(--ayla-aqua-deep));
     border-radius:3px 3px 0 0;
   }
-  .mini-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:10px}
+  .mini-pills{
+    display:flex;flex-wrap:nowrap;gap:5px;margin-top:auto;padding-top:10px;
+    overflow:hidden;
+    mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);
+  }
   .mini-pills span{
+    flex-shrink:0;
     background:var(--ayla-aqua-light);color:var(--ayla-aqua-deep);
     font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;
+    white-space:nowrap;
   }
-  .mini-chips{display:flex;gap:6px;margin-top:auto;padding-top:10px;flex-wrap:wrap}
+  .mini-chips{
+    display:flex;gap:6px;margin-top:auto;padding-top:10px;
+    flex-wrap:nowrap;overflow:hidden;
+    mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);
+  }
   .mini-chips span{
+    flex-shrink:0;
     display:inline-flex;align-items:center;gap:4px;
     background:var(--bg);border:1px solid var(--border);
     padding:3px 8px;border-radius:999px;
     font-size:10px;font-weight:600;color:var(--ink-2);
+    white-space:nowrap;
   }
-  .mini-chips i{width:6px;height:6px;border-radius:50%;background:var(--c)}
+  .mini-chips i{width:6px;height:6px;border-radius:50%;background:var(--c);flex-shrink:0}
   .mini-phone{
     margin-top:auto;
     height:64px;border-radius:10px;
@@ -506,7 +520,7 @@
         <span class="pill pill-live">Live now</span>
       </div>
       <h3>Smart filters</h3>
-      <p>Nine colour-coded categories. Tap one to surface just cafés, just shops, just experiences.</p>
+      <p>Nine colour-coded categories. Tap to surface just cafés, just shops, just experiences.</p>
       <div class="mini-chips">
         <span style="--c:#8B5E3C"><i></i>Cafe</span>
         <span style="--c:#DC2626"><i></i>Pubs</span>
