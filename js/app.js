@@ -55,11 +55,15 @@ function conceptImageFor(lvl){
   return lvl?.map_image || 'images/map-ground.png';
 }
 
+let _imgLoadToken = 0;
 function loadLevelImage(lvl){
   return new Promise((resolve) => {
     const src = conceptImageFor(lvl);
+    const myToken = ++_imgLoadToken;
     const tmp = new Image();
     tmp.onload = () => {
+      // A newer load (concept/level switch) superseded this one — discard
+      if (myToken !== _imgLoadToken){ resolve(); return; }
       mapImg.src = tmp.src;
       mapImg.naturalW = tmp.naturalWidth;
       mapImg.naturalH = tmp.naturalHeight;
