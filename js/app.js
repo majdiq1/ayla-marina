@@ -33,8 +33,31 @@ const canvas = $('#canvas');
 const mapImg = $('#map-img');
 const pinsLayer = $('#pins');
 
+// ---------- Map concepts (Illustrated / Satellite / New) ----------
+const MAP_CONCEPTS = {
+  illustrated: {
+    kind: 'image',
+    img: { ground: 'images/map-ground.png', marina: 'images/map-marina.png' },
+  },
+  satellite: { kind: 'leaflet' },
+  new: {
+    kind: 'image',
+    img: { ground: 'images/map-new.jpg', marina: 'images/map-new.jpg' },
+  },
+};
+state.mapConcept = 'illustrated';
+
+function conceptImageFor(lvl){
+  const c = MAP_CONCEPTS[state.mapConcept];
+  if (c && c.kind === 'image'){
+    return c.img[lvl?.slug] || c.img.ground;
+  }
+  return lvl?.map_image || 'images/map-ground.png';
+}
+
 function loadLevelImage(lvl){
   return new Promise((resolve) => {
+    const src = conceptImageFor(lvl);
     const tmp = new Image();
     tmp.onload = () => {
       mapImg.src = tmp.src;
@@ -43,7 +66,8 @@ function loadLevelImage(lvl){
       fitMapToStage();
       resolve();
     };
-    tmp.src = lvl.map_image;
+    tmp.onerror = () => resolve();
+    tmp.src = src;
   });
 }
 
@@ -297,6 +321,7 @@ function renderPins(){
   }
   updateLabelVisibility();
   renderRailList();
+  if (state.mapConcept === 'satellite' && typeof renderSatMarkers === 'function') renderSatMarkers();
 }
 
 // Show labels by default; collision dedup keeps it readable when crowded
@@ -623,7 +648,13 @@ function openPoi(id){
   sheet.setAttribute('aria-hidden', 'false');
   document.body.classList.add('poi-open');
   renderPins();
-  flyToPin(poi);
+  if (state.mapConcept === 'satellite' && SAT.map){
+    const [lat, lng] = poiLatLng(poi);
+    SAT.map.flyTo([lat, lng], Math.max(SAT.map.getZoom(), 18), { duration: 0.7 });
+    renderSatMarkers();
+  } else {
+    flyToPin(poi);
+  }
   haptic();
   pushDeepLink(poi.id);
 }
@@ -1066,6 +1097,92 @@ function setupTabbar(){
 }
 
 
+// ---------- 11e. Map concept switcher + Leaflet satellite ----------
+const SAT = { map: null, markers: [], ready: false };
+const AYLA_LATLNG = [29.5462, 34.9905];
+const MARINA_BOUNDS = {
+  ground: { nw: [29.5487, 34.9886], se: [29.5448, 34.9925] },
+  marina: { nw: [29.5478, 34.9888], se: [29.5450, 34.9912] },
+};
+function poiLatLng(p){
+  if (p.lat && p.lng) return [p.lat, p.lng];
+  const lvl = DATA.lvlById[p.level_id];
+  const b = MARINA_BOUNDS[lvl?.slug] || MARINA_BOUNDS.ground;
+  return [
+    b.nw[0] + (p.pin_y / 100) * (b.se[0] - b.nw[0]),
+    b.nw[1] + (p.pin_x / 100) * (b.se[1] - b.nw[1]),
+  ];
+}
+
+function initSatellite(){
+  if (SAT.ready || typeof L === 'undefined') return;
+  const el = document.getElementById('satmap');
+  if (!el) return;
+  SAT.map = L.map(el, { zoomControl: true, attributionControl: true, minZoom: 14, maxZoom: 19 })
+    .setView(AYLA_LATLNG, 17);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Imagery © Esri', maxNativeZoom: 19, maxZoom: 19,
+  }).addTo(SAT.map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxNativeZoom: 19, opacity: 0.7,
+  }).addTo(SAT.map);
+  SAT.ready = true;
+  renderSatMarkers();
+}
+
+function renderSatMarkers(){
+  if (!SAT.map) return;
+  SAT.markers.forEach(m => SAT.map.removeLayer(m));
+  SAT.markers = [];
+  const pois = DATA.pois.filter(p =>
+    p.level_id === state.levelId &&
+    (state.activeCats.size === 0 || state.activeCats.has(p.category_id))
+  );
+  for (const p of pois){
+    const cat = DATA.catById[p.category_id];
+    const [lat, lng] = poiLatLng(p);
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="sat-pin ${state.selectedPoiId === p.id ? 'active' : ''}" style="--c:${cat?.color || '#666'}">
+        <div class="sat-dot"></div><span class="sat-name">${escapeHtml(p.name)}</span>
+      </div>`,
+      iconSize: [16, 16], iconAnchor: [8, 8],
+    });
+    const m = L.marker([lat, lng], { icon }).addTo(SAT.map);
+    m.on('click', () => openPoi(p.id));
+    SAT.markers.push(m);
+  }
+}
+
+function setMapConcept(concept){
+  if (!MAP_CONCEPTS[concept]) return;
+  state.mapConcept = concept;
+  document.body.classList.remove('concept-illustrated', 'concept-satellite', 'concept-new');
+  document.body.classList.add('concept-' + concept);
+  document.querySelectorAll('.concept-btn').forEach(b => {
+    b.classList.toggle('on', b.dataset.concept === concept);
+  });
+
+  if (concept === 'satellite'){
+    initSatellite();
+    setTimeout(() => { SAT.map?.invalidateSize(); renderSatMarkers(); }, 320);
+  } else {
+    // Image concept — reload the basemap image for the current level
+    const lvl = DATA.lvlById[state.levelId];
+    loadLevelImage(lvl).then(() => { renderPins(); renderBoats(); });
+  }
+  haptic();
+}
+
+function setupConceptSwitch(){
+  document.querySelectorAll('.concept-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      setMapConcept(btn.dataset.concept);
+    });
+  });
+}
+
 // ---------- 12. Boot ----------
 async function boot(){
   try {
@@ -1083,6 +1200,8 @@ async function boot(){
   renderChips();
   setupDesktopEnhancements();
   setupTabbar();
+  setupConceptSwitch();
+  document.body.classList.add('concept-illustrated');
   await setLevel(state.levelId);
   updateFilterBadge();
 

@@ -12,6 +12,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/app.css">
+<!-- Leaflet for the Satellite concept -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </head>
 <body>
 
@@ -35,6 +38,25 @@
     <!-- Route SVG layer (wayfinding) -->
     <svg id="routes" class="routes" aria-hidden="true"></svg>
     <div id="pins" class="pins"></div>
+  </div>
+
+  <!-- Satellite concept (Leaflet) -->
+  <div id="satmap" class="satmap" aria-hidden="true"></div>
+
+  <!-- Map concept switcher -->
+  <div id="concept-switch" class="concept-switch" role="tablist" aria-label="Map concept">
+    <button class="concept-btn on" data-concept="illustrated" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg>
+      <span>Illustrated</span>
+    </button>
+    <button class="concept-btn" data-concept="satellite" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <span>Satellite</span>
+    </button>
+    <button class="concept-btn" data-concept="new" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z"/></svg>
+      <span>New design</span>
+    </button>
   </div>
 
 

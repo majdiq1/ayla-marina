@@ -150,6 +150,99 @@ img{ display: block; }
 }
 .pins{ position: absolute; inset: 0; pointer-events: none; }
 
+/* ---------- 3-concept map switcher ---------- */
+.concept-switch{
+  position: fixed;
+  z-index: 34;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(var(--safe-top) + 12px + 132px);  /* below the floating top bar */
+  display: flex;
+  background: rgba(255,255,255,0.94);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-2);
+  padding: 4px;
+  gap: 2px;
+}
+.concept-btn{
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 0; background: transparent;
+  padding: 8px 13px; border-radius: 10px;
+  font-size: 12px; font-weight: 600; letter-spacing: -0.01em;
+  color: var(--ink-2); cursor: pointer;
+  white-space: nowrap;
+  transition: all 180ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.concept-btn svg{ width: 15px; height: 15px; }
+.concept-btn:hover{ color: var(--ink); }
+.concept-btn.on{
+  background: var(--ayla-aqua);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(58,176,200,.35);
+}
+.concept-btn .badge{
+  font-size: 8.5px; letter-spacing: .08em; text-transform: uppercase;
+  background: var(--ayla-gold); color: #fff;
+  padding: 1px 5px; border-radius: 999px; margin-left: 2px;
+}
+
+/* Satellite container (Leaflet) */
+.satmap{
+  position: absolute; inset: 0;
+  z-index: 1;
+  opacity: 0; visibility: hidden;
+  transition: opacity 300ms var(--ease-out), visibility 300ms;
+}
+body.concept-satellite .satmap{ opacity: 1; visibility: visible; }
+body.concept-satellite .canvas,
+body.concept-satellite .water-shimmer,
+body.concept-satellite .boats,
+body.concept-satellite .routes,
+body.concept-satellite .pins,
+body.concept-satellite .map-tools,
+body.concept-satellite .scale-bar,
+body.concept-satellite .reset-btn{ display: none !important; }
+
+/* Branded Leaflet markers */
+.sat-pin{
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer; pointer-events: auto;
+}
+.sat-pin .sat-dot{
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--c); border: 2.5px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+.sat-pin .sat-name{
+  margin-top: 3px;
+  background: #fff; color: var(--ink);
+  font-size: 10.5px; font-weight: 600;
+  padding: 2px 7px; border-radius: 5px;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  max-width: 130px; overflow: hidden; text-overflow: ellipsis;
+}
+.sat-pin.active .sat-dot{ width: 22px; height: 22px; box-shadow: 0 0 0 3px var(--ayla-aqua), 0 4px 12px rgba(0,0,0,.4); }
+.leaflet-container{ background: #1a2530; font-family: var(--sans); }
+.leaflet-control-attribution{ font-size: 9px !important; }
+
+@media (max-width: 600px){
+  .concept-switch{ top: auto; bottom: calc(var(--safe-bottom) + 86px); }
+  .concept-btn{ padding: 7px 10px; font-size: 11px; }
+  .concept-btn span{ display: none; }
+  .concept-btn svg{ width: 17px; height: 17px; }
+}
+@media (min-width: 960px){
+  .concept-switch{ left: calc(400px + (100vw - 400px)/2); top: 24px; }
+}
+@media (min-width: 1280px){
+  .concept-switch{ left: calc(440px + (100vw - 440px)/2); }
+}
+
 /* ---------- Atmosphere: water shimmer + drifting boats ---------- */
 .water-shimmer{
   position: absolute; inset: 0;
