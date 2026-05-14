@@ -181,7 +181,7 @@ let downPin = null;
 
 stage.addEventListener('pointerdown', e => {
   // Don't capture if user is tapping UI overlays inside the stage
-  if (e.target.closest('.map-tool, .map-tool-group, .reset-btn, .scale-bar')){
+  if (e.target.closest('.map-tool, .map-tool-group, .reset-btn, .scale-bar, .concept-switch, .satmap')){
     return;
   }
   stage.setPointerCapture(e.pointerId);
