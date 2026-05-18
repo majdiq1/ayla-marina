@@ -6,16 +6,119 @@ const $ = sel => document.querySelector(sel);
 const $$ = sel => document.querySelectorAll(sel);
 
 async function loadData(){
+  const v = '?v=' + Date.now();
   const [levels, categories, pois] = await Promise.all([
-    fetch('data/levels.json').then(r => r.json()),
-    fetch('data/categories.json').then(r => r.json()),
-    fetch('data/pois.json').then(r => r.json()),
+    fetch('data/levels.json' + v, { cache: 'no-store' }).then(r => r.json()),
+    fetch('data/categories.json' + v, { cache: 'no-store' }).then(r => r.json()),
+    fetch('data/pois.json' + v, { cache: 'no-store' }).then(r => r.json()),
   ]);
   DATA.levels = levels.sort((a,b) => a.sort_order - b.sort_order);
-  DATA.categories = categories.sort((a,b) => a.sort_order - b.sort_order);
-  DATA.pois = pois.filter(p => p.is_active);
+  // Apply admin edits on top before filtering
+  const ov = readAdminPoiOverrides();
+  DATA.categories = mergeAdminCats(categories, ov).sort((a,b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const mergedPois = mergeAdminPois(pois, ov);
+  DATA.pois = mergedPois.filter(p => p.is_active !== false);
   DATA.catById  = Object.fromEntries(DATA.categories.map(c => [c.id, c]));
   DATA.lvlById  = Object.fromEntries(DATA.levels.map(l => [l.id, l]));
+}
+
+// Admin override merging — same logic as admin.js so public map reflects admin edits
+function readAdminPoiOverrides(){
+  try { return JSON.parse(localStorage.getItem('ayla_admin_overrides_v1') || '{}'); } catch(_) { return {}; }
+}
+function mergeAdminPois(pois, o){
+  let result = [...pois];
+  const byId = Object.fromEntries(result.map((p, i) => [p.id, i]));
+  for (const [id, edit] of Object.entries(o.updates || {})){
+    if (id in byId) Object.assign(result[byId[id]], edit);
+  }
+  for (const newPoi of o.adds || []) result.push(newPoi);
+  if (o.deletes?.length){
+    const del = new Set(o.deletes);
+    result = result.filter(p => !del.has(p.id));
+  }
+  return result;
+}
+function mergeAdminCats(cats, o){
+  let result = [...cats];
+  const byId = Object.fromEntries(result.map((c, i) => [c.id, i]));
+  for (const [id, edit] of Object.entries(o.catUpdates || {})){
+    if (id in byId) Object.assign(result[byId[id]], edit);
+  }
+  for (const newCat of o.catAdds || []) result.push(newCat);
+  if (o.catDeletes?.length){
+    const del = new Set(o.catDeletes);
+    result = result.filter(c => !del.has(c.id));
+  }
+  return result;
+}
+
+// Read admin settings overrides from localStorage and apply them to the live UI
+function readAdminSettings(){
+  try { return JSON.parse(localStorage.getItem('ayla_settings_overrides_v1') || '{}'); } catch(_) { return {}; }
+}
+function applyAdminSettings(){
+  const s = readAdminSettings();
+
+  // Brand name
+  if (s.brand_name){
+    document.querySelectorAll('.brand-name').forEach(el => {
+      const parts = s.brand_name.split(' ');
+      const accent = parts.pop();
+      el.innerHTML = `${parts.join(' ')} <span class="brand-accent">${escapeHtml(accent)}</span>`;
+    });
+    const t = document.querySelector('.splash-title') || document.querySelector('.splash-marina');
+    if (t && document.querySelector('.splash-marina')){
+      document.querySelector('.splash-marina').textContent = s.brand_name + (s.brand_name_ar ? '' : '');
+    }
+    document.title = s.brand_name;
+  }
+  if (s.splash_tag){
+    const tag = document.querySelector('.splash-tag');
+    if (tag) tag.textContent = s.splash_tag;
+  }
+  // Brand logo (replaces splash logo SVG)
+  if (s.logo_data){
+    const logo = document.querySelector('.splash-logo');
+    if (logo){ logo.src = s.logo_data; logo.style.filter = 'none'; }
+  }
+  // Primary colour
+  if (s.primary){
+    document.documentElement.style.setProperty('--ayla-aqua', s.primary);
+    document.documentElement.style.setProperty('--ayla-teal', s.primary);
+    // Derive a deeper shade by darkening
+    document.documentElement.style.setProperty('--ayla-aqua-deep', s.primary);
+  }
+  // Fonts
+  if (s.font_heading || s.font_body){
+    const fams = [s.font_heading, s.font_body].filter(Boolean);
+    if (fams.length){
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      const families = fams.map(f => f.replace(/\s+/g, '+') + ':wght@400;500;600;700').join('&family=');
+      link.href = `https://fonts.googleapis.com/css2?family=${families}&display=swap`;
+      document.head.appendChild(link);
+      if (s.font_heading) document.documentElement.style.setProperty('--serif', `"${s.font_heading}", Georgia, serif`);
+      if (s.font_body)    document.documentElement.style.setProperty('--sans',  `"${s.font_body}", -apple-system, BlinkMacSystemFont, system-ui, sans-serif`);
+    }
+  }
+  // Map concept visibility
+  const concepts = { illustrated: s.show_illustrated, satellite: s.show_satellite, new: s.show_new };
+  for (const [k, v] of Object.entries(concepts)){
+    if (v === false){
+      const btn = document.querySelector(`.concept-btn[data-concept="${k}"]`);
+      if (btn) btn.style.display = 'none';
+    }
+  }
+  // Default concept
+  if (s.default_concept && document.querySelector(`.concept-btn[data-concept="${s.default_concept}"]`)){
+    state.mapConcept = s.default_concept;
+  }
+  // Custom map images
+  if (s.map_ill){ MAP_CONCEPTS.illustrated.img.ground = s.map_ill; MAP_CONCEPTS.illustrated.img.marina = s.map_ill; }
+  const isMobile = window.matchMedia('(max-width: 600px)').matches;
+  const newSrc = isMobile && s.map_new_mobile ? s.map_new_mobile : s.map_new;
+  if (newSrc){ MAP_CONCEPTS.new.img.ground = newSrc; MAP_CONCEPTS.new.img.marina = newSrc; }
 }
 
 // ---------- 2. State ----------
@@ -1205,9 +1308,14 @@ async function boot(){
   setupDesktopEnhancements();
   setupTabbar();
   setupConceptSwitch();
-  document.body.classList.add('concept-illustrated');
+  applyAdminSettings();
+  document.body.classList.add('concept-' + state.mapConcept);
+  // Reflect the default concept choice in the segmented control
+  document.querySelectorAll('.concept-btn').forEach(b => b.classList.toggle('on', b.dataset.concept === state.mapConcept));
   await setLevel(state.levelId);
   updateFilterBadge();
+  // If default is satellite, initialise it
+  if (state.mapConcept === 'satellite'){ setTimeout(() => setMapConcept('satellite'), 200); }
 
   // Deep link
   const params = new URLSearchParams(location.search);

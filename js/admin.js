@@ -168,6 +168,7 @@ function currentRoute(){
   if (h.startsWith('#cat/')) return { name: 'cat-edit', id: h.slice(5) };
   if (h === '#cat-new') return { name: 'cat-edit', id: null };
   if (h === '#cats') return { name: 'cats' };
+  if (h === '#settings') return { name: 'settings' };
   return { name: 'list' };
 }
 
@@ -175,13 +176,15 @@ function navigate(){
   if (!isAuthed()){ showLogin(); return; }
   const r = currentRoute();
   // Hide all views, then show one
-  ['#view-list','#view-edit','#view-cats','#view-cat-edit'].forEach(s => { const el = $(s); if (el) el.hidden = true; });
+  ['#view-list','#view-edit','#view-cats','#view-cat-edit','#view-settings'].forEach(s => { const el = $(s); if (el) el.hidden = true; });
   // Section-tab active state
   document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('on'));
   if (r.name === 'list' || r.name === 'edit'){
     document.querySelector('.sec-tab[data-section="list"]')?.classList.add('on');
-  } else {
+  } else if (r.name === 'cats' || r.name === 'cat-edit'){
     document.querySelector('.sec-tab[data-section="cats"]')?.classList.add('on');
+  } else if (r.name === 'settings'){
+    document.querySelector('.sec-tab[data-section="settings"]')?.classList.add('on');
   }
 
   if (r.name === 'list'){
@@ -196,6 +199,9 @@ function navigate(){
   } else if (r.name === 'cat-edit'){
     $('#view-cat-edit').hidden = false;
     renderCatEdit(r.id);
+  } else if (r.name === 'settings'){
+    $('#view-settings').hidden = false;
+    renderSettings();
   }
   refreshSectionCounts();
 }
@@ -674,6 +680,180 @@ document.querySelectorAll('.sec-tab').forEach(t => {
     const sec = t.dataset.section;
     location.hash = sec === 'cats' ? '#cats' : '#list';
   });
+});
+
+// ---------- 5c. Settings ----------
+const SETTINGS_KEY = 'ayla_settings_overrides_v1';
+function readSettings(){
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); } catch(_) { return {}; }
+}
+function writeSettings(o){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(o)); }
+
+function effectiveSettings(){
+  // Defaults from settings.json + localStorage overrides
+  const base = DATA.settings || {};
+  const ov = readSettings();
+  return {
+    brand_name:    ov.brand_name    ?? base.brand?.name        ?? 'Ayla Marina',
+    brand_name_ar: ov.brand_name_ar ?? base.brand?.name_ar     ?? 'أيلا مارينا',
+    splash_tag:    ov.splash_tag    ?? base.brand?.splash_tagline ?? 'Shops, dining and experiences by the sea',
+    logo_data:     ov.logo_data     ?? null,
+    primary:       ov.primary       ?? '#3AB0C8',
+    font_heading:  ov.font_heading  ?? 'Playfair Display',
+    font_body:     ov.font_body     ?? 'Inter',
+    show_illustrated: ov.show_illustrated !== false,
+    show_satellite:   ov.show_satellite   !== false,
+    show_new:         ov.show_new         !== false,
+    default_concept:  ov.default_concept  ?? 'illustrated',
+    map_ill:          ov.map_ill          ?? null,
+    map_new:          ov.map_new          ?? null,
+    map_new_mobile:   ov.map_new_mobile   ?? null,
+    password_hash:    ov.password_hash    ?? base.admin?.password_hash ?? '',
+  };
+}
+
+let _settingsState = { logo: null, ill: null, mapNew: null, mapNewMobile: null };
+
+function renderSettings(){
+  const s = effectiveSettings();
+  $('#s-brand-name').value = s.brand_name;
+  $('#s-brand-name-ar').value = s.brand_name_ar;
+  $('#s-splash-tag').value = s.splash_tag;
+  $('#s-color').value = s.primary;
+  $('#s-color-hex').value = s.primary.toUpperCase();
+  $('#s-color-preview').style.setProperty('--c', s.primary);
+  $('#s-font-heading').value = s.font_heading;
+  $('#s-font-body').value = s.font_body;
+  $('#s-show-illustrated').checked = s.show_illustrated;
+  $('#s-show-satellite').checked = s.show_satellite;
+  $('#s-show-new').checked = s.show_new;
+  $('#s-default-concept').value = s.default_concept;
+  _settingsState.logo = s.logo_data;
+  _settingsState.ill = s.map_ill;
+  _settingsState.mapNew = s.map_new;
+  _settingsState.mapNewMobile = s.map_new_mobile;
+  refreshSettingsPreviews();
+}
+
+function refreshSettingsPreviews(){
+  const setPrev = (id, data, fallbackBg) => {
+    const el = $(id);
+    if (!el) return;
+    el.innerHTML = data ? `<img src="${data}" alt="" style="width:100%;height:100%;object-fit:cover">` : '';
+    el.style.background = data ? '' : (fallbackBg || 'var(--muted)');
+  };
+  setPrev('#s-logo-preview', _settingsState.logo, '#1F7A8A');
+  setPrev('#s-map-ill-preview', _settingsState.ill);
+  setPrev('#s-map-new-preview', _settingsState.mapNew);
+  setPrev('#s-map-new-mobile-preview', _settingsState.mapNewMobile);
+  // Clear buttons
+  $('#s-logo-clear').hidden = !_settingsState.logo;
+  document.querySelectorAll('[data-upload-clear]').forEach(b => {
+    const map = { 'map-ill': 'ill', 'map-new': 'mapNew', 'map-new-mobile': 'mapNewMobile' };
+    const key = map[b.dataset.uploadClear];
+    b.hidden = !_settingsState[key];
+  });
+}
+
+function bindFileInput(btnId, inputId, stateKey){
+  $(btnId)?.addEventListener('click', () => $(inputId).click());
+  $(inputId)?.addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { _settingsState[stateKey] = reader.result; refreshSettingsPreviews(); };
+    reader.readAsDataURL(file);
+  });
+}
+bindFileInput('#s-logo-btn', '#s-logo-file', 'logo');
+
+// Map upload buttons (data attributes)
+document.addEventListener('click', e => {
+  const upBtn = e.target.closest?.('[data-upload]');
+  const clBtn = e.target.closest?.('[data-upload-clear]');
+  if (upBtn){
+    const key = upBtn.dataset.upload;
+    const map = { 'map-ill': ['#s-map-ill-file', 'ill'], 'map-new': ['#s-map-new-file', 'mapNew'], 'map-new-mobile': ['#s-map-new-mobile-file', 'mapNewMobile'] };
+    const [inp] = map[key] || [];
+    if (inp) $(inp).click();
+  } else if (clBtn){
+    const key = clBtn.dataset.uploadClear;
+    const map = { 'map-ill': 'ill', 'map-new': 'mapNew', 'map-new-mobile': 'mapNewMobile' };
+    _settingsState[map[key]] = null;
+    refreshSettingsPreviews();
+  }
+});
+['s-map-ill-file:ill','s-map-new-file:mapNew','s-map-new-mobile-file:mapNewMobile'].forEach(pair => {
+  const [id, k] = pair.split(':');
+  document.addEventListener('change', e => {
+    if (e.target.id !== id) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { _settingsState[k] = reader.result; refreshSettingsPreviews(); };
+    reader.readAsDataURL(file);
+  });
+});
+
+// Logo clear
+$('#s-logo-clear')?.addEventListener('click', () => { _settingsState.logo = null; refreshSettingsPreviews(); });
+
+// Colour sync
+$('#s-color')?.addEventListener('input', e => {
+  const v = e.target.value;
+  $('#s-color-hex').value = v.toUpperCase();
+  $('#s-color-preview').style.setProperty('--c', v);
+});
+$('#s-color-hex')?.addEventListener('input', e => {
+  let v = e.target.value.trim();
+  if (!v.startsWith('#')) v = '#' + v;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)){
+    $('#s-color').value = v;
+    $('#s-color-preview').style.setProperty('--c', v);
+  }
+});
+
+// Save settings
+$('#settings-save-btn')?.addEventListener('click', () => {
+  const o = {
+    brand_name:       $('#s-brand-name').value.trim() || null,
+    brand_name_ar:    $('#s-brand-name-ar').value.trim() || null,
+    splash_tag:       $('#s-splash-tag').value.trim() || null,
+    logo_data:        _settingsState.logo,
+    primary:          $('#s-color-hex').value.trim().toUpperCase(),
+    font_heading:     $('#s-font-heading').value,
+    font_body:        $('#s-font-body').value,
+    show_illustrated: $('#s-show-illustrated').checked,
+    show_satellite:   $('#s-show-satellite').checked,
+    show_new:         $('#s-show-new').checked,
+    default_concept:  $('#s-default-concept').value,
+    map_ill:          _settingsState.ill,
+    map_new:          _settingsState.mapNew,
+    map_new_mobile:   _settingsState.mapNewMobile,
+  };
+  const current = readSettings();
+  writeSettings({ ...current, ...o });
+  toast('Settings saved · public site picks them up on next load', 'ok');
+});
+
+// Password change
+$('#s-pw-change-btn')?.addEventListener('click', async () => {
+  const cur = $('#s-pw-current').value;
+  const nw  = $('#s-pw-new').value;
+  const cf  = $('#s-pw-confirm').value;
+  if (!cur || !nw || !cf){ toast('Fill all three password fields', 'err'); return; }
+  if (nw.length < 6){ toast('New password too short (min 6 chars)', 'err'); return; }
+  if (nw !== cf){ toast('Passwords do not match', 'err'); return; }
+  const ok = await tryLogin(cur);
+  if (!ok){ toast('Current password is wrong', 'err'); return; }
+  const newHash = await sha256(nw);
+  const o = readSettings();
+  o.password_hash = newHash;
+  writeSettings(o);
+  // Also patch in-memory settings so this session works
+  if (DATA.settings){ DATA.settings.admin = DATA.settings.admin || {}; DATA.settings.admin.password_hash = newHash; }
+  $('#s-pw-current').value = ''; $('#s-pw-new').value = ''; $('#s-pw-confirm').value = '';
+  toast('Password changed · export settings.json to persist for other users', 'ok');
 });
 
 // ---------- 6. Export JSON ----------
