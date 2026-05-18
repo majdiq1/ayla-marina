@@ -78,10 +78,14 @@ function applyAdminSettings(){
     show_satellite:   local.show_satellite   ?? j.map?.show_satellite   ?? true,
     show_new:         local.show_new         ?? j.map?.show_new         ?? true,
     default_concept:  local.default_concept  ?? j.map?.default_concept  ?? 'illustrated',
-    map_ill_desktop:  local.map_ill_desktop  ?? j.map?.ill_desktop      ?? null,
-    map_ill_phone:    local.map_ill_phone    ?? j.map?.ill_phone        ?? null,
-    map_new_desktop:  local.map_new_desktop  ?? j.map?.new_desktop      ?? null,
-    map_new_phone:    local.map_new_phone    ?? j.map?.new_phone        ?? null,
+    map_ill_ground_desktop: local.map_ill_ground_desktop ?? j.map?.ill_ground_desktop ?? null,
+    map_ill_ground_phone:   local.map_ill_ground_phone   ?? j.map?.ill_ground_phone   ?? null,
+    map_ill_marina_desktop: local.map_ill_marina_desktop ?? j.map?.ill_marina_desktop ?? null,
+    map_ill_marina_phone:   local.map_ill_marina_phone   ?? j.map?.ill_marina_phone   ?? null,
+    map_new_ground_desktop: local.map_new_ground_desktop ?? j.map?.new_ground_desktop ?? null,
+    map_new_ground_phone:   local.map_new_ground_phone   ?? j.map?.new_ground_phone   ?? null,
+    map_new_marina_desktop: local.map_new_marina_desktop ?? j.map?.new_marina_desktop ?? null,
+    map_new_marina_phone:   local.map_new_marina_phone   ?? j.map?.new_marina_phone   ?? null,
   };
 
   // Brand name
@@ -137,12 +141,17 @@ function applyAdminSettings(){
   if (s.default_concept && document.querySelector(`.concept-btn[data-concept="${s.default_concept}"]`)){
     state.mapConcept = s.default_concept;
   }
-  // Custom map images — pick the phone or desktop version based on viewport
+  // Custom map images — per concept × level × device, with sane fallbacks
   const isMobile = window.matchMedia('(max-width: 760px)').matches;
-  const illSrc = isMobile ? (s.map_ill_phone || s.map_ill_desktop) : (s.map_ill_desktop || s.map_ill_phone);
-  const newSrc = isMobile ? (s.map_new_phone || s.map_new_desktop) : (s.map_new_desktop || s.map_new_phone);
-  if (illSrc){ MAP_CONCEPTS.illustrated.img.ground = illSrc; MAP_CONCEPTS.illustrated.img.marina = illSrc; }
-  if (newSrc){ MAP_CONCEPTS.new.img.ground = newSrc; MAP_CONCEPTS.new.img.marina = newSrc; }
+  const pick = (desktop, phone) => isMobile ? (phone || desktop) : (desktop || phone);
+  const illGround = pick(s.map_ill_ground_desktop, s.map_ill_ground_phone);
+  const illMarina = pick(s.map_ill_marina_desktop, s.map_ill_marina_phone);
+  const newGround = pick(s.map_new_ground_desktop, s.map_new_ground_phone);
+  const newMarina = pick(s.map_new_marina_desktop, s.map_new_marina_phone);
+  if (illGround) MAP_CONCEPTS.illustrated.img.ground = illGround;
+  if (illMarina) MAP_CONCEPTS.illustrated.img.marina = illMarina;
+  if (newGround) MAP_CONCEPTS.new.img.ground = newGround;
+  if (newMarina) MAP_CONCEPTS.new.img.marina = newMarina;
 }
 
 function injectAylaFont(family, dataUrl){

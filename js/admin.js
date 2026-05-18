@@ -709,11 +709,15 @@ function effectiveSettings(){
     show_satellite:   ov.show_satellite   !== false,
     show_new:         ov.show_new         !== false,
     default_concept:  ov.default_concept  ?? 'illustrated',
-    // 2 versions per concept: desktop + phone
-    map_ill_desktop:  ov.map_ill_desktop  ?? null,
-    map_ill_phone:    ov.map_ill_phone    ?? null,
-    map_new_desktop:  ov.map_new_desktop  ?? null,
-    map_new_phone:    ov.map_new_phone    ?? null,
+    // 2 concepts × 2 levels (ground/marina) × 2 devices (desktop/phone) = 8
+    map_ill_ground_desktop: ov.map_ill_ground_desktop ?? null,
+    map_ill_ground_phone:   ov.map_ill_ground_phone   ?? null,
+    map_ill_marina_desktop: ov.map_ill_marina_desktop ?? null,
+    map_ill_marina_phone:   ov.map_ill_marina_phone   ?? null,
+    map_new_ground_desktop: ov.map_new_ground_desktop ?? null,
+    map_new_ground_phone:   ov.map_new_ground_phone   ?? null,
+    map_new_marina_desktop: ov.map_new_marina_desktop ?? null,
+    map_new_marina_phone:   ov.map_new_marina_phone   ?? null,
     password_hash:    ov.password_hash    ?? base.admin?.password_hash ?? '',
   };
 }
@@ -722,8 +726,10 @@ let _settingsState = {
   logo: null,
   fontHeading: null, fontHeadingName: 'Playfair Display',
   fontBody: null, fontBodyName: 'Inter',
-  illDesktop: null, illPhone: null,
-  newDesktop: null, newPhone: null,
+  illGroundDesktop: null, illGroundPhone: null,
+  illMarinaDesktop: null, illMarinaPhone: null,
+  newGroundDesktop: null, newGroundPhone: null,
+  newMarinaDesktop: null, newMarinaPhone: null,
 };
 
 function updateAdminBrand(name){
@@ -758,10 +764,14 @@ function renderSettings(){
   _settingsState.fontHeadingName = s.font_heading_name;
   _settingsState.fontBody        = s.font_body_data;
   _settingsState.fontBodyName    = s.font_body_name;
-  _settingsState.illDesktop      = s.map_ill_desktop;
-  _settingsState.illPhone        = s.map_ill_phone;
-  _settingsState.newDesktop      = s.map_new_desktop;
-  _settingsState.newPhone        = s.map_new_phone;
+  _settingsState.illGroundDesktop = s.map_ill_ground_desktop;
+  _settingsState.illGroundPhone   = s.map_ill_ground_phone;
+  _settingsState.illMarinaDesktop = s.map_ill_marina_desktop;
+  _settingsState.illMarinaPhone   = s.map_ill_marina_phone;
+  _settingsState.newGroundDesktop = s.map_new_ground_desktop;
+  _settingsState.newGroundPhone   = s.map_new_ground_phone;
+  _settingsState.newMarinaDesktop = s.map_new_marina_desktop;
+  _settingsState.newMarinaPhone   = s.map_new_marina_phone;
   refreshSettingsPreviews();
 }
 
@@ -773,10 +783,14 @@ function refreshSettingsPreviews(){
     el.style.background = data ? '' : (fallbackBg || 'var(--muted)');
   };
   setPrev('#s-logo-preview', _settingsState.logo, '#1F7A8A');
-  setPrev('#s-map-ill-desktop-preview', _settingsState.illDesktop);
-  setPrev('#s-map-ill-phone-preview',   _settingsState.illPhone);
-  setPrev('#s-map-new-desktop-preview', _settingsState.newDesktop);
-  setPrev('#s-map-new-phone-preview',   _settingsState.newPhone);
+  setPrev('#s-map-ill-ground-desktop-preview', _settingsState.illGroundDesktop);
+  setPrev('#s-map-ill-ground-phone-preview',   _settingsState.illGroundPhone);
+  setPrev('#s-map-ill-marina-desktop-preview', _settingsState.illMarinaDesktop);
+  setPrev('#s-map-ill-marina-phone-preview',   _settingsState.illMarinaPhone);
+  setPrev('#s-map-new-ground-desktop-preview', _settingsState.newGroundDesktop);
+  setPrev('#s-map-new-ground-phone-preview',   _settingsState.newGroundPhone);
+  setPrev('#s-map-new-marina-desktop-preview', _settingsState.newMarinaDesktop);
+  setPrev('#s-map-new-marina-phone-preview',   _settingsState.newMarinaPhone);
 
   // Font previews: apply the uploaded font if present
   if (_settingsState.fontHeading){
@@ -795,12 +809,8 @@ function refreshSettingsPreviews(){
   $('#s-font-heading-clear').hidden = !_settingsState.fontHeading;
   $('#s-font-body-clear').hidden    = !_settingsState.fontBody;
   document.querySelectorAll('[data-upload-clear]').forEach(b => {
-    const map = {
-      'ill-desktop': 'illDesktop', 'ill-phone': 'illPhone',
-      'new-desktop': 'newDesktop', 'new-phone': 'newPhone',
-    };
-    const key = map[b.dataset.uploadClear];
-    b.hidden = !_settingsState[key];
+    const key = MAP_STATE_KEY[b.dataset.uploadClear];
+    if (key) b.hidden = !_settingsState[key];
   });
 }
 
@@ -829,11 +839,16 @@ bindFileInput('#s-logo-btn', '#s-logo-file', 'logo');
 
 // MAP upload + clear buttons (data attributes drive both)
 const MAP_KEYS = {
-  'ill-desktop': ['#s-map-ill-desktop-file', 'illDesktop'],
-  'ill-phone':   ['#s-map-ill-phone-file',   'illPhone'],
-  'new-desktop': ['#s-map-new-desktop-file', 'newDesktop'],
-  'new-phone':   ['#s-map-new-phone-file',   'newPhone'],
+  'ill-ground-desktop': ['#s-map-ill-ground-desktop-file', 'illGroundDesktop'],
+  'ill-ground-phone':   ['#s-map-ill-ground-phone-file',   'illGroundPhone'],
+  'ill-marina-desktop': ['#s-map-ill-marina-desktop-file', 'illMarinaDesktop'],
+  'ill-marina-phone':   ['#s-map-ill-marina-phone-file',   'illMarinaPhone'],
+  'new-ground-desktop': ['#s-map-new-ground-desktop-file', 'newGroundDesktop'],
+  'new-ground-phone':   ['#s-map-new-ground-phone-file',   'newGroundPhone'],
+  'new-marina-desktop': ['#s-map-new-marina-desktop-file', 'newMarinaDesktop'],
+  'new-marina-phone':   ['#s-map-new-marina-phone-file',   'newMarinaPhone'],
 };
+const MAP_STATE_KEY = Object.fromEntries(Object.entries(MAP_KEYS).map(([k, v]) => [k, v[1]]));
 document.addEventListener('click', e => {
   const upBtn = e.target.closest?.('[data-upload]');
   const clBtn = e.target.closest?.('[data-upload-clear]');
@@ -914,10 +929,14 @@ $('#settings-save-btn')?.addEventListener('click', () => {
     show_satellite:   $('#s-show-satellite').checked,
     show_new:         $('#s-show-new').checked,
     default_concept:  $('#s-default-concept').value,
-    map_ill_desktop:  _settingsState.illDesktop,
-    map_ill_phone:    _settingsState.illPhone,
-    map_new_desktop:  _settingsState.newDesktop,
-    map_new_phone:    _settingsState.newPhone,
+    map_ill_ground_desktop: _settingsState.illGroundDesktop,
+    map_ill_ground_phone:   _settingsState.illGroundPhone,
+    map_ill_marina_desktop: _settingsState.illMarinaDesktop,
+    map_ill_marina_phone:   _settingsState.illMarinaPhone,
+    map_new_ground_desktop: _settingsState.newGroundDesktop,
+    map_new_ground_phone:   _settingsState.newGroundPhone,
+    map_new_marina_desktop: _settingsState.newMarinaDesktop,
+    map_new_marina_phone:   _settingsState.newMarinaPhone,
   };
   const current = readSettings();
   writeSettings({ ...current, ...o });
