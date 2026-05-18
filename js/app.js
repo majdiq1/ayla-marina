@@ -452,8 +452,11 @@ function renderPins(){
     if (dimmed.includes(p)) el.classList.add('dim');
     if (state.selectedPoiId === p.id) el.classList.add('active');
     el.dataset.id = p.id;
-    el.style.left = p.pin_x + '%';
-    el.style.top  = p.pin_y + '%';
+    // Per-concept pin position: Premium map has its own coords; fall back to illustrated
+    const px = (state.mapConcept === 'new' && p.pin_x_new != null) ? p.pin_x_new : p.pin_x;
+    const py = (state.mapConcept === 'new' && p.pin_y_new != null) ? p.pin_y_new : p.pin_y;
+    el.style.left = px + '%';
+    el.style.top  = py + '%';
     el.style.setProperty('--c', cat?.color || '#666');
     el.style.setProperty('--pin-i', i++);
     // Inner content of the teardrop: prefer the place's logo, else category icon, else initials

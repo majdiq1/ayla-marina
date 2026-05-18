@@ -146,9 +146,15 @@
             <strong id="edit-pos-hint">Tap on the map to place this pin</strong>
             <span id="edit-pos-coords" class="edit-pos-coords"></span>
           </div>
-          <div class="lvl-switch">
-            <button data-lvl="lvl-ground" class="lvl-btn on">Ground</button>
-            <button data-lvl="lvl-marina" class="lvl-btn">Marina</button>
+          <div class="edit-switches">
+            <div class="lvl-switch" role="tablist" aria-label="Map concept">
+              <button data-concept="illustrated" class="concept-btn on">Illustrated</button>
+              <button data-concept="new" class="concept-btn">Premium</button>
+            </div>
+            <div class="lvl-switch" role="tablist" aria-label="Map level">
+              <button data-lvl="lvl-ground" class="lvl-btn on">Ground</button>
+              <button data-lvl="lvl-marina" class="lvl-btn">Marina</button>
+            </div>
           </div>
         </div>
         <div id="edit-stage" class="edit-stage">

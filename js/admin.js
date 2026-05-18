@@ -298,9 +298,23 @@ function escAttr(s){ return escHtml(s); }
 let editState = {
   poi: null,        // null = new
   level: null,
-  pinX: null, pinY: null,   // % of image
+  concept: 'illustrated',   // which map you're placing the pin on
+  // Per-concept pin coords (% of map image). Premium map may not align with
+  // illustrated, so each concept stores its own coords.
+  pinX_ill: null, pinY_ill: null,
+  pinX_new: null, pinY_new: null,
   logoData: null,           // final cropped data URL persisted on the POI
 };
+// Active pin getters/setters that route to the right concept slot
+function getPin(){
+  return editState.concept === 'new'
+    ? { x: editState.pinX_new, y: editState.pinY_new }
+    : { x: editState.pinX_ill, y: editState.pinY_ill };
+}
+function setPin(x, y){
+  if (editState.concept === 'new'){ editState.pinX_new = x; editState.pinY_new = y; }
+  else { editState.pinX_ill = x; editState.pinY_ill = y; }
+}
 
 // Logo cropper state — only live while cropping
 const cropper = {
@@ -318,8 +332,11 @@ function renderEdit(id){
   const poi = id ? DATA.pois.find(p => p.id === id) : null;
   editState.poi = poi;
   editState.level = poi?.level_id || 'lvl-ground';
-  editState.pinX = poi?.pin_x ?? null;
-  editState.pinY = poi?.pin_y ?? null;
+  editState.concept = 'illustrated';
+  editState.pinX_ill = poi?.pin_x ?? null;
+  editState.pinY_ill = poi?.pin_y ?? null;
+  editState.pinX_new = poi?.pin_x_new ?? null;
+  editState.pinY_new = poi?.pin_y_new ?? null;
   editState.logoData = poi?.logo || null;
 
   $('#edit-title').textContent = poi ? `Edit · ${poi.name}` : 'Add a new place';
@@ -458,18 +475,37 @@ function loadEditMap(){
     img.dataset.naturalH = img.naturalHeight;
     renderEditPin();
   };
-  img.src = lvl.map_image;
+  img.src = editMapSrc();
+}
+
+// Pick the right map image for the active concept × level (uploaded → default)
+function editMapSrc(){
+  const s = effectiveSettings();
+  const lvl = DATA.lvlById[editState.level];
+  const conceptKey = editState.concept === 'new' ? 'new' : 'ill';
+  const levelKey = editState.level === 'lvl-marina' ? 'marina' : 'ground';
+  const uploaded = s[`map_${conceptKey}_${levelKey}_desktop`] || s[`map_${conceptKey}_${levelKey}_phone`];
+  if (uploaded) return uploaded;
+  // Bundled defaults
+  const DEFAULTS = {
+    'ill-ground': 'images/map-ground.png',
+    'ill-marina': 'images/map-marina.png',
+    'new-ground': 'images/map-new.jpg',
+    'new-marina': 'images/map-new-parchment.jpg',
+  };
+  return DEFAULTS[`${conceptKey}-${levelKey}`] || lvl.map_image;
 }
 
 function renderEditPin(){
   const pin = $('#edit-pin');
-  if (editState.pinX == null || editState.pinY == null){
+  const { x: px, y: py } = getPin();
+  const label = editState.concept === 'new' ? 'Premium' : 'Illustrated';
+  if (px == null || py == null){
     pin.hidden = true;
-    $('#edit-pos-hint').textContent = 'Tap on the map to place this pin';
+    $('#edit-pos-hint').textContent = `Tap on the ${label} map to place this pin`;
     $('#edit-pos-coords').textContent = '';
     return;
   }
-  // Translate % → CSS position within the stage's contained image rect
   const stage = $('#edit-stage');
   const img = $('#edit-map-img');
   const iw = +img.dataset.naturalW || img.naturalWidth || 1;
@@ -478,11 +514,11 @@ function renderEditPin(){
   const scale = Math.min(sw / iw, sh / ih);
   const dispW = iw * scale, dispH = ih * scale;
   const offX = (sw - dispW) / 2, offY = (sh - dispH) / 2;
-  pin.style.left = `${offX + (editState.pinX / 100) * dispW}px`;
-  pin.style.top  = `${offY + (editState.pinY / 100) * dispH}px`;
+  pin.style.left = `${offX + (px / 100) * dispW}px`;
+  pin.style.top  = `${offY + (py / 100) * dispH}px`;
   pin.hidden = false;
-  $('#edit-pos-hint').textContent = 'Drag the pin to fine-tune';
-  $('#edit-pos-coords').textContent = `(${editState.pinX.toFixed(2)}%, ${editState.pinY.toFixed(2)}%)`;
+  $('#edit-pos-hint').textContent = `Drag the pin · ${label} map`;
+  $('#edit-pos-coords').textContent = `(${px.toFixed(2)}%, ${py.toFixed(2)}%)`;
 }
 
 function setPinFromPointer(clientX, clientY){
@@ -499,8 +535,7 @@ function setPinFromPointer(clientX, clientY){
   const y = clientY - rect.top - offY;
   // Clamp to image area
   if (x < 0 || y < 0 || x > dispW || y > dispH) return;
-  editState.pinX = (x / dispW) * 100;
-  editState.pinY = (y / dispH) * 100;
+  setPin((x / dispW) * 100, (y / dispH) * 100);
   renderEditPin();
 }
 
@@ -521,6 +556,15 @@ function setPinFromPointer(clientX, clientY){
   stage.addEventListener('pointercancel', () => { dragging = false; });
   window.addEventListener('resize', renderEditPin);
 })();
+
+// Concept switch on edit map header
+document.addEventListener('click', e => {
+  const btn = e.target.closest?.('#view-edit .concept-btn');
+  if (!btn) return;
+  editState.concept = btn.dataset.concept;
+  $$('#view-edit .concept-btn').forEach(b => b.classList.toggle('on', b === btn));
+  loadEditMap();
+});
 
 // Level switch on map header
 document.addEventListener('click', e => {
@@ -583,15 +627,19 @@ async function onSavePoi(){
   if (!name){ toast('Name is required', 'err'); $('#f-name').focus(); return; }
   if (!category_id){ toast('Category is required', 'err'); $('#f-category').focus(); return; }
   if (!level_id){ toast('Level is required', 'err'); return; }
-  if (editState.pinX == null){ toast('Tap on the map to place a pin first', 'err'); return; }
+  if (editState.pinX_ill == null && editState.pinX_new == null){
+    toast('Tap on the map to place a pin first', 'err'); return;
+  }
 
   const partial = {
     name,
     name_ar: $('#f-name-ar').value.trim() || null,
     category_id,
     level_id,
-    pin_x: round2(editState.pinX),
-    pin_y: round2(editState.pinY),
+    pin_x: editState.pinX_ill != null ? round2(editState.pinX_ill) : null,
+    pin_y: editState.pinY_ill != null ? round2(editState.pinY_ill) : null,
+    pin_x_new: editState.pinX_new != null ? round2(editState.pinX_new) : null,
+    pin_y_new: editState.pinY_new != null ? round2(editState.pinY_new) : null,
     phone: $('#f-phone').value.trim() || null,
     whatsapp: $('#f-whatsapp').value.trim() || null,
     instagram: $('#f-instagram').value.trim() || null,
@@ -968,12 +1016,30 @@ const MP_STATE = {
 };
 function mpKey(device){ return MP_STATE[`${MP.concept}-${MP.level}-${device}`]; }
 
+// Default bundled maps used by the public site when nothing is uploaded.
+// Both Desktop + Phone fall back to the same source image until uploaded.
+const DEFAULT_MAPS = {
+  'ill-ground': 'images/map-ground.png',
+  'ill-marina': 'images/map-marina.png',
+  'new-ground': 'images/map-new.jpg',
+  'new-marina': 'images/map-new-parchment.jpg',
+};
 function refreshMapPicker(){
   const setTile = (device) => {
     const data = _settingsState[mpKey(device)];
+    const fallback = DEFAULT_MAPS[`${MP.concept}-${MP.level}`];
+    const src = data || fallback;
+    const isCustom = !!data;
     const prev = $(`#s-mp-${device}-preview`);
     if (!prev) return;
-    prev.innerHTML = data ? `<img src="${data}" alt="">` : '<span>No image yet</span>';
+    if (src){
+      prev.innerHTML = `
+        <img src="${src}" alt="">
+        <span class="map-tile-badge ${isCustom ? 'custom' : 'default'}">${isCustom ? 'Custom upload' : 'Default · bundled'}</span>
+      `;
+    } else {
+      prev.innerHTML = '<span>No image yet</span>';
+    }
     const clr = document.querySelector(`[data-mp-clear="${device}"]`);
     if (clr) clr.hidden = !data;
   };

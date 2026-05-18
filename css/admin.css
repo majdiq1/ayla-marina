@@ -544,6 +544,14 @@ input,select,textarea,button{font-family:inherit}
   cursor:pointer;
 }
 .lvl-btn.on{background:var(--ayla-aqua);color:#fff}
+.edit-switches{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.concept-btn{
+  border:0;background:transparent;
+  padding:5px 11px;border-radius:7px;
+  font-size:12px;font-weight:600;color:var(--ink-2);
+  cursor:pointer;
+}
+.concept-btn.on{background:var(--ink);color:#fff}
 .edit-stage{
   position:relative;
   background:#DAE3E5;
@@ -641,6 +649,7 @@ input,select,textarea,button{font-family:inherit}
 }
 .map-tile-head svg{width:14px;height:14px}
 .map-tile-preview{
+  position:relative;
   width:100%;aspect-ratio:16/10;border-radius:10px;
   background:var(--muted) center/cover no-repeat;
   border:1px dashed var(--border);
@@ -648,6 +657,14 @@ input,select,textarea,button{font-family:inherit}
   color:var(--ink-3);font-size:11px;overflow:hidden;
 }
 .map-tile-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.map-tile-badge{
+  position:absolute;top:8px;left:8px;
+  font:600 10px/1 var(--sans);letter-spacing:0.04em;text-transform:uppercase;
+  padding:5px 8px;border-radius:6px;
+  background:rgba(0,0,0,0.72);color:#fff;
+  backdrop-filter:blur(6px);
+}
+.map-tile-badge.custom{background:var(--ayla-aqua, #3AB0C8);color:#fff}
 .map-tile-actions{display:flex;gap:6px}
 
 /* ----------- Logo cropper ----------- */
