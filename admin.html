@@ -42,10 +42,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           Public map
         </a>
-        <a class="tab" href="dashboard.html" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Analytics
-        </a>
         <a class="tab tab-active" href="#list">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           Admin
@@ -191,9 +187,39 @@
               <div class="logo-preview" id="f-logo-preview"></div>
               <input id="f-logo-file" type="file" accept="image/*" hidden>
               <button type="button" class="btn-ghost-sm" id="f-logo-btn">Choose image</button>
+              <button type="button" class="btn-ghost-sm" id="f-logo-recrop" hidden>Adjust crop</button>
               <button type="button" class="btn-ghost-sm" id="f-logo-clear" hidden>Remove</button>
             </div>
           </label>
+          <!-- Pin-shaped logo cropper -->
+          <div class="cropper" id="f-cropper" hidden>
+            <div class="cropper-row">
+              <div class="cropper-stage">
+                <div class="cropper-window" id="f-cropper-window">
+                  <img id="f-cropper-image" alt="" draggable="false">
+                </div>
+                <p class="cropper-hint">Drag the image · slide to zoom</p>
+              </div>
+              <div class="cropper-preview">
+                <p class="cropper-label">How it looks on the map</p>
+                <div class="pin-mock">
+                  <div class="pin-mock-teardrop">
+                    <div class="pin-mock-inner"><img id="f-cropper-pin-img" alt=""></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="cropper-controls">
+              <label class="cropper-zoom">
+                <span>Zoom</span>
+                <input id="f-cropper-zoom" type="range" min="100" max="400" value="100">
+              </label>
+              <div class="cropper-actions">
+                <button type="button" class="btn-ghost-sm" id="f-cropper-cancel">Cancel</button>
+                <button type="button" class="btn-primary" id="f-cropper-apply">Apply crop</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -433,90 +459,58 @@
         </label>
       </section>
 
-      <!-- Map upload -->
+      <!-- Map upload — compact picker -->
       <section class="form-group">
         <h2>Custom map images</h2>
-        <p class="form-hint">Each concept has a Ground level and a Marina level. Upload separate phone + desktop versions for each.</p>
+        <p class="form-hint">Pick a map, then upload its desktop + phone versions. 4 maps total — switch with the tabs.</p>
 
-        <p class="form-sublabel">Illustrated · Ground level</p>
-        <label class="field">
-          <span>Desktop</span>
-          <div class="logo-upload">
-            <div class="logo-preview" id="s-map-ill-ground-desktop-preview"></div>
-            <input id="s-map-ill-ground-desktop-file" type="file" accept="image/*,.svg" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="ill-ground-desktop">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="ill-ground-desktop" hidden>Reset</button>
+        <div class="map-picker">
+          <div class="map-picker-tabs" role="tablist" aria-label="Map concept">
+            <button type="button" class="mp-tab on" data-concept="ill">Illustrated</button>
+            <button type="button" class="mp-tab" data-concept="new">Ayla Premium</button>
           </div>
-        </label>
-        <label class="field">
-          <span>Phone</span>
-          <div class="logo-upload">
-            <div class="logo-preview" id="s-map-ill-ground-phone-preview"></div>
-            <input id="s-map-ill-ground-phone-file" type="file" accept="image/*,.svg" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="ill-ground-phone">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="ill-ground-phone" hidden>Reset</button>
+          <div class="map-picker-tabs" role="tablist" aria-label="Map level">
+            <button type="button" class="mp-tab on" data-level="ground">Ground level</button>
+            <button type="button" class="mp-tab" data-level="marina">Marina level</button>
           </div>
-        </label>
 
-        <p class="form-sublabel">Illustrated · Marina level</p>
-        <label class="field">
-          <span>Desktop</span>
-          <div class="logo-upload">
-            <div class="logo-preview" id="s-map-ill-marina-desktop-preview"></div>
-            <input id="s-map-ill-marina-desktop-file" type="file" accept="image/*,.svg" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="ill-marina-desktop">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="ill-marina-desktop" hidden>Reset</button>
+          <div class="map-tiles">
+            <div class="map-tile">
+              <div class="map-tile-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="22" x2="16" y2="22"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+                <span>Desktop version</span>
+              </div>
+              <div class="map-tile-preview" id="s-mp-desktop-preview"></div>
+              <input id="s-mp-desktop-file" type="file" accept="image/*,.svg" hidden>
+              <div class="map-tile-actions">
+                <button type="button" class="btn-ghost-sm" data-mp-upload="desktop">Upload</button>
+                <button type="button" class="btn-ghost-sm" data-mp-clear="desktop" hidden>Reset</button>
+              </div>
+            </div>
+            <div class="map-tile">
+              <div class="map-tile-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+                <span>Phone version</span>
+              </div>
+              <div class="map-tile-preview" id="s-mp-phone-preview"></div>
+              <input id="s-mp-phone-file" type="file" accept="image/*,.svg" hidden>
+              <div class="map-tile-actions">
+                <button type="button" class="btn-ghost-sm" data-mp-upload="phone">Upload</button>
+                <button type="button" class="btn-ghost-sm" data-mp-clear="phone" hidden>Reset</button>
+              </div>
+            </div>
           </div>
-        </label>
-        <label class="field">
-          <span>Phone</span>
-          <div class="logo-upload">
-            <div class="logo-preview" id="s-map-ill-marina-phone-preview"></div>
-            <input id="s-map-ill-marina-phone-file" type="file" accept="image/*,.svg" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="ill-marina-phone">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="ill-marina-phone" hidden>Reset</button>
-          </div>
-        </label>
 
-        <p class="form-sublabel">Ayla Premium · Ground level</p>
-        <label class="field">
-          <span>Desktop</span>
-          <div class="logo-upload">
-            <div class="logo-preview" id="s-map-new-ground-desktop-preview"></div>
-            <input id="s-map-new-ground-desktop-file" type="file" accept="image/*" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="new-ground-desktop">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="new-ground-desktop" hidden>Reset</button>
-          </div>
-        </label>
-        <label class="field">
-          <span>Phone</span>
-          <div class="logo-upload">
-            <div class="logo-preview" id="s-map-new-ground-phone-preview"></div>
-            <input id="s-map-new-ground-phone-file" type="file" accept="image/*" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="new-ground-phone">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="new-ground-phone" hidden>Reset</button>
-          </div>
-        </label>
-
-        <p class="form-sublabel">Ayla Premium · Marina level</p>
-        <label class="field">
-          <span>Desktop</span>
-          <div class="logo-upload">
-            <div class="logo-preview" id="s-map-new-marina-desktop-preview"></div>
-            <input id="s-map-new-marina-desktop-file" type="file" accept="image/*" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="new-marina-desktop">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="new-marina-desktop" hidden>Reset</button>
-          </div>
-        </label>
-        <label class="field">
-          <span>Phone</span>
-          <div class="logo-upload">
-            <div class="logo-preview" id="s-map-new-marina-phone-preview"></div>
-            <input id="s-map-new-marina-phone-file" type="file" accept="image/*" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="new-marina-phone">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="new-marina-phone" hidden>Reset</button>
-          </div>
-        </label>
+          <!-- Hidden inputs preserved for any external code that reads them; mirror selected combo -->
+          <input id="s-map-ill-ground-desktop-file" type="file" accept="image/*,.svg" hidden>
+          <input id="s-map-ill-ground-phone-file" type="file" accept="image/*,.svg" hidden>
+          <input id="s-map-ill-marina-desktop-file" type="file" accept="image/*,.svg" hidden>
+          <input id="s-map-ill-marina-phone-file" type="file" accept="image/*,.svg" hidden>
+          <input id="s-map-new-ground-desktop-file" type="file" accept="image/*" hidden>
+          <input id="s-map-new-ground-phone-file" type="file" accept="image/*" hidden>
+          <input id="s-map-new-marina-desktop-file" type="file" accept="image/*" hidden>
+          <input id="s-map-new-marina-phone-file" type="file" accept="image/*" hidden>
+        </div>
       </section>
 
       <!-- Security -->

@@ -299,7 +299,19 @@ let editState = {
   poi: null,        // null = new
   level: null,
   pinX: null, pinY: null,   // % of image
-  logoData: null,
+  logoData: null,           // final cropped data URL persisted on the POI
+};
+
+// Logo cropper state — only live while cropping
+const cropper = {
+  active: false,
+  src: null,          // data URL of the source image being cropped
+  natW: 0, natH: 0,   // natural image dimensions
+  scale: 1,           // current zoom multiplier (1 = "cover" fit)
+  baseScale: 1,       // scale that makes image cover the 220px window
+  offsetX: 0, offsetY: 0, // top-left position in px inside the window
+  WINDOW: 220,
+  dragging: false, dragStartX: 0, dragStartY: 0, dragOX: 0, dragOY: 0,
 };
 
 function renderEdit(id){
@@ -343,10 +355,98 @@ function refreshLogoPreview(){
   if (editState.logoData){
     wrap.innerHTML = `<img src="${escAttr(editState.logoData)}" alt="">`;
     $('#f-logo-clear').hidden = false;
+    $('#f-logo-recrop').hidden = false;
   } else {
     wrap.innerHTML = `<span>No logo</span>`;
     $('#f-logo-clear').hidden = true;
+    $('#f-logo-recrop').hidden = true;
   }
+}
+
+function openCropper(src){
+  cropper.active = true;
+  cropper.src = src;
+  $('#f-cropper').hidden = false;
+  const img = new Image();
+  img.onload = () => {
+    cropper.imgEl = img;
+    cropper.natW = img.naturalWidth;
+    cropper.natH = img.naturalHeight;
+    cropper.baseScale = Math.max(
+      cropper.WINDOW / cropper.natW,
+      cropper.WINDOW / cropper.natH,
+    );
+    cropper.scale = 1;
+    cropper.offsetX = (cropper.WINDOW - cropper.natW * cropper.baseScale) / 2;
+    cropper.offsetY = (cropper.WINDOW - cropper.natH * cropper.baseScale) / 2;
+    $('#f-cropper-image').src = src;
+    $('#f-cropper-zoom').value = 100;
+    renderCropper();
+  };
+  img.src = src;
+}
+
+function closeCropper(){
+  cropper.active = false;
+  cropper.src = null;
+  $('#f-cropper').hidden = true;
+}
+
+function renderCropper(){
+  const img = $('#f-cropper-image');
+  if (!img) return;
+  const eff = cropper.baseScale * cropper.scale;
+  img.style.width = (cropper.natW * eff) + 'px';
+  img.style.height = (cropper.natH * eff) + 'px';
+  // Clamp offsets so the image always covers the window
+  const minX = cropper.WINDOW - cropper.natW * eff;
+  const minY = cropper.WINDOW - cropper.natH * eff;
+  cropper.offsetX = Math.min(0, Math.max(minX, cropper.offsetX));
+  cropper.offsetY = Math.min(0, Math.max(minY, cropper.offsetY));
+  img.style.transform = `translate(${cropper.offsetX}px, ${cropper.offsetY}px)`;
+  // Live pin-mock preview
+  renderPinMock();
+}
+
+function renderPinMock(){
+  const mock = $('#f-cropper-pin-img');
+  if (!mock) return;
+  mock.src = cropToDataURL(96);
+}
+
+function cropToDataURL(size = 256){
+  if (!cropper.imgEl) return '';
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const eff = cropper.baseScale * cropper.scale;
+  const srcX = -cropper.offsetX / eff;
+  const srcY = -cropper.offsetY / eff;
+  const srcSize = cropper.WINDOW / eff;
+  ctx.drawImage(cropper.imgEl, srcX, srcY, srcSize, srcSize, 0, 0, size, size);
+  return canvas.toDataURL('image/png');
+}
+
+// Drag to pan
+function bindCropperDrag(){
+  const win = $('#f-cropper-window');
+  if (!win) return;
+  const start = (x, y) => {
+    cropper.dragging = true;
+    cropper.dragStartX = x; cropper.dragStartY = y;
+    cropper.dragOX = cropper.offsetX; cropper.dragOY = cropper.offsetY;
+  };
+  const move = (x, y) => {
+    if (!cropper.dragging) return;
+    cropper.offsetX = cropper.dragOX + (x - cropper.dragStartX);
+    cropper.offsetY = cropper.dragOY + (y - cropper.dragStartY);
+    renderCropper();
+  };
+  const end = () => { cropper.dragging = false; };
+  win.addEventListener('pointerdown', e => { win.setPointerCapture(e.pointerId); start(e.clientX, e.clientY); });
+  win.addEventListener('pointermove', e => move(e.clientX, e.clientY));
+  win.addEventListener('pointerup', end);
+  win.addEventListener('pointercancel', end);
 }
 
 function loadEditMap(){
@@ -432,16 +532,36 @@ document.addEventListener('click', e => {
   loadEditMap();
 });
 
-// Logo upload
+// Logo upload + crop
 $('#f-logo-btn')?.addEventListener('click', () => $('#f-logo-file').click());
-$('#f-logo-clear')?.addEventListener('click', () => { editState.logoData = null; refreshLogoPreview(); });
+$('#f-logo-clear')?.addEventListener('click', () => {
+  editState.logoData = null;
+  closeCropper();
+  refreshLogoPreview();
+});
+$('#f-logo-recrop')?.addEventListener('click', () => {
+  if (editState.logoData) openCropper(editState.logoData);
+});
 $('#f-logo-file')?.addEventListener('change', e => {
   const file = e.target.files?.[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = () => { editState.logoData = reader.result; refreshLogoPreview(); };
+  reader.onload = () => openCropper(reader.result);
   reader.readAsDataURL(file);
+  // Allow re-selecting the same file later
+  e.target.value = '';
 });
+$('#f-cropper-zoom')?.addEventListener('input', e => {
+  cropper.scale = (parseInt(e.target.value, 10) || 100) / 100;
+  renderCropper();
+});
+$('#f-cropper-apply')?.addEventListener('click', () => {
+  editState.logoData = cropToDataURL(256);
+  closeCropper();
+  refreshLogoPreview();
+});
+$('#f-cropper-cancel')?.addEventListener('click', () => closeCropper());
+bindCropperDrag();
 
 // Sync level field changes back to map
 $('#f-level')?.addEventListener('change', e => {
@@ -773,6 +893,7 @@ function renderSettings(){
   _settingsState.newMarinaDesktop = s.map_new_marina_desktop;
   _settingsState.newMarinaPhone   = s.map_new_marina_phone;
   refreshSettingsPreviews();
+  refreshMapPicker();
 }
 
 function refreshSettingsPreviews(){
@@ -837,37 +958,85 @@ function bindFileInput(btnId, inputId, stateKey){
 }
 bindFileInput('#s-logo-btn', '#s-logo-file', 'logo');
 
-// MAP upload + clear buttons (data attributes drive both)
-const MAP_KEYS = {
-  'ill-ground-desktop': ['#s-map-ill-ground-desktop-file', 'illGroundDesktop'],
-  'ill-ground-phone':   ['#s-map-ill-ground-phone-file',   'illGroundPhone'],
-  'ill-marina-desktop': ['#s-map-ill-marina-desktop-file', 'illMarinaDesktop'],
-  'ill-marina-phone':   ['#s-map-ill-marina-phone-file',   'illMarinaPhone'],
-  'new-ground-desktop': ['#s-map-new-ground-desktop-file', 'newGroundDesktop'],
-  'new-ground-phone':   ['#s-map-new-ground-phone-file',   'newGroundPhone'],
-  'new-marina-desktop': ['#s-map-new-marina-desktop-file', 'newMarinaDesktop'],
-  'new-marina-phone':   ['#s-map-new-marina-phone-file',   'newMarinaPhone'],
+// MAP picker — one upload UI, mirrors to the right state slot via concept+level tabs
+const MP = { concept: 'ill', level: 'ground' };
+const MP_STATE = {
+  'ill-ground-desktop': 'illGroundDesktop', 'ill-ground-phone': 'illGroundPhone',
+  'ill-marina-desktop': 'illMarinaDesktop', 'ill-marina-phone': 'illMarinaPhone',
+  'new-ground-desktop': 'newGroundDesktop', 'new-ground-phone': 'newGroundPhone',
+  'new-marina-desktop': 'newMarinaDesktop', 'new-marina-phone': 'newMarinaPhone',
 };
-const MAP_STATE_KEY = Object.fromEntries(Object.entries(MAP_KEYS).map(([k, v]) => [k, v[1]]));
+function mpKey(device){ return MP_STATE[`${MP.concept}-${MP.level}-${device}`]; }
+
+function refreshMapPicker(){
+  const setTile = (device) => {
+    const data = _settingsState[mpKey(device)];
+    const prev = $(`#s-mp-${device}-preview`);
+    if (!prev) return;
+    prev.innerHTML = data ? `<img src="${data}" alt="">` : '<span>No image yet</span>';
+    const clr = document.querySelector(`[data-mp-clear="${device}"]`);
+    if (clr) clr.hidden = !data;
+  };
+  setTile('desktop'); setTile('phone');
+}
+
+// Auto-persist on upload so the new map reflects immediately in localStorage
+function persistSettingsNow(){
+  const current = readSettings();
+  writeSettings({
+    ...current,
+    map_ill_ground_desktop: _settingsState.illGroundDesktop,
+    map_ill_ground_phone:   _settingsState.illGroundPhone,
+    map_ill_marina_desktop: _settingsState.illMarinaDesktop,
+    map_ill_marina_phone:   _settingsState.illMarinaPhone,
+    map_new_ground_desktop: _settingsState.newGroundDesktop,
+    map_new_ground_phone:   _settingsState.newGroundPhone,
+    map_new_marina_desktop: _settingsState.newMarinaDesktop,
+    map_new_marina_phone:   _settingsState.newMarinaPhone,
+  });
+}
+
+// Tab switching
 document.addEventListener('click', e => {
-  const upBtn = e.target.closest?.('[data-upload]');
-  const clBtn = e.target.closest?.('[data-upload-clear]');
-  if (upBtn){
-    const [inp] = MAP_KEYS[upBtn.dataset.upload] || [];
-    if (inp) $(inp).click();
-  } else if (clBtn){
-    const [, k] = MAP_KEYS[clBtn.dataset.uploadClear] || [];
-    if (k){ _settingsState[k] = null; refreshSettingsPreviews(); }
+  const tab = e.target.closest?.('.mp-tab');
+  if (!tab) return;
+  const group = tab.parentElement;
+  group.querySelectorAll('.mp-tab').forEach(b => b.classList.remove('on'));
+  tab.classList.add('on');
+  if (tab.dataset.concept) MP.concept = tab.dataset.concept;
+  if (tab.dataset.level)   MP.level = tab.dataset.level;
+  refreshMapPicker();
+});
+
+// Upload + clear inside the active tile
+document.addEventListener('click', e => {
+  const up = e.target.closest?.('[data-mp-upload]');
+  const cl = e.target.closest?.('[data-mp-clear]');
+  if (up) $(`#s-mp-${up.dataset.mpUpload}-file`).click();
+  else if (cl){
+    _settingsState[mpKey(cl.dataset.mpClear)] = null;
+    persistSettingsNow();
+    refreshMapPicker();
+    refreshSettingsPreviews();
+    // Refresh the admin edit map if open
+    if (typeof loadEditMap === 'function') loadEditMap();
   }
 });
-Object.entries(MAP_KEYS).forEach(([_, [inputSel, stateKey]]) => {
-  document.addEventListener('change', e => {
-    if ('#' + e.target.id !== inputSel) return;
+['desktop','phone'].forEach(device => {
+  document.getElementById(`s-mp-${device}-file`)?.addEventListener('change', e => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => { _settingsState[stateKey] = reader.result; refreshSettingsPreviews(); };
+    reader.onload = () => {
+      _settingsState[mpKey(device)] = reader.result;
+      persistSettingsNow();
+      refreshMapPicker();
+      refreshSettingsPreviews();
+      if (typeof loadEditMap === 'function') loadEditMap();
+      toast(`Uploaded · reflected on the current map`, 'ok');
+    };
     reader.readAsDataURL(file);
+    e.target.value = '';
   });
 });
 
