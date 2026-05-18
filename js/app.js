@@ -70,15 +70,18 @@ function applyAdminSettings(){
     splash_tag:       local.splash_tag       ?? j.brand?.splash_tagline ?? null,
     logo_data:        local.logo_data        ?? j.brand?.logo           ?? null,
     primary:          local.primary          ?? j.theme?.primary        ?? null,
-    font_heading:     local.font_heading     ?? j.theme?.font_heading   ?? null,
-    font_body:        local.font_body        ?? j.theme?.font_body      ?? null,
+    font_heading_data: local.font_heading_data ?? j.theme?.font_heading_data ?? null,
+    font_heading_name: local.font_heading_name ?? j.theme?.font_heading_name ?? null,
+    font_body_data:    local.font_body_data    ?? j.theme?.font_body_data    ?? null,
+    font_body_name:    local.font_body_name    ?? j.theme?.font_body_name    ?? null,
     show_illustrated: local.show_illustrated ?? j.map?.show_illustrated ?? true,
     show_satellite:   local.show_satellite   ?? j.map?.show_satellite   ?? true,
     show_new:         local.show_new         ?? j.map?.show_new         ?? true,
     default_concept:  local.default_concept  ?? j.map?.default_concept  ?? 'illustrated',
-    map_ill:          local.map_ill          ?? j.map?.ill              ?? null,
-    map_new:          local.map_new          ?? j.map?.new              ?? null,
-    map_new_mobile:   local.map_new_mobile   ?? j.map?.new_mobile       ?? null,
+    map_ill_desktop:  local.map_ill_desktop  ?? j.map?.ill_desktop      ?? null,
+    map_ill_phone:    local.map_ill_phone    ?? j.map?.ill_phone        ?? null,
+    map_new_desktop:  local.map_new_desktop  ?? j.map?.new_desktop      ?? null,
+    map_new_phone:    local.map_new_phone    ?? j.map?.new_phone        ?? null,
   };
 
   // Brand name
@@ -98,10 +101,12 @@ function applyAdminSettings(){
     const tag = document.querySelector('.splash-tag');
     if (tag) tag.textContent = s.splash_tag;
   }
-  // Brand logo (replaces splash logo SVG)
+  // Brand logo — drive both the splash and the persistent topbar mark
   if (s.logo_data){
-    const logo = document.querySelector('.splash-logo');
-    if (logo){ logo.src = s.logo_data; logo.style.filter = 'none'; }
+    const splashLogo = document.querySelector('.splash-logo');
+    if (splashLogo){ splashLogo.src = s.logo_data; splashLogo.style.filter = 'none'; }
+    const brandLogo = document.getElementById('brand-logo');
+    if (brandLogo){ brandLogo.src = s.logo_data; brandLogo.hidden = false; }
   }
   // Primary colour
   if (s.primary){
@@ -110,19 +115,16 @@ function applyAdminSettings(){
     // Derive a deeper shade by darkening
     document.documentElement.style.setProperty('--ayla-aqua-deep', s.primary);
   }
-  // Fonts
-  if (s.font_heading || s.font_body){
-    const fams = [s.font_heading, s.font_body].filter(Boolean);
-    if (fams.length){
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      const families = fams.map(f => f.replace(/\s+/g, '+') + ':wght@400;500;600;700').join('&family=');
-      link.href = `https://fonts.googleapis.com/css2?family=${families}&display=swap`;
-      document.head.appendChild(link);
-      if (s.font_heading) document.documentElement.style.setProperty('--serif', `"${s.font_heading}", Georgia, serif`);
-      if (s.font_body)    document.documentElement.style.setProperty('--sans',  `"${s.font_body}", -apple-system, BlinkMacSystemFont, system-ui, sans-serif`);
-    }
+  // Custom fonts (uploaded data URLs)
+  if (s.font_heading_data){
+    injectAylaFont('AylaCustomHeading', s.font_heading_data);
+    document.documentElement.style.setProperty('--serif', `"AylaCustomHeading", "${s.font_heading_name || 'Playfair Display'}", Georgia, serif`);
   }
+  if (s.font_body_data){
+    injectAylaFont('AylaCustomBody', s.font_body_data);
+    document.documentElement.style.setProperty('--sans', `"AylaCustomBody", "${s.font_body_name || 'Inter'}", -apple-system, BlinkMacSystemFont, system-ui, sans-serif`);
+  }
+
   // Map concept visibility
   const concepts = { illustrated: s.show_illustrated, satellite: s.show_satellite, new: s.show_new };
   for (const [k, v] of Object.entries(concepts)){
@@ -135,11 +137,22 @@ function applyAdminSettings(){
   if (s.default_concept && document.querySelector(`.concept-btn[data-concept="${s.default_concept}"]`)){
     state.mapConcept = s.default_concept;
   }
-  // Custom map images
-  if (s.map_ill){ MAP_CONCEPTS.illustrated.img.ground = s.map_ill; MAP_CONCEPTS.illustrated.img.marina = s.map_ill; }
-  const isMobile = window.matchMedia('(max-width: 600px)').matches;
-  const newSrc = isMobile && s.map_new_mobile ? s.map_new_mobile : s.map_new;
+  // Custom map images — pick the phone or desktop version based on viewport
+  const isMobile = window.matchMedia('(max-width: 760px)').matches;
+  const illSrc = isMobile ? (s.map_ill_phone || s.map_ill_desktop) : (s.map_ill_desktop || s.map_ill_phone);
+  const newSrc = isMobile ? (s.map_new_phone || s.map_new_desktop) : (s.map_new_desktop || s.map_new_phone);
+  if (illSrc){ MAP_CONCEPTS.illustrated.img.ground = illSrc; MAP_CONCEPTS.illustrated.img.marina = illSrc; }
   if (newSrc){ MAP_CONCEPTS.new.img.ground = newSrc; MAP_CONCEPTS.new.img.marina = newSrc; }
+}
+
+function injectAylaFont(family, dataUrl){
+  let style = document.getElementById('font-' + family);
+  if (!style){
+    style = document.createElement('style');
+    style.id = 'font-' + family;
+    document.head.appendChild(style);
+  }
+  style.textContent = `@font-face{font-family:"${family}";src:url(${dataUrl});font-display:swap}`;
 }
 
 // ---------- 2. State ----------

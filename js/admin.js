@@ -700,39 +700,68 @@ function effectiveSettings(){
     splash_tag:    ov.splash_tag    ?? base.brand?.splash_tagline ?? 'Shops, dining and experiences by the sea',
     logo_data:     ov.logo_data     ?? null,
     primary:       ov.primary       ?? '#3AB0C8',
-    font_heading:  ov.font_heading  ?? 'Playfair Display',
-    font_body:     ov.font_body     ?? 'Inter',
+    // Custom fonts (data URLs) + names
+    font_heading_data: ov.font_heading_data ?? null,
+    font_heading_name: ov.font_heading_name ?? 'Playfair Display',
+    font_body_data:    ov.font_body_data    ?? null,
+    font_body_name:    ov.font_body_name    ?? 'Inter',
     show_illustrated: ov.show_illustrated !== false,
     show_satellite:   ov.show_satellite   !== false,
     show_new:         ov.show_new         !== false,
     default_concept:  ov.default_concept  ?? 'illustrated',
-    map_ill:          ov.map_ill          ?? null,
-    map_new:          ov.map_new          ?? null,
-    map_new_mobile:   ov.map_new_mobile   ?? null,
+    // 2 versions per concept: desktop + phone
+    map_ill_desktop:  ov.map_ill_desktop  ?? null,
+    map_ill_phone:    ov.map_ill_phone    ?? null,
+    map_new_desktop:  ov.map_new_desktop  ?? null,
+    map_new_phone:    ov.map_new_phone    ?? null,
     password_hash:    ov.password_hash    ?? base.admin?.password_hash ?? '',
   };
 }
 
-let _settingsState = { logo: null, ill: null, mapNew: null, mapNewMobile: null };
+let _settingsState = {
+  logo: null,
+  fontHeading: null, fontHeadingName: 'Playfair Display',
+  fontBody: null, fontBodyName: 'Inter',
+  illDesktop: null, illPhone: null,
+  newDesktop: null, newPhone: null,
+};
+
+function updateAdminBrand(name){
+  if (!name) return;
+  const el = document.getElementById('admin-brand');
+  if (!el) return;
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2){
+    const accent = parts.pop();
+    el.innerHTML = `${escHtml(parts.join(' '))} <span>${escHtml(accent)}</span>`;
+  } else {
+    el.innerHTML = `<span>${escHtml(name)}</span>`;
+  }
+  document.title = name + ' · Admin';
+}
 
 function renderSettings(){
   const s = effectiveSettings();
   $('#s-brand-name').value = s.brand_name;
+  updateAdminBrand(s.brand_name);
   $('#s-brand-name-ar').value = s.brand_name_ar;
   $('#s-splash-tag').value = s.splash_tag;
   $('#s-color').value = s.primary;
   $('#s-color-hex').value = s.primary.toUpperCase();
   $('#s-color-preview').style.setProperty('--c', s.primary);
-  $('#s-font-heading').value = s.font_heading;
-  $('#s-font-body').value = s.font_body;
   $('#s-show-illustrated').checked = s.show_illustrated;
   $('#s-show-satellite').checked = s.show_satellite;
   $('#s-show-new').checked = s.show_new;
   $('#s-default-concept').value = s.default_concept;
-  _settingsState.logo = s.logo_data;
-  _settingsState.ill = s.map_ill;
-  _settingsState.mapNew = s.map_new;
-  _settingsState.mapNewMobile = s.map_new_mobile;
+  _settingsState.logo            = s.logo_data;
+  _settingsState.fontHeading     = s.font_heading_data;
+  _settingsState.fontHeadingName = s.font_heading_name;
+  _settingsState.fontBody        = s.font_body_data;
+  _settingsState.fontBodyName    = s.font_body_name;
+  _settingsState.illDesktop      = s.map_ill_desktop;
+  _settingsState.illPhone        = s.map_ill_phone;
+  _settingsState.newDesktop      = s.map_new_desktop;
+  _settingsState.newPhone        = s.map_new_phone;
   refreshSettingsPreviews();
 }
 
@@ -744,16 +773,46 @@ function refreshSettingsPreviews(){
     el.style.background = data ? '' : (fallbackBg || 'var(--muted)');
   };
   setPrev('#s-logo-preview', _settingsState.logo, '#1F7A8A');
-  setPrev('#s-map-ill-preview', _settingsState.ill);
-  setPrev('#s-map-new-preview', _settingsState.mapNew);
-  setPrev('#s-map-new-mobile-preview', _settingsState.mapNewMobile);
+  setPrev('#s-map-ill-desktop-preview', _settingsState.illDesktop);
+  setPrev('#s-map-ill-phone-preview',   _settingsState.illPhone);
+  setPrev('#s-map-new-desktop-preview', _settingsState.newDesktop);
+  setPrev('#s-map-new-phone-preview',   _settingsState.newPhone);
+
+  // Font previews: apply the uploaded font if present
+  if (_settingsState.fontHeading){
+    injectFontFace('AylaCustomHeading', _settingsState.fontHeading);
+    const p = $('#s-font-heading-preview'); if (p) p.style.fontFamily = "'AylaCustomHeading', " + (_settingsState.fontHeadingName || 'serif');
+  }
+  if (_settingsState.fontBody){
+    injectFontFace('AylaCustomBody', _settingsState.fontBody);
+    const p = $('#s-font-body-preview'); if (p) p.style.fontFamily = "'AylaCustomBody', " + (_settingsState.fontBodyName || 'sans-serif');
+  }
+  $('#s-font-heading-name').textContent = _settingsState.fontHeadingName + (_settingsState.fontHeading ? ' (custom)' : ' (default)');
+  $('#s-font-body-name').textContent    = _settingsState.fontBodyName    + (_settingsState.fontBody    ? ' (custom)' : ' (default)');
+
   // Clear buttons
   $('#s-logo-clear').hidden = !_settingsState.logo;
+  $('#s-font-heading-clear').hidden = !_settingsState.fontHeading;
+  $('#s-font-body-clear').hidden    = !_settingsState.fontBody;
   document.querySelectorAll('[data-upload-clear]').forEach(b => {
-    const map = { 'map-ill': 'ill', 'map-new': 'mapNew', 'map-new-mobile': 'mapNewMobile' };
+    const map = {
+      'ill-desktop': 'illDesktop', 'ill-phone': 'illPhone',
+      'new-desktop': 'newDesktop', 'new-phone': 'newPhone',
+    };
     const key = map[b.dataset.uploadClear];
     b.hidden = !_settingsState[key];
   });
+}
+
+// Inject (or update) a @font-face rule pointing at a data URL
+function injectFontFace(family, dataUrl){
+  let style = document.getElementById('font-' + family);
+  if (!style){
+    style = document.createElement('style');
+    style.id = 'font-' + family;
+    document.head.appendChild(style);
+  }
+  style.textContent = `@font-face{font-family:"${family}";src:url(${dataUrl});font-display:swap}`;
 }
 
 function bindFileInput(btnId, inputId, stateKey){
@@ -768,33 +827,58 @@ function bindFileInput(btnId, inputId, stateKey){
 }
 bindFileInput('#s-logo-btn', '#s-logo-file', 'logo');
 
-// Map upload buttons (data attributes)
+// MAP upload + clear buttons (data attributes drive both)
+const MAP_KEYS = {
+  'ill-desktop': ['#s-map-ill-desktop-file', 'illDesktop'],
+  'ill-phone':   ['#s-map-ill-phone-file',   'illPhone'],
+  'new-desktop': ['#s-map-new-desktop-file', 'newDesktop'],
+  'new-phone':   ['#s-map-new-phone-file',   'newPhone'],
+};
 document.addEventListener('click', e => {
   const upBtn = e.target.closest?.('[data-upload]');
   const clBtn = e.target.closest?.('[data-upload-clear]');
   if (upBtn){
-    const key = upBtn.dataset.upload;
-    const map = { 'map-ill': ['#s-map-ill-file', 'ill'], 'map-new': ['#s-map-new-file', 'mapNew'], 'map-new-mobile': ['#s-map-new-mobile-file', 'mapNewMobile'] };
-    const [inp] = map[key] || [];
+    const [inp] = MAP_KEYS[upBtn.dataset.upload] || [];
     if (inp) $(inp).click();
   } else if (clBtn){
-    const key = clBtn.dataset.uploadClear;
-    const map = { 'map-ill': 'ill', 'map-new': 'mapNew', 'map-new-mobile': 'mapNewMobile' };
-    _settingsState[map[key]] = null;
-    refreshSettingsPreviews();
+    const [, k] = MAP_KEYS[clBtn.dataset.uploadClear] || [];
+    if (k){ _settingsState[k] = null; refreshSettingsPreviews(); }
   }
 });
-['s-map-ill-file:ill','s-map-new-file:mapNew','s-map-new-mobile-file:mapNewMobile'].forEach(pair => {
-  const [id, k] = pair.split(':');
+Object.entries(MAP_KEYS).forEach(([_, [inputSel, stateKey]]) => {
   document.addEventListener('change', e => {
-    if (e.target.id !== id) return;
+    if ('#' + e.target.id !== inputSel) return;
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => { _settingsState[k] = reader.result; refreshSettingsPreviews(); };
+    reader.onload = () => { _settingsState[stateKey] = reader.result; refreshSettingsPreviews(); };
     reader.readAsDataURL(file);
   });
 });
+
+// FONT uploads
+function setupFontUpload(btnId, inputId, clearId, stateKey, nameKey){
+  $(btnId)?.addEventListener('click', () => $(inputId).click());
+  $(inputId)?.addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      _settingsState[stateKey] = reader.result;
+      // Strip extension so the font name is presentable
+      _settingsState[nameKey] = file.name.replace(/\.[^.]+$/, '');
+      refreshSettingsPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+  $(clearId)?.addEventListener('click', () => {
+    _settingsState[stateKey] = null;
+    _settingsState[nameKey] = nameKey === 'fontHeadingName' ? 'Playfair Display' : 'Inter';
+    refreshSettingsPreviews();
+  });
+}
+setupFontUpload('#s-font-heading-btn', '#s-font-heading-file', '#s-font-heading-clear', 'fontHeading', 'fontHeadingName');
+setupFontUpload('#s-font-body-btn',    '#s-font-body-file',    '#s-font-body-clear',    'fontBody',    'fontBodyName');
 
 // Logo clear
 $('#s-logo-clear')?.addEventListener('click', () => { _settingsState.logo = null; refreshSettingsPreviews(); });
@@ -822,19 +906,22 @@ $('#settings-save-btn')?.addEventListener('click', () => {
     splash_tag:       $('#s-splash-tag').value.trim() || null,
     logo_data:        _settingsState.logo,
     primary:          $('#s-color-hex').value.trim().toUpperCase(),
-    font_heading:     $('#s-font-heading').value,
-    font_body:        $('#s-font-body').value,
+    font_heading_data: _settingsState.fontHeading,
+    font_heading_name: _settingsState.fontHeadingName,
+    font_body_data:    _settingsState.fontBody,
+    font_body_name:    _settingsState.fontBodyName,
     show_illustrated: $('#s-show-illustrated').checked,
     show_satellite:   $('#s-show-satellite').checked,
     show_new:         $('#s-show-new').checked,
     default_concept:  $('#s-default-concept').value,
-    map_ill:          _settingsState.ill,
-    map_new:          _settingsState.mapNew,
-    map_new_mobile:   _settingsState.mapNewMobile,
+    map_ill_desktop:  _settingsState.illDesktop,
+    map_ill_phone:    _settingsState.illPhone,
+    map_new_desktop:  _settingsState.newDesktop,
+    map_new_phone:    _settingsState.newPhone,
   };
   const current = readSettings();
   writeSettings({ ...current, ...o });
-  toast('Settings saved · public site picks them up on next load', 'ok');
+  toast('Saved · reload the public site to see the changes', 'ok');
 });
 
 // Publish to live site — POST current data to /api/save which commits to GitHub

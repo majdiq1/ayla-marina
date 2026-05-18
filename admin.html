@@ -34,7 +34,7 @@
 <div id="app" class="app" hidden>
   <header class="topnav">
     <div class="topnav-inner">
-      <a class="brand" href="index.html">
+      <a class="brand" href="index.html" id="admin-brand">
         Ayla <span>Marina</span>
       </a>
       <nav class="tabs">
@@ -340,15 +340,8 @@
         <h1>Settings</h1>
         <p class="page-sub">Brand, theme, security, and map sources</p>
       </div>
-      <div style="display:flex;gap:10px;align-items:center">
-        <button id="publish-btn" class="btn-primary" title="Push pois.json, categories.json, settings.json to the repo. Vercel rebuilds in ~30s.">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-          Publish to live site
-        </button>
-        <button id="settings-save-btn" class="btn-ghost-sm">Save settings</button>
-      </div>
+      <button id="settings-save-btn" class="btn-primary">Save settings</button>
     </div>
-    <div id="publish-status" class="publish-status" hidden></div>
 
     <div class="settings-grid">
 
@@ -391,27 +384,26 @@
             </div>
           </div>
         </label>
+        <p class="form-sublabel">Upload your own fonts (.woff2 / .woff / .ttf / .otf)</p>
         <label class="field">
-          <span>Heading font (Google Fonts name)</span>
-          <select id="s-font-heading">
-            <option value="Playfair Display">Playfair Display (default · editorial serif)</option>
-            <option value="Cormorant Garamond">Cormorant Garamond (elegant serif)</option>
-            <option value="DM Serif Display">DM Serif Display (modern serif)</option>
-            <option value="Libre Caslon Display">Libre Caslon Display (classic serif)</option>
-            <option value="Fraunces">Fraunces (premium serif)</option>
-            <option value="Inter">Inter (clean sans)</option>
-            <option value="Manrope">Manrope (geometric sans)</option>
-          </select>
+          <span>Heading font</span>
+          <div class="logo-upload">
+            <div class="font-preview" id="s-font-heading-preview" style="font-family:var(--serif)">Ayla</div>
+            <input id="s-font-heading-file" type="file" accept=".woff2,.woff,.ttf,.otf,font/*" hidden>
+            <button type="button" class="btn-ghost-sm" id="s-font-heading-btn">Upload font</button>
+            <button type="button" class="btn-ghost-sm" id="s-font-heading-clear" hidden>Reset</button>
+          </div>
+          <span style="font-size:11.5px;color:var(--ink-3);margin-top:6px">Currently: <span id="s-font-heading-name">Playfair Display (default)</span></span>
         </label>
         <label class="field">
           <span>Body font</span>
-          <select id="s-font-body">
-            <option value="Inter">Inter (default · neutral sans)</option>
-            <option value="Manrope">Manrope (geometric sans)</option>
-            <option value="DM Sans">DM Sans</option>
-            <option value="Work Sans">Work Sans</option>
-            <option value="IBM Plex Sans">IBM Plex Sans</option>
-          </select>
+          <div class="logo-upload">
+            <div class="font-preview" id="s-font-body-preview" style="font-family:var(--sans);font-size:16px;font-weight:500">Aa</div>
+            <input id="s-font-body-file" type="file" accept=".woff2,.woff,.ttf,.otf,font/*" hidden>
+            <button type="button" class="btn-ghost-sm" id="s-font-body-btn">Upload font</button>
+            <button type="button" class="btn-ghost-sm" id="s-font-body-clear" hidden>Reset</button>
+          </div>
+          <span style="font-size:11.5px;color:var(--ink-3);margin-top:6px">Currently: <span id="s-font-body-name">Inter (default)</span></span>
         </label>
       </section>
 
@@ -444,32 +436,45 @@
       <!-- Map upload -->
       <section class="form-group">
         <h2>Custom map images</h2>
-        <p class="form-hint">Override the basemap for each concept. Upload separate images optimised for desktop and mobile if needed.</p>
+        <p class="form-hint">Upload a separate image for phone and desktop screens for each concept.</p>
+
+        <p class="form-sublabel">Illustrated map</p>
         <label class="field">
-          <span>Illustrated · Ground (PNG/JPG/SVG)</span>
+          <span>Desktop version (PNG/JPG/SVG)</span>
           <div class="logo-upload">
-            <div class="logo-preview" id="s-map-ill-preview"></div>
-            <input id="s-map-ill-file" type="file" accept="image/*,.svg" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="map-ill">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="map-ill" hidden>Reset</button>
+            <div class="logo-preview" id="s-map-ill-desktop-preview"></div>
+            <input id="s-map-ill-desktop-file" type="file" accept="image/*,.svg" hidden>
+            <button type="button" class="btn-ghost-sm" data-upload="ill-desktop">Upload</button>
+            <button type="button" class="btn-ghost-sm" data-upload-clear="ill-desktop" hidden>Reset</button>
           </div>
         </label>
         <label class="field">
-          <span>Ayla Premium · Single image (desktop+mobile)</span>
+          <span>Phone version</span>
           <div class="logo-upload">
-            <div class="logo-preview" id="s-map-new-preview"></div>
-            <input id="s-map-new-file" type="file" accept="image/*" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="map-new">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="map-new" hidden>Reset</button>
+            <div class="logo-preview" id="s-map-ill-phone-preview"></div>
+            <input id="s-map-ill-phone-file" type="file" accept="image/*,.svg" hidden>
+            <button type="button" class="btn-ghost-sm" data-upload="ill-phone">Upload</button>
+            <button type="button" class="btn-ghost-sm" data-upload-clear="ill-phone" hidden>Reset</button>
+          </div>
+        </label>
+
+        <p class="form-sublabel">Ayla Premium map</p>
+        <label class="field">
+          <span>Desktop version</span>
+          <div class="logo-upload">
+            <div class="logo-preview" id="s-map-new-desktop-preview"></div>
+            <input id="s-map-new-desktop-file" type="file" accept="image/*" hidden>
+            <button type="button" class="btn-ghost-sm" data-upload="new-desktop">Upload</button>
+            <button type="button" class="btn-ghost-sm" data-upload-clear="new-desktop" hidden>Reset</button>
           </div>
         </label>
         <label class="field">
-          <span>Ayla Premium · Mobile version (optional, used on phones)</span>
+          <span>Phone version</span>
           <div class="logo-upload">
-            <div class="logo-preview" id="s-map-new-mobile-preview"></div>
-            <input id="s-map-new-mobile-file" type="file" accept="image/*" hidden>
-            <button type="button" class="btn-ghost-sm" data-upload="map-new-mobile">Upload</button>
-            <button type="button" class="btn-ghost-sm" data-upload-clear="map-new-mobile" hidden>Reset</button>
+            <div class="logo-preview" id="s-map-new-phone-preview"></div>
+            <input id="s-map-new-phone-file" type="file" accept="image/*" hidden>
+            <button type="button" class="btn-ghost-sm" data-upload="new-phone">Upload</button>
+            <button type="button" class="btn-ghost-sm" data-upload-clear="new-phone" hidden>Reset</button>
           </div>
         </label>
       </section>
