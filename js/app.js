@@ -7,11 +7,13 @@ const $$ = sel => document.querySelectorAll(sel);
 
 async function loadData(){
   const v = '?v=' + Date.now();
-  const [levels, categories, pois] = await Promise.all([
+  const [levels, categories, pois, settings] = await Promise.all([
     fetch('data/levels.json' + v, { cache: 'no-store' }).then(r => r.json()),
     fetch('data/categories.json' + v, { cache: 'no-store' }).then(r => r.json()),
     fetch('data/pois.json' + v, { cache: 'no-store' }).then(r => r.json()),
+    fetch('data/settings.json' + v, { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
   ]);
+  DATA.settings = settings || {};
   DATA.levels = levels.sort((a,b) => a.sort_order - b.sort_order);
   // Apply admin edits on top before filtering
   const ov = readAdminPoiOverrides();
@@ -58,7 +60,26 @@ function readAdminSettings(){
   try { return JSON.parse(localStorage.getItem('ayla_settings_overrides_v1') || '{}'); } catch(_) { return {}; }
 }
 function applyAdminSettings(){
-  const s = readAdminSettings();
+  // Start with what's in DATA.settings (the published settings.json), then
+  // overlay any localStorage overrides on top (unpublished admin preview).
+  const j = DATA.settings || {};
+  const local = readAdminSettings();
+  const s = {
+    brand_name:       local.brand_name       ?? j.brand?.name           ?? null,
+    brand_name_ar:    local.brand_name_ar    ?? j.brand?.name_ar        ?? null,
+    splash_tag:       local.splash_tag       ?? j.brand?.splash_tagline ?? null,
+    logo_data:        local.logo_data        ?? j.brand?.logo           ?? null,
+    primary:          local.primary          ?? j.theme?.primary        ?? null,
+    font_heading:     local.font_heading     ?? j.theme?.font_heading   ?? null,
+    font_body:        local.font_body        ?? j.theme?.font_body      ?? null,
+    show_illustrated: local.show_illustrated ?? j.map?.show_illustrated ?? true,
+    show_satellite:   local.show_satellite   ?? j.map?.show_satellite   ?? true,
+    show_new:         local.show_new         ?? j.map?.show_new         ?? true,
+    default_concept:  local.default_concept  ?? j.map?.default_concept  ?? 'illustrated',
+    map_ill:          local.map_ill          ?? j.map?.ill              ?? null,
+    map_new:          local.map_new          ?? j.map?.new              ?? null,
+    map_new_mobile:   local.map_new_mobile   ?? j.map?.new_mobile       ?? null,
+  };
 
   // Brand name
   if (s.brand_name){

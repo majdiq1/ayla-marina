@@ -836,6 +836,92 @@ $('#settings-save-btn')?.addEventListener('click', () => {
   toast('Settings saved · public site picks them up on next load', 'ok');
 });
 
+// Publish to live site — POST current data to /api/save which commits to GitHub
+async function publishToLive(){
+  const banner = $('#publish-status');
+  const setBanner = (cls, html) => { banner.hidden = false; banner.className = 'publish-status ' + cls; banner.innerHTML = html; };
+
+  setBanner('busy', `<strong>Publishing…</strong>Pushing pois.json, categories.json, settings.json to the repository.`);
+
+  // Build the three files with merged data
+  const poisOut = DATA.pois.map(p => ({
+    id: p.id, name: p.name, name_ar: p.name_ar ?? null,
+    level_id: p.level_id, category_id: p.category_id,
+    pin_x: p.pin_x, pin_y: p.pin_y,
+    lat: p.lat ?? null, lng: p.lng ?? null,
+    google_maps_url: p.google_maps_url ?? null,
+    logo: p.logo ?? null,
+    instagram: p.instagram ?? null,
+    phone: p.phone ?? null,
+    whatsapp: p.whatsapp ?? null,
+    description: p.description ?? null,
+    description_ar: p.description_ar ?? null,
+    is_active: p.is_active !== false,
+  }));
+  const catsOut = DATA.categories.map(c => ({
+    id: c.id, slug: c.slug, name: c.name, name_ar: c.name_ar ?? null,
+    color: c.color, icon: c.icon, sort_order: c.sort_order ?? 0,
+  }));
+  // Settings: merge current json + localStorage overrides
+  const settingsOv = readSettings();
+  const settingsOut = JSON.parse(JSON.stringify(DATA.settings || {}));
+  settingsOut.brand = settingsOut.brand || {};
+  if (settingsOv.brand_name)    settingsOut.brand.name = settingsOv.brand_name;
+  if (settingsOv.brand_name_ar) settingsOut.brand.name_ar = settingsOv.brand_name_ar;
+  if (settingsOv.splash_tag)    settingsOut.brand.splash_tagline = settingsOv.splash_tag;
+  if (settingsOv.logo_data)     settingsOut.brand.logo = settingsOv.logo_data;
+  settingsOut.theme = settingsOut.theme || {};
+  if (settingsOv.primary)       settingsOut.theme.primary = settingsOv.primary;
+  if (settingsOv.font_heading)  settingsOut.theme.font_heading = settingsOv.font_heading;
+  if (settingsOv.font_body)     settingsOut.theme.font_body = settingsOv.font_body;
+  settingsOut.map = settingsOut.map || {};
+  settingsOut.map.show_illustrated = settingsOv.show_illustrated !== false;
+  settingsOut.map.show_satellite   = settingsOv.show_satellite   !== false;
+  settingsOut.map.show_new         = settingsOv.show_new         !== false;
+  settingsOut.map.default_concept  = settingsOv.default_concept  || 'illustrated';
+  if (settingsOv.map_ill)        settingsOut.map.ill         = settingsOv.map_ill;
+  if (settingsOv.map_new)        settingsOut.map.new         = settingsOv.map_new;
+  if (settingsOv.map_new_mobile) settingsOut.map.new_mobile  = settingsOv.map_new_mobile;
+  settingsOut.admin = settingsOut.admin || {};
+  if (settingsOv.password_hash)  settingsOut.admin.password_hash = settingsOv.password_hash;
+
+  try {
+    const res = await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        files: [
+          { file: 'pois.json',       content: poisOut },
+          { file: 'categories.json', content: catsOut },
+          { file: 'settings.json',   content: settingsOut },
+        ],
+      }),
+    });
+    const j = await res.json();
+    if (j.ok){
+      const links = j.files.filter(f => f.commit).map(f => `<a href="${f.html_url}" target="_blank" rel="noopener">${f.file}</a>`).join(' · ');
+      setBanner('ok',
+        `<div><strong>Published.</strong>${j.note || 'Vercel rebuilds in ~30 seconds.'}<br>` +
+        (links ? `Commits: ${links}` : '') + `</div>`);
+      toast('Published to live site', 'ok');
+      // Clear all localStorage overrides now that they're in the repo
+      localStorage.removeItem('ayla_admin_overrides_v1');
+      localStorage.removeItem('ayla_settings_overrides_v1');
+    } else {
+      const errs = (j.files || []).filter(f => !f.ok).map(f => `${f.file}: ${f.error || f.status}`).join('<br>');
+      setBanner('err',
+        `<div><strong>Publish failed.</strong>${escHtml(j.error || '')}<br>${errs || ''}` +
+        `<br><br><em>One-time setup:</em> Vercel dashboard → ayla-marina → Settings → Environment Variables → add <code>GITHUB_TOKEN</code> (a fine-grained PAT with <code>Contents: read &amp; write</code> on majdiq1/ayla-marina). Then redeploy.</div>`);
+      toast('Publish failed', 'err');
+    }
+  } catch(e){
+    setBanner('err', `<div><strong>Network error:</strong> ${escHtml(e.message)}</div>`);
+    toast('Publish network error', 'err');
+  }
+}
+
+$('#publish-btn')?.addEventListener('click', publishToLive);
+
 // Password change
 $('#s-pw-change-btn')?.addEventListener('click', async () => {
   const cur = $('#s-pw-current').value;
