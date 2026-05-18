@@ -673,12 +673,13 @@ $('#cat-delete-btn')?.addEventListener('click', () => {
 $('#back-cats-btn')?.addEventListener('click', () => { location.hash = '#cats'; });
 $('#new-cat-btn')?.addEventListener('click', () => { location.hash = '#cat-new'; });
 
-// Section tab clicks
+// Section tab clicks — let any new section route work
 document.querySelectorAll('.sec-tab').forEach(t => {
   t.addEventListener('click', e => {
     e.preventDefault();
     const sec = t.dataset.section;
-    location.hash = sec === 'cats' ? '#cats' : '#list';
+    const route = { list: '#list', cats: '#cats', settings: '#settings' }[sec] || '#list';
+    location.hash = route;
   });
 });
 
