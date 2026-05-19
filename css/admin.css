@@ -192,106 +192,110 @@ input,select,textarea,button{font-family:inherit}
 /* ----------- Categories grid — editorial spacing ----------- */
 .cat-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-  gap:24px;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
 }
 @media (min-width:1100px){
-  .cat-grid{grid-template-columns:repeat(3,1fr);gap:32px}
+  .cat-grid{grid-template-columns:repeat(3,1fr);gap:16px}
 }
-/* Editorial category card — Aman / Soho House inspired
-   Restraint: one hairline border, one short coloured rule, no shadows.
-   Type does the heavy lifting; spacing is on an 8pt grid. */
+@media (min-width:1400px){
+  .cat-grid{grid-template-columns:repeat(4,1fr)}
+}
+/* Editorial category card — compact, tinted with its own category colour */
 .cat-card{
-  background:#fff;
-  border:1px solid var(--border);
+  background:color-mix(in srgb, var(--c) 5%, #fff);
+  border:1px solid color-mix(in srgb, var(--c) 22%, var(--border));
   border-radius:2px;
-  padding:32px 32px 28px;
+  padding:18px 20px 16px;
   cursor:pointer;
   position:relative;
-  display:flex;flex-direction:column;
-  min-height:240px;
-  transition:border-color 320ms ease;
+  display:flex;flex-direction:column;gap:12px;
+  transition:background 280ms ease, border-color 280ms ease, transform 280ms ease;
 }
 .cat-card::after{
-  /* Hairline bottom underline that grows on hover — subtle premium tell */
-  content:'';position:absolute;left:32px;right:32px;bottom:0;
+  /* Hairline bottom underline that grows on hover */
+  content:'';position:absolute;left:20px;right:20px;bottom:-1px;
   height:1px;background:var(--c);
   transform:scaleX(0);transform-origin:left center;
-  transition:transform 480ms cubic-bezier(.22,1,.36,1);
+  transition:transform 420ms cubic-bezier(.22,1,.36,1);
 }
-.cat-card:hover{border-color:var(--ink-3)}
+.cat-card:hover{
+  background:color-mix(in srgb, var(--c) 9%, #fff);
+  border-color:color-mix(in srgb, var(--c) 45%, var(--border));
+}
 .cat-card:hover::after{transform:scaleX(1)}
 
-/* Eyebrow label — italic small-caps numbering, very quiet */
+/* Eyebrow — small italic numbering tinted with the category */
 .cat-eyebrow{
-  font:italic 400 11px/1 var(--serif);
+  font:italic 400 10px/1 var(--serif);
   letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-3);
-  margin-bottom:20px;
+  color:color-mix(in srgb, var(--c) 65%, var(--ink-3));
   font-variant-numeric:tabular-nums;
 }
 
-/* Header — title block left, count block right, baseline-aligned */
+/* Header row */
 .cat-card-head{
   display:flex;justify-content:space-between;align-items:flex-end;
-  gap:24px;margin-bottom:18px;
+  gap:16px;
 }
 .cat-titles{flex:1;min-width:0}
 .cat-name{
-  font-family:var(--serif);font-weight:500;font-size:26px;
-  color:var(--ink);margin:0;letter-spacing:-.018em;line-height:1.05;
+  font-family:var(--serif);font-weight:500;font-size:18px;
+  color:var(--ink);margin:0;letter-spacing:-.012em;line-height:1.1;
 }
 .cat-name-ar{
-  font-family:var(--serif);font-size:14px;font-weight:400;font-style:italic;
-  color:var(--ink-3);margin:8px 0 0;direction:rtl;
-  letter-spacing:-.005em;
+  font-family:var(--serif);font-size:12px;font-weight:400;font-style:italic;
+  color:color-mix(in srgb, var(--c) 50%, var(--ink-3));
+  margin:4px 0 0;direction:rtl;
 }
 
-/* Count block — small italic label over a single number */
+/* Count block — italic label over a single number */
 .cat-count-wrap{
   display:flex;flex-direction:column;align-items:flex-end;
   flex-shrink:0;line-height:1;
 }
 .cat-count-label{
-  font:italic 400 10px/1 var(--serif);
-  color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;
-  margin-bottom:6px;
+  font:italic 400 9px/1 var(--serif);
+  color:color-mix(in srgb, var(--c) 55%, var(--ink-3));
+  letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:4px;
 }
 .cat-count{
-  font-family:var(--serif);font-weight:500;font-size:24px;
-  color:var(--ink);
+  font-family:var(--serif);font-weight:600;font-size:20px;
+  color:var(--c);
   font-variant-numeric:tabular-nums;
 }
 
-/* Single short coloured rule — the only category-color hit on the card */
+/* Short coloured rule */
 .cat-rule{
-  width:24px;height:1px;background:var(--c);
-  margin-bottom:18px;
-  transition:width 480ms cubic-bezier(.22,1,.36,1);
+  width:20px;height:1px;background:var(--c);opacity:.7;
+  transition:width 420ms cubic-bezier(.22,1,.36,1), opacity 280ms ease;
 }
-.cat-card:hover .cat-rule{width:48px}
+.cat-card:hover .cat-rule{width:40px;opacity:1}
 
-/* Inline editorial list of place names — small caps separator dots */
+/* Inline list of place names */
 .cat-places{
-  margin:0;font-family:var(--sans);font-size:13.5px;line-height:1.75;
+  margin:0;font-family:var(--sans);font-size:12.5px;line-height:1.65;
   color:var(--ink-2);font-weight:400;
-  letter-spacing:.002em;
 }
 .cat-sep{
-  display:inline-block;margin:0 8px;
-  color:var(--ink-3);opacity:.5;
+  display:inline-block;margin:0 6px;
+  color:var(--c);opacity:.55;
 }
-.cat-more{color:var(--ink-3);font-style:italic;white-space:nowrap;margin-left:4px}
+.cat-more{
+  color:color-mix(in srgb, var(--c) 60%, var(--ink-3));
+  font-style:italic;white-space:nowrap;margin-left:4px;
+}
 .cat-empty{color:var(--ink-3);font-style:italic}
 
-/* Quiet arrow only on hover */
+/* Quiet arrow on hover */
 .cat-card-arrow{
-  position:absolute;bottom:28px;right:32px;
-  font:300 18px/1 var(--serif);color:var(--ink-3);
-  opacity:0;transform:translateX(-6px);
-  transition:opacity 280ms ease, transform 280ms ease, color 280ms ease;
+  position:absolute;bottom:14px;right:20px;
+  font:300 16px/1 var(--serif);color:var(--c);
+  opacity:0;transform:translateX(-4px);
+  transition:opacity 240ms ease, transform 240ms ease;
 }
-.cat-card:hover .cat-card-arrow{opacity:1;transform:translateX(0);color:var(--ink)}
+.cat-card:hover .cat-card-arrow{opacity:1;transform:translateX(0)}
 
 @media (prefers-reduced-motion: reduce){
   .cat-card, .cat-card *, .cat-card::after{transition:none !important}
