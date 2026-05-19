@@ -365,8 +365,12 @@ let editState = {
   // illustrated, so each concept stores its own coords.
   pinX_ill: null, pinY_ill: null,
   pinX_new: null, pinY_new: null,
+  lat: null, lng: null,     // real-world coords for the satellite map
   logoData: null,           // final cropped data URL persisted on the POI
 };
+
+// Admin satellite state
+const ADMIN_SAT = { map: null, marker: null, ready: false };
 // Active pin getters/setters that route to the right concept slot
 function getPin(){
   return editState.concept === 'new'
@@ -399,6 +403,8 @@ function renderEdit(id){
   editState.pinY_ill = poi?.pin_y ?? null;
   editState.pinX_new = poi?.pin_x_new ?? null;
   editState.pinY_new = poi?.pin_y_new ?? null;
+  editState.lat = poi?.lat ?? null;
+  editState.lng = poi?.lng ?? null;
   editState.logoData = poi?.logo || null;
 
   $('#edit-title').textContent = poi ? `Edit · ${poi.name}` : 'Add a new place';
@@ -708,8 +714,70 @@ document.addEventListener('click', e => {
   if (!btn) return;
   editState.concept = btn.dataset.concept;
   $$('#view-edit .concept-btn').forEach(b => b.classList.toggle('on', b === btn));
-  loadEditMap();
+  const stage = document.getElementById('edit-stage');
+  const satEl = document.getElementById('edit-satmap');
+  if (editState.concept === 'satellite'){
+    stage.classList.add('is-satellite');
+    if (satEl) satEl.hidden = false;
+    initAdminSatellite();
+  } else {
+    stage.classList.remove('is-satellite');
+    if (satEl) satEl.hidden = true;
+    loadEditMap();
+  }
 });
+
+const AYLA_CENTER = [29.529, 35.005];
+function initAdminSatellite(){
+  if (typeof L === 'undefined') {
+    // Leaflet still loading; retry once it's ready
+    setTimeout(initAdminSatellite, 200);
+    return;
+  }
+  const el = document.getElementById('edit-satmap');
+  if (!el) return;
+  if (!ADMIN_SAT.map){
+    ADMIN_SAT.map = L.map(el, { zoomControl: true, attributionControl: false, minZoom: 14, maxZoom: 19 })
+      .setView(editState.lat && editState.lng ? [editState.lat, editState.lng] : AYLA_CENTER, 17);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxNativeZoom: 19, maxZoom: 19,
+    }).addTo(ADMIN_SAT.map);
+    ADMIN_SAT.map.on('click', e => {
+      editState.lat = +e.latlng.lat.toFixed(6);
+      editState.lng = +e.latlng.lng.toFixed(6);
+      renderAdminSatMarker();
+      $('#edit-pos-coords').textContent = `(${editState.lat}, ${editState.lng})`;
+    });
+  }
+  // Ensure tile size recalculates after un-hiding
+  setTimeout(() => ADMIN_SAT.map.invalidateSize(), 60);
+  renderAdminSatMarker();
+  $('#edit-pos-hint').textContent = 'Tap the satellite map to set GPS · click to refine';
+  if (editState.lat && editState.lng){
+    $('#edit-pos-coords').textContent = `(${editState.lat}, ${editState.lng})`;
+  } else {
+    $('#edit-pos-coords').textContent = '';
+  }
+}
+
+function renderAdminSatMarker(){
+  if (!ADMIN_SAT.map) return;
+  if (ADMIN_SAT.marker) ADMIN_SAT.map.removeLayer(ADMIN_SAT.marker);
+  if (editState.lat == null || editState.lng == null) return;
+  const cat = editState.poi ? DATA.catById[editState.poi.category_id] : null;
+  const color = cat?.color || '#3AB0C8';
+  const name = $('#f-name')?.value || editState.poi?.name || '?';
+  const inits = (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  const inner = editState.logoData
+    ? `<img src="${escAttr(editState.logoData)}" alt="">`
+    : escHtml(inits);
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="edit-sat-marker" style="--c:${color}"><div class="edit-sat-marker-inner" style="--c:${color}">${inner}</div></div>`,
+    iconSize: [36, 36], iconAnchor: [18, 36],
+  });
+  ADMIN_SAT.marker = L.marker([editState.lat, editState.lng], { icon }).addTo(ADMIN_SAT.map);
+}
 
 // Level switch on map header
 document.addEventListener('click', e => {
@@ -785,6 +853,8 @@ async function onSavePoi(){
     pin_y: editState.pinY_ill != null ? round2(editState.pinY_ill) : null,
     pin_x_new: editState.pinX_new != null ? round2(editState.pinX_new) : null,
     pin_y_new: editState.pinY_new != null ? round2(editState.pinY_new) : null,
+    lat: editState.lat,
+    lng: editState.lng,
     phone: $('#f-phone').value.trim() || null,
     whatsapp: $('#f-whatsapp').value.trim() || null,
     instagram: $('#f-instagram').value.trim() || null,

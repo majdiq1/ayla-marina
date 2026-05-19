@@ -782,6 +782,31 @@ input,select,textarea,button{font-family:inherit}
   cursor:crosshair;
   touch-action:none;
 }
+.edit-satmap{
+  position:absolute;inset:0;z-index:4;background:#1a2530;
+}
+.edit-satmap.show{display:block !important}
+.edit-stage.is-satellite img,
+.edit-stage.is-satellite .edit-pin,
+.edit-stage.is-satellite .edit-pin-empty,
+.edit-stage.is-satellite .edit-context-pins{display:none !important}
+/* Custom marker for the active place on the admin satellite map */
+.edit-sat-marker{
+  width:36px;height:36px;
+  background:var(--c, var(--ayla-aqua));
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 10px rgba(0,0,0,.35);
+  border:2px solid #fff;
+}
+.edit-sat-marker-inner{
+  width:24px;height:24px;border-radius:50%;background:#fff;
+  transform:rotate(45deg);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font:600 11px/1 var(--serif);color:var(--c);
+}
+.edit-sat-marker-inner img{width:100%;height:100%;object-fit:cover}
 .edit-stage img{
   position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
   pointer-events:none;

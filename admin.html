@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </head>
 <body>
 
@@ -135,6 +137,7 @@
             <div class="lvl-switch" role="tablist" aria-label="Map concept">
               <button data-concept="illustrated" class="concept-btn on">Illustrated</button>
               <button data-concept="new" class="concept-btn">Premium</button>
+              <button data-concept="satellite" class="concept-btn">Satellite</button>
             </div>
             <div class="lvl-switch" role="tablist" aria-label="Map level">
               <button data-lvl="lvl-ground" class="lvl-btn on">Ground</button>
@@ -154,6 +157,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
             <span>Tap anywhere on the map to drop this pin</span>
           </div>
+          <div id="edit-satmap" class="edit-satmap" hidden></div>
         </div>
       </div>
 
