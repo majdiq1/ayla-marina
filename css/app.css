@@ -235,6 +235,19 @@ body.concept-satellite .reset-btn{ display: none !important; }
   .concept-btn{ padding: 7px 10px; font-size: 11px; }
   .concept-btn span{ display: none; }
   .concept-btn svg{ width: 17px; height: 17px; }
+  /* Compact Leaflet zoom controls + reset button on phone */
+  .leaflet-control-zoom a{
+    width: 28px !important; height: 28px !important;
+    line-height: 26px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+  }
+  .leaflet-bar{ box-shadow: 0 2px 8px rgba(0,0,0,.22) !important; border: 0 !important; }
+  .reset-btn{
+    width: 36px !important; height: 36px !important;
+    border-radius: 10px !important;
+  }
+  .reset-btn svg{ width: 16px !important; height: 16px !important; }
 }
 @media (min-width: 960px){
   .concept-switch{ left: calc(400px + (100vw - 400px)/2); top: 24px; }
