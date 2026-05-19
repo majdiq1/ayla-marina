@@ -749,34 +749,73 @@ input,select,textarea,button{font-family:inherit}
   pointer-events:none;
   user-select:none;-webkit-user-select:none;-webkit-user-drag:none;
 }
+/* Active pin — matches the public-site teardrop */
 .edit-pin{
   position:absolute;
   transform:translate(-50%,-100%);
   pointer-events:none;
-  filter:drop-shadow(0 4px 10px rgba(0,0,0,.4));
   z-index:5;
+  animation:pinDrop 420ms var(--ease-spring);
 }
-.edit-pin-dot{
-  width:24px;height:24px;border-radius:50%;
-  background:var(--ayla-aqua);
-  border:3px solid #fff;
-  box-shadow:0 0 0 1px rgba(0,0,0,.15),0 2px 8px rgba(0,0,0,.3);
-  animation:pinDrop 380ms var(--ease-spring);
+.edit-pin-teardrop{
+  width:42px;height:42px;
+  background:var(--c, var(--ayla-aqua));
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.30);
 }
-.edit-pin::after{
-  content:'';
-  position:absolute;
-  left:50%;bottom:-6px;
-  width:8px;height:8px;
-  background:var(--ayla-aqua);
-  transform:translateX(-50%) rotate(45deg);
-  z-index:-1;
+.edit-pin-inner{
+  width:32px;height:32px;border-radius:50%;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  transform:rotate(45deg);overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.edit-pin-inner img{width:100%;height:100%;object-fit:cover;display:block}
+.edit-pin-inner svg{width:16px;height:16px;color:var(--c, var(--ayla-aqua));stroke-width:2}
+.edit-pin-inner .initials{
+  font-family:var(--serif);font-weight:600;font-size:13px;
+  color:var(--c, var(--ayla-aqua));
 }
 @keyframes pinDrop{
-  0%{transform:translateY(-20px) scale(.4);opacity:0}
-  60%{transform:translateY(0) scale(1.15);opacity:1}
-  100%{transform:translateY(0) scale(1);opacity:1}
+  0%{transform:translate(-50%, calc(-100% - 18px)) scale(.4);opacity:0}
+  60%{transform:translate(-50%, -100%) scale(1.12);opacity:1}
+  100%{transform:translate(-50%, -100%) scale(1);opacity:1}
 }
+
+/* Context pins — dimmed dots for every other place on this level */
+.edit-context-pins{
+  position:absolute;inset:0;pointer-events:none;z-index:2;
+}
+.edit-ctx-pin{
+  position:absolute;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--c, var(--ayla-aqua));
+  border:1.5px solid #fff;
+  transform:translate(-50%,-50%);
+  opacity:.55;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+
+/* Empty state — shown when no pin has been placed yet */
+.edit-pin-empty{
+  position:absolute;inset:0;
+  display:none;align-items:center;justify-content:center;flex-direction:column;
+  gap:10px;pointer-events:none;
+  background:rgba(250,247,243,0.72);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  z-index:6;
+}
+.edit-pin-empty.show{display:flex;animation:fadeIn 320ms ease}
+.edit-pin-empty svg{width:36px;height:36px;color:var(--ink-2)}
+.edit-pin-empty span{
+  font:italic 400 var(--t-meta)/1 var(--serif);
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink);
+  padding:8px 14px;background:#fff;border-radius:4px;
+  border:1px solid var(--border);
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 /* Edit form panel */
 .edit-form{display:flex;flex-direction:column;gap:var(--s-3)}

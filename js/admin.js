@@ -440,7 +440,20 @@ function refreshLogoPreview(){
     $('#f-logo-clear').hidden = true;
     $('#f-logo-recrop').hidden = true;
   }
+  // Keep the on-map pin preview in sync
+  if (typeof renderEditPin === 'function') renderEditPin();
 }
+
+// Re-render pin when name or category changes (so initials / icon refresh)
+document.addEventListener('input', e => {
+  if (e.target?.id === 'f-name') renderEditPin?.();
+});
+document.addEventListener('change', e => {
+  if (e.target?.id === 'f-category'){
+    if (editState.poi) editState.poi.category_id = e.target.value;
+    renderEditPin?.();
+  }
+});
 
 function openCropper(src){
   cropper.active = true;
@@ -560,14 +573,38 @@ function editMapSrc(){
 
 function renderEditPin(){
   const pin = $('#edit-pin');
+  const empty = $('#edit-pin-empty');
   const { x: px, y: py } = getPin();
   const label = editState.concept === 'new' ? 'Premium' : 'Illustrated';
+  const cat = editState.poi ? DATA.catById[editState.poi.category_id] : null;
+  const color = cat?.color || 'var(--ayla-aqua)';
+  pin.style.setProperty('--c', color);
+
+  // Inner content — uploaded crop > category icon > initials
+  const innerEl = $('#edit-pin-inner');
+  if (innerEl){
+    const name = $('#f-name')?.value || editState.poi?.name || '?';
+    const inits = (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    if (editState.logoData){
+      innerEl.innerHTML = `<img src="${escAttr(editState.logoData)}" alt="">`;
+    } else if (cat?.icon && ICON_SVGS[cat.icon]){
+      innerEl.innerHTML = ICON_SVGS[cat.icon];
+    } else {
+      innerEl.innerHTML = `<span class="initials">${escHtml(inits)}</span>`;
+    }
+  }
+
+  // Render context pins (siblings on the same level)
+  renderEditContextPins();
+
   if (px == null || py == null){
     pin.hidden = true;
+    if (empty) empty.classList.add('show');
     $('#edit-pos-hint').textContent = `Tap on the ${label} map to place this pin`;
     $('#edit-pos-coords').textContent = '';
     return;
   }
+  if (empty) empty.classList.remove('show');
   const stage = $('#edit-stage');
   const img = $('#edit-map-img');
   const iw = +img.dataset.naturalW || img.naturalWidth || 1;
@@ -579,8 +616,35 @@ function renderEditPin(){
   pin.style.left = `${offX + (px / 100) * dispW}px`;
   pin.style.top  = `${offY + (py / 100) * dispH}px`;
   pin.hidden = false;
-  $('#edit-pos-hint').textContent = `Drag the pin · ${label} map`;
+  $('#edit-pos-hint').textContent = `Drag to fine-tune · ${label} map`;
   $('#edit-pos-coords').textContent = `(${px.toFixed(2)}%, ${py.toFixed(2)}%)`;
+}
+
+function renderEditContextPins(){
+  const layer = $('#edit-context-pins');
+  if (!layer) return;
+  const stage = $('#edit-stage');
+  const img = $('#edit-map-img');
+  if (!img || !img.naturalWidth){ layer.innerHTML = ''; return; }
+  const iw = +img.dataset.naturalW || img.naturalWidth || 1;
+  const ih = +img.dataset.naturalH || img.naturalHeight || 1;
+  const sw = stage.clientWidth, sh = stage.clientHeight;
+  const scale = Math.min(sw / iw, sh / ih);
+  const dispW = iw * scale, dispH = ih * scale;
+  const offX = (sw - dispW) / 2, offY = (sh - dispH) / 2;
+  const useNewCoords = editState.concept === 'new';
+  const html = DATA.pois.filter(p =>
+    p.level_id === editState.level
+    && p.id !== editState.poi?.id
+    && p.is_active !== false
+  ).map(p => {
+    const x = useNewCoords && p.pin_x_new != null ? p.pin_x_new : p.pin_x;
+    const y = useNewCoords && p.pin_y_new != null ? p.pin_y_new : p.pin_y;
+    if (x == null || y == null) return '';
+    const c = DATA.catById[p.category_id]?.color || '#999';
+    return `<div class="edit-ctx-pin" style="--c:${escAttr(c)};left:${offX + (x / 100) * dispW}px;top:${offY + (y / 100) * dispH}px"></div>`;
+  }).join('');
+  layer.innerHTML = html;
 }
 
 function setPinFromPointer(clientX, clientY){
