@@ -468,11 +468,17 @@ function openCropper(src){
       cropper.WINDOW / cropper.natW,
       cropper.WINDOW / cropper.natH,
     );
+    // Dynamic max zoom: don't allow zooming past the source's native resolution
+    // (eff = baseScale * scale; max eff = 1 → max scale = 1/baseScale, capped at 4x)
+    const naturalLimit = Math.max(1, 1 / cropper.baseScale);
+    cropper.maxScale = Math.min(4, naturalLimit);
     cropper.scale = 1;
     cropper.offsetX = (cropper.WINDOW - cropper.natW * cropper.baseScale) / 2;
     cropper.offsetY = (cropper.WINDOW - cropper.natH * cropper.baseScale) / 2;
     $('#f-cropper-image').src = src;
-    $('#f-cropper-zoom').value = 100;
+    const zoomInput = $('#f-cropper-zoom');
+    zoomInput.max = Math.round(cropper.maxScale * 100);
+    zoomInput.value = 100;
     renderCropper();
   };
   img.src = src;
@@ -503,14 +509,16 @@ function renderCropper(){
 function renderPinMock(){
   const mock = $('#f-cropper-pin-img');
   if (!mock) return;
-  mock.src = cropToDataURL(96);
+  mock.src = cropToDataURL(192);
 }
 
-function cropToDataURL(size = 256){
+function cropToDataURL(size = 512){
   if (!cropper.imgEl) return '';
   const canvas = document.createElement('canvas');
   canvas.width = size; canvas.height = size;
   const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   const eff = cropper.baseScale * cropper.scale;
   const srcX = -cropper.offsetX / eff;
   const srcY = -cropper.offsetY / eff;
@@ -726,7 +734,7 @@ $('#f-cropper-zoom')?.addEventListener('input', e => {
   renderCropper();
 });
 $('#f-cropper-apply')?.addEventListener('click', () => {
-  editState.logoData = cropToDataURL(256);
+  editState.logoData = cropToDataURL(512);
   closeCropper();
   refreshLogoPreview();
 });
