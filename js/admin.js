@@ -933,7 +933,10 @@ function refreshCatPreview(){
   }
   const meta = $('#cat-preview-meta');
   if (meta) meta.textContent = ($('#cf-name').value || 'Category name') + ' · ' + c.toUpperCase();
-  $('#cf-color-preview').style.setProperty('--c', c);
+  $('#cf-color-preview')?.style.setProperty('--c', c);
+  // Drive the inline swatch background too
+  document.querySelectorAll('.cat-color-swatch').forEach(s => s.style.setProperty('--c', c));
+  document.querySelectorAll('.cat-color-swatch').forEach(s => s.style.background = c);
 }
 
 // Wire up category form events

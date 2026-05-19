@@ -337,80 +337,49 @@
 
     <!-- Form -->
     <div class="cat-form">
-      <div class="form-group is-open" data-fg="cat-identity">
-        <button type="button" class="form-group-head">
-          <div class="form-group-titles">
-            <span class="form-step">Step 01</span>
-            <h2>Identity</h2>
-          </div>
-          <svg class="form-group-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="form-group-body">
-          <label class="field">
-            <span>Name (English) *</span>
-            <input id="cf-name" type="text" required>
-          </label>
-          <label class="field">
+      <div class="cat-panel">
+        <div class="field">
+          <span>Name (English) *</span>
+          <input id="cf-name" type="text" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
             <span>Name (Arabic)</span>
             <input id="cf-name-ar" type="text" dir="rtl">
-          </label>
-          <label class="field">
+          </div>
+          <div class="field">
             <span>URL slug</span>
             <input id="cf-slug" type="text" placeholder="cafe">
-          </label>
-        </div>
-      </div>
-
-      <div class="form-group" data-fg="cat-color">
-        <button type="button" class="form-group-head">
-          <div class="form-group-titles">
-            <span class="form-step">Step 02</span>
-            <h2>Pin colour</h2>
           </div>
-          <svg class="form-group-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="form-group-body">
-          <p class="form-hint">Every pin in this category appears in this colour on the map.</p>
-          <div class="color-picker-row">
-            <div class="color-preview-large" id="cf-color-preview"></div>
-            <div class="color-input-wrap">
+        </div>
+
+        <div class="cat-panel-rule" aria-hidden="true"></div>
+
+        <div class="field">
+          <span>Pin colour</span>
+          <div class="cat-color-row">
+            <label class="cat-color-swatch" aria-label="Pick colour">
               <input id="cf-color" type="color" value="#3AB0C8">
-              <input id="cf-color-hex" type="text" value="#3AB0C8" maxlength="7" placeholder="#3AB0C8">
-            </div>
+            </label>
+            <input id="cf-color-hex" class="cat-color-hex" type="text" value="#3AB0C8" maxlength="7" placeholder="#3AB0C8">
           </div>
-          <p class="form-sublabel">Or pick a preset</p>
-          <div class="color-swatches" id="cf-swatches"></div>
         </div>
-      </div>
 
-      <div class="form-group" data-fg="cat-display">
-        <button type="button" class="form-group-head">
-          <div class="form-group-titles">
-            <span class="form-step">Step 03</span>
-            <h2>Display</h2>
-          </div>
-          <svg class="form-group-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="form-group-body">
-          <label class="field">
-            <span>Icon (Lucide name)</span>
-            <select id="cf-icon">
-              <option value="coffee">coffee · ☕</option>
-              <option value="bed">bed · 🛏</option>
-              <option value="shopping-bag">shopping-bag · 🛍</option>
-              <option value="wine">wine · 🍷</option>
-              <option value="heart">heart · ♡</option>
-              <option value="landmark">landmark · 🏛</option>
-              <option value="utensils">utensils · 🍽</option>
-              <option value="compass">compass · 🧭</option>
-              <option value="sparkles">sparkles · ✨</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Sort order</span>
-            <input id="cf-sort" type="number" min="0" max="99" value="0">
-          </label>
+        <div class="cat-panel-rule" aria-hidden="true"></div>
+
+        <div class="field cat-sort-field">
+          <span>Sort order</span>
+          <input id="cf-sort" type="number" min="0" max="99" value="0">
         </div>
+
+        <!-- Hidden: icon field retained for data compatibility (defaults to 'compass') -->
+        <input id="cf-icon" type="hidden" value="compass">
+
+        <!-- Hidden: legacy preview + swatches kept so existing JS handlers don't break -->
+        <div class="color-picker-row" style="display:none">
+          <div class="color-preview-large" id="cf-color-preview"></div>
+        </div>
+        <div class="color-swatches" id="cf-swatches" style="display:none"></div>
       </div>
     </div>
   </div>
