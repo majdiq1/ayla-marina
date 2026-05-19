@@ -189,120 +189,113 @@ input,select,textarea,button{font-family:inherit}
 }
 .sec-tab.on .sec-count{background:var(--ayla-aqua-soft);color:var(--ayla-aqua-deep)}
 
-/* ----------- Categories grid — richer cards ----------- */
+/* ----------- Categories grid — editorial spacing ----------- */
 .cat-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:16px;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:24px;
 }
 @media (min-width:1100px){
-  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .cat-grid{grid-template-columns:repeat(3,1fr);gap:32px}
 }
+/* Editorial category card — Aman / Soho House inspired
+   Restraint: one hairline border, one short coloured rule, no shadows.
+   Type does the heavy lifting; spacing is on an 8pt grid. */
 .cat-card{
   background:#fff;
   border:1px solid var(--border);
-  border-radius:18px;padding:18px 18px 14px;
+  border-radius:2px;
+  padding:32px 32px 28px;
   cursor:pointer;
-  display:flex;flex-direction:column;gap:14px;
-  transition:transform 220ms cubic-bezier(.22,1,.36,1),border-color 220ms,box-shadow 220ms;
-  position:relative;overflow:hidden;
+  position:relative;
+  display:flex;flex-direction:column;
+  min-height:240px;
+  transition:border-color 320ms ease;
 }
-.cat-card::before{
-  /* Soft accent: thin coloured corner gradient instead of full bar */
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg, var(--c) 0%, color-mix(in srgb, var(--c) 30%, transparent) 100%);
+.cat-card::after{
+  /* Hairline bottom underline that grows on hover — subtle premium tell */
+  content:'';position:absolute;left:32px;right:32px;bottom:0;
+  height:1px;background:var(--c);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform 480ms cubic-bezier(.22,1,.36,1);
 }
-.cat-card:hover{
-  transform:translateY(-3px);
-  border-color:color-mix(in srgb, var(--c) 35%, var(--border));
-  box-shadow:0 12px 28px rgba(8,58,66,.08);
+.cat-card:hover{border-color:var(--ink-3)}
+.cat-card:hover::after{transform:scaleX(1)}
+
+/* Eyebrow label — italic small-caps numbering, very quiet */
+.cat-eyebrow{
+  font:italic 400 11px/1 var(--serif);
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);
+  margin-bottom:20px;
+  font-variant-numeric:tabular-nums;
 }
 
-/* Header row: small teardrop pin · title block · count pill */
-.cat-card-head{display:flex;align-items:center;gap:12px}
-.cat-card .cat-pin{
-  width:32px;height:32px;border-radius:50% 50% 50% 0;
-  background:var(--c);
-  transform:rotate(-45deg);
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 10px color-mix(in srgb, var(--c) 30%, transparent);
-  flex-shrink:0;
+/* Header — title block left, count block right, baseline-aligned */
+.cat-card-head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  gap:24px;margin-bottom:18px;
 }
-.cat-card .cat-pin-inner{
-  width:22px;height:22px;border-radius:50%;background:#fff;
-  display:flex;align-items:center;justify-content:center;
-  transform:rotate(45deg);
+.cat-titles{flex:1;min-width:0}
+.cat-name{
+  font-family:var(--serif);font-weight:500;font-size:26px;
+  color:var(--ink);margin:0;letter-spacing:-.018em;line-height:1.05;
 }
-.cat-card .cat-pin-inner svg{width:12px;height:12px;color:var(--c);stroke-width:2.2}
-
-.cat-card .cat-titles{flex:1;min-width:0}
-.cat-card .cat-name{
-  font-family:var(--serif);font-weight:600;font-size:17px;
-  color:var(--ink);margin:0;letter-spacing:-.01em;line-height:1.15;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.cat-card .cat-name-ar{
-  font-family:var(--serif);font-size:12px;font-weight:500;
-  color:var(--ink-3);margin:2px 0 0;direction:rtl;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.cat-name-ar{
+  font-family:var(--serif);font-size:14px;font-weight:400;font-style:italic;
+  color:var(--ink-3);margin:8px 0 0;direction:rtl;
+  letter-spacing:-.005em;
 }
 
-.cat-card .cat-meta{flex-shrink:0}
-.cat-card .cat-count-pill{
-  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
-  min-width:46px;padding:6px 10px;
-  background:color-mix(in srgb, var(--c) 12%, var(--muted));
-  border-radius:11px;line-height:1;
+/* Count block — small italic label over a single number */
+.cat-count-wrap{
+  display:flex;flex-direction:column;align-items:flex-end;
+  flex-shrink:0;line-height:1;
 }
-.cat-card .cat-count-pill strong{
-  font:700 17px/1 var(--serif);color:var(--c);letter-spacing:-.01em;
+.cat-count-label{
+  font:italic 400 10px/1 var(--serif);
+  color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:6px;
 }
-.cat-card .cat-count-pill span{
-  font:600 9px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;
-  color:var(--ink-3);margin-top:3px;
+.cat-count{
+  font-family:var(--serif);font-weight:500;font-size:24px;
+  color:var(--ink);
+  font-variant-numeric:tabular-nums;
 }
 
-/* Place chips */
-.cat-card .cat-mini-grid{display:flex;flex-wrap:wrap;gap:6px}
-.cat-card .cat-mini-grid .chip{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:11.5px;color:var(--ink-2);font-weight:500;
-  background:var(--muted);
-  border:1px solid transparent;
-  padding:5px 10px;border-radius:999px;
-  white-space:nowrap;line-height:1.2;
-  max-width:100%;overflow:hidden;text-overflow:ellipsis;
-  transition:background 160ms,border-color 160ms,color 160ms;
+/* Single short coloured rule — the only category-color hit on the card */
+.cat-rule{
+  width:24px;height:1px;background:var(--c);
+  margin-bottom:18px;
+  transition:width 480ms cubic-bezier(.22,1,.36,1);
 }
-.cat-card .cat-mini-grid .chip::before{
-  content:'';width:5px;height:5px;border-radius:50%;
-  background:var(--c);flex-shrink:0;
-}
-.cat-card:hover .cat-mini-grid .chip{background:#fff;border-color:var(--border);color:var(--ink)}
-.cat-card .cat-mini-grid .chip.more{font-style:italic;color:var(--ink-3);background:transparent;padding-left:0}
-.cat-card .cat-mini-grid .chip.more::before{display:none}
-.cat-card .cat-mini-grid .chip.empty{font-style:italic;color:var(--ink-3);background:transparent;border-style:dashed;border-color:var(--border)}
-.cat-card .cat-mini-grid .chip.empty::before{display:none}
+.cat-card:hover .cat-rule{width:48px}
 
-/* Footer with hex code + edit hint */
-.cat-card-foot{
-  display:flex;align-items:center;gap:6px;
-  padding-top:10px;margin-top:auto;
-  border-top:1px dashed var(--border);
-  font:600 10px/1 var(--sans);
-  color:var(--ink-3);letter-spacing:.04em;
+/* Inline editorial list of place names — small caps separator dots */
+.cat-places{
+  margin:0;font-family:var(--sans);font-size:13.5px;line-height:1.75;
+  color:var(--ink-2);font-weight:400;
+  letter-spacing:.002em;
 }
-.cat-color-swatch{
-  width:10px;height:10px;border-radius:50%;background:var(--c);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+.cat-sep{
+  display:inline-block;margin:0 8px;
+  color:var(--ink-3);opacity:.5;
 }
-.cat-hex{font-family:'SFMono-Regular',Menlo,monospace;letter-spacing:.02em}
-.cat-card-edit-hint{
-  margin-left:auto;opacity:0;transform:translateX(-4px);
-  transition:opacity 200ms,transform 200ms;
-  color:var(--ayla-aqua, #3AB0C8);
+.cat-more{color:var(--ink-3);font-style:italic;white-space:nowrap;margin-left:4px}
+.cat-empty{color:var(--ink-3);font-style:italic}
+
+/* Quiet arrow only on hover */
+.cat-card-arrow{
+  position:absolute;bottom:28px;right:32px;
+  font:300 18px/1 var(--serif);color:var(--ink-3);
+  opacity:0;transform:translateX(-6px);
+  transition:opacity 280ms ease, transform 280ms ease, color 280ms ease;
 }
-.cat-card:hover .cat-card-edit-hint{opacity:1;transform:translateX(0)}
+.cat-card:hover .cat-card-arrow{opacity:1;transform:translateX(0);color:var(--ink)}
+
+@media (prefers-reduced-motion: reduce){
+  .cat-card, .cat-card *, .cat-card::after{transition:none !important}
+}
 
 /* ----------- Category edit ----------- */
 .cat-edit-grid{

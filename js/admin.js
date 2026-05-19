@@ -713,37 +713,31 @@ function renderCatList(){
     (byCat[p.category_id] = byCat[p.category_id] || []).push(p);
   });
   $('#cat-count').textContent = `${DATA.categories.length} categories`;
-  wrap.innerHTML = DATA.categories.map(c => {
+  wrap.innerHTML = DATA.categories.map((c, i) => {
     const places = (byCat[c.id] || []).slice().sort((a, b) => a.name.localeCompare(b.name));
-    const MAX_CHIPS = 6;
-    const sample = places.slice(0, MAX_CHIPS);
-    const more = places.length - sample.length;
-    const chips = sample.map(p => `<span class="chip">${escHtml(p.name)}</span>`).join('');
-    const moreChip = more > 0 ? `<span class="chip more">+ ${more} more</span>` : '';
-    const empty = places.length === 0 ? `<span class="chip empty">No places yet</span>` : '';
+    const MAX_NAMES = 5;
+    const visible = places.slice(0, MAX_NAMES).map(p => escHtml(p.name));
+    const extra = places.length - visible.length;
+    const list = visible.length
+      ? visible.join('<span class="cat-sep" aria-hidden="true">·</span>') + (extra > 0 ? `<span class="cat-more"> + ${extra} more</span>` : '')
+      : '<span class="cat-empty">No places yet</span>';
     return `
-      <div class="cat-card" data-id="${escAttr(c.id)}" style="--c:${escAttr(c.color)}">
-        <div class="cat-card-head">
-          <div class="cat-pin">
-            <div class="cat-pin-inner">${ICON_SVGS[c.icon] || ICON_SVGS.compass}</div>
-          </div>
+      <article class="cat-card" data-id="${escAttr(c.id)}" style="--c:${escAttr(c.color)}">
+        <span class="cat-eyebrow">Category · ${String(i + 1).padStart(2, '0')}</span>
+        <header class="cat-card-head">
           <div class="cat-titles">
             <h3 class="cat-name">${escHtml(c.name)}</h3>
             ${c.name_ar ? `<p class="cat-name-ar">${escHtml(c.name_ar)}</p>` : ''}
           </div>
-          <div class="cat-meta">
-            <span class="cat-count-pill"><strong>${places.length}</strong><span>${places.length === 1 ? 'place' : 'places'}</span></span>
+          <div class="cat-count-wrap">
+            <span class="cat-count-label">Places</span>
+            <span class="cat-count">${places.length}</span>
           </div>
-        </div>
-        <div class="cat-mini-grid">
-          ${chips}${moreChip}${empty}
-        </div>
-        <div class="cat-card-foot">
-          <span class="cat-color-swatch" aria-hidden="true"></span>
-          <span class="cat-hex">${escHtml(c.color.toUpperCase())}</span>
-          <span class="cat-card-edit-hint">Tap to edit →</span>
-        </div>
-      </div>
+        </header>
+        <div class="cat-rule" aria-hidden="true"></div>
+        <p class="cat-places">${list}</p>
+        <span class="cat-card-arrow" aria-hidden="true">→</span>
+      </article>
     `;
   }).join('');
   wrap.querySelectorAll('.cat-card').forEach(el => {
