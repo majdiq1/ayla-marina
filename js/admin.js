@@ -318,7 +318,7 @@ function rowHTML(p, { showCat }){
     : `<span class="initials">${initials(p.name)}</span>`;
   const dotIf = (set, color) => set ? `<span class="poi-dot on" style="background:${color}"></span>` : `<span class="poi-dot"></span>`;
   return `
-    <div class="poi-row" data-id="${escAttr(p.id)}">
+    <div class="poi-row ${p.is_active ? '' : 'is-hidden'}" data-id="${escAttr(p.id)}">
       <div class="poi-row-logo">${logo}</div>
       <div class="poi-row-main">
         <span class="poi-row-name">${escHtml(p.name)}</span>
@@ -326,12 +326,14 @@ function rowHTML(p, { showCat }){
           ${showCat ? `<span class="poi-row-cat"><span class="poi-row-cat-dot" style="background:${cat?.color || '#999'}"></span>${escHtml(cat?.name || '—')}</span><span class="poi-row-sep">·</span>` : ''}
           <span class="poi-row-lvl">${escHtml(lvl?.name || '—')}</span>
         </span>
+        <span class="poi-row-foot">
+          <span class="poi-row-dots" title="Phone · WhatsApp · Instagram">
+            ${dotIf(p.phone, 'var(--ink)')}${dotIf(p.whatsapp, '#25D366')}${dotIf(p.instagram, '#E1306C')}
+          </span>
+          <span class="poi-row-status ${p.is_active ? 'on' : 'off'}">${p.is_active ? 'Active' : 'Hidden'}</span>
+        </span>
       </div>
-      <div class="poi-row-dots" title="Phone · WhatsApp · Instagram">
-        ${dotIf(p.phone, 'var(--ink)')}${dotIf(p.whatsapp, '#25D366')}${dotIf(p.instagram, '#E1306C')}
-      </div>
-      <span class="poi-row-status ${p.is_active ? 'on' : 'off'}">${p.is_active ? 'Active' : 'Hidden'}</span>
-      <svg class="poi-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      <svg class="poi-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
   `;
 }
