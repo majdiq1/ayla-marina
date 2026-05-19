@@ -724,18 +724,24 @@ function renderCatList(){
     return `
       <div class="cat-card" data-id="${escAttr(c.id)}" style="--c:${escAttr(c.color)}">
         <div class="cat-card-head">
-          <div class="swatch-lg">
-            <div class="swatch-lg-inner">${ICON_SVGS[c.icon] || ICON_SVGS.compass}</div>
+          <div class="cat-pin">
+            <div class="cat-pin-inner">${ICON_SVGS[c.icon] || ICON_SVGS.compass}</div>
           </div>
-          <span class="hex-chip">${escHtml(c.color.toUpperCase())}</span>
+          <div class="cat-titles">
+            <h3 class="cat-name">${escHtml(c.name)}</h3>
+            ${c.name_ar ? `<p class="cat-name-ar">${escHtml(c.name_ar)}</p>` : ''}
+          </div>
+          <div class="cat-meta">
+            <span class="cat-count-pill"><strong>${places.length}</strong><span>${places.length === 1 ? 'place' : 'places'}</span></span>
+          </div>
         </div>
-        <div class="cat-titles">
-          <h3 class="cat-name">${escHtml(c.name)}</h3>
-          ${c.name_ar ? `<p class="cat-name-ar">${escHtml(c.name_ar)}</p>` : ''}
-        </div>
-        <p class="cat-stats"><strong>${places.length}</strong>place${places.length === 1 ? '' : 's'}</p>
         <div class="cat-mini-grid">
           ${chips}${moreChip}${empty}
+        </div>
+        <div class="cat-card-foot">
+          <span class="cat-color-swatch" aria-hidden="true"></span>
+          <span class="cat-hex">${escHtml(c.color.toUpperCase())}</span>
+          <span class="cat-card-edit-hint">Tap to edit →</span>
         </div>
       </div>
     `;

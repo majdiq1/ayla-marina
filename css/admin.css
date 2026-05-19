@@ -199,94 +199,110 @@ input,select,textarea,button{font-family:inherit}
   .cat-grid{grid-template-columns:repeat(3,1fr)}
 }
 .cat-card{
-  background:var(--surface);
+  background:#fff;
   border:1px solid var(--border);
-  border-radius:14px;padding:16px 18px 18px;
+  border-radius:18px;padding:18px 18px 14px;
   cursor:pointer;
-  display:flex;flex-direction:column;gap:10px;
+  display:flex;flex-direction:column;gap:14px;
   transition:transform 220ms cubic-bezier(.22,1,.36,1),border-color 220ms,box-shadow 220ms;
   position:relative;overflow:hidden;
 }
 .cat-card::before{
-  /* Soft accent strip using the category colour */
+  /* Soft accent: thin coloured corner gradient instead of full bar */
   content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:var(--c);
+  background:linear-gradient(90deg, var(--c) 0%, color-mix(in srgb, var(--c) 30%, transparent) 100%);
 }
 .cat-card:hover{
   transform:translateY(-3px);
-  border-color:var(--ayla-aqua-soft);
-  box-shadow:var(--shadow-2);
+  border-color:color-mix(in srgb, var(--c) 35%, var(--border));
+  box-shadow:0 12px 28px rgba(8,58,66,.08);
 }
-.cat-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.cat-card .swatch-lg{
-  width:38px;height:38px;border-radius:50% 50% 50% 0;
+
+/* Header row: small teardrop pin · title block · count pill */
+.cat-card-head{display:flex;align-items:center;gap:12px}
+.cat-card .cat-pin{
+  width:32px;height:32px;border-radius:50% 50% 50% 0;
   background:var(--c);
   transform:rotate(-45deg);
-  border:2px solid #fff;
-  box-shadow:0 0 0 1px rgba(0,0,0,.06),0 3px 8px rgba(0,0,0,.18);
-  flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  margin:2px 4px 0 2px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 10px color-mix(in srgb, var(--c) 30%, transparent);
+  flex-shrink:0;
 }
-.cat-card .swatch-lg-inner{
-  width:22px;height:22px;border-radius:50%;
-  background:#fff;
+.cat-card .cat-pin-inner{
+  width:22px;height:22px;border-radius:50%;background:#fff;
   display:flex;align-items:center;justify-content:center;
   transform:rotate(45deg);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);
 }
-.cat-card .swatch-lg-inner svg{width:13px;height:13px;color:var(--c);stroke-width:2.2}
-.cat-card .hex-chip{
-  font-family:'SFMono-Regular',Menlo,monospace;
-  font-size:9.5px;font-weight:600;letter-spacing:.04em;
-  color:var(--ink-2);background:var(--muted);
-  padding:3px 7px;border-radius:5px;
-}
-.cat-card .cat-titles{margin:0}
+.cat-card .cat-pin-inner svg{width:12px;height:12px;color:var(--c);stroke-width:2.2}
+
+.cat-card .cat-titles{flex:1;min-width:0}
 .cat-card .cat-name{
-  font-family:var(--serif);font-weight:600;font-size:18px;
-  color:var(--ink);margin:0;letter-spacing:-.01em;line-height:1.2;
+  font-family:var(--serif);font-weight:600;font-size:17px;
+  color:var(--ink);margin:0;letter-spacing:-.01em;line-height:1.15;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .cat-card .cat-name-ar{
   font-family:var(--serif);font-size:12px;font-weight:500;
-  color:var(--ink-2);margin:1px 0 0;direction:rtl;
+  color:var(--ink-3);margin:2px 0 0;direction:rtl;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.cat-card .cat-stats{
-  font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;
-  color:var(--ink-2);margin:0;
-  padding-top:8px;border-top:1px solid var(--border);
+
+.cat-card .cat-meta{flex-shrink:0}
+.cat-card .cat-count-pill{
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:46px;padding:6px 10px;
+  background:color-mix(in srgb, var(--c) 12%, var(--muted));
+  border-radius:11px;line-height:1;
 }
-.cat-card .cat-stats strong{color:var(--ink);font-size:12px;letter-spacing:0;text-transform:none;font-family:var(--serif);font-weight:600;margin-right:4px}
-.cat-card .cat-mini-grid{
-  display:flex;flex-wrap:wrap;gap:6px;
+.cat-card .cat-count-pill strong{
+  font:700 17px/1 var(--serif);color:var(--c);letter-spacing:-.01em;
 }
+.cat-card .cat-count-pill span{
+  font:600 9px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-3);margin-top:3px;
+}
+
+/* Place chips */
+.cat-card .cat-mini-grid{display:flex;flex-wrap:wrap;gap:6px}
 .cat-card .cat-mini-grid .chip{
   display:inline-flex;align-items:center;gap:6px;
-  font-size:11.5px;color:var(--ink);font-weight:500;
-  background:var(--bg);
-  border:1px solid var(--border);
+  font-size:11.5px;color:var(--ink-2);font-weight:500;
+  background:var(--muted);
+  border:1px solid transparent;
   padding:5px 10px;border-radius:999px;
   white-space:nowrap;line-height:1.2;
-  max-width:100%;
-  overflow:hidden;text-overflow:ellipsis;
-  transition:background 140ms,border-color 140ms,color 140ms;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  transition:background 160ms,border-color 160ms,color 160ms;
 }
 .cat-card .cat-mini-grid .chip::before{
   content:'';width:5px;height:5px;border-radius:50%;
   background:var(--c);flex-shrink:0;
 }
-.cat-card:hover .cat-mini-grid .chip{
-  background:#fff;
-}
-.cat-card .cat-mini-grid .chip.more{
-  font-style:italic;color:var(--ink-3);
-  background:transparent;border-color:transparent;padding-left:0;
-}
+.cat-card:hover .cat-mini-grid .chip{background:#fff;border-color:var(--border);color:var(--ink)}
+.cat-card .cat-mini-grid .chip.more{font-style:italic;color:var(--ink-3);background:transparent;padding-left:0}
 .cat-card .cat-mini-grid .chip.more::before{display:none}
-.cat-card .cat-mini-grid .chip.empty{
-  font-style:italic;color:var(--ink-3);
-  background:transparent;border-style:dashed;
-}
+.cat-card .cat-mini-grid .chip.empty{font-style:italic;color:var(--ink-3);background:transparent;border-style:dashed;border-color:var(--border)}
 .cat-card .cat-mini-grid .chip.empty::before{display:none}
+
+/* Footer with hex code + edit hint */
+.cat-card-foot{
+  display:flex;align-items:center;gap:6px;
+  padding-top:10px;margin-top:auto;
+  border-top:1px dashed var(--border);
+  font:600 10px/1 var(--sans);
+  color:var(--ink-3);letter-spacing:.04em;
+}
+.cat-color-swatch{
+  width:10px;height:10px;border-radius:50%;background:var(--c);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.cat-hex{font-family:'SFMono-Regular',Menlo,monospace;letter-spacing:.02em}
+.cat-card-edit-hint{
+  margin-left:auto;opacity:0;transform:translateX(-4px);
+  transition:opacity 200ms,transform 200ms;
+  color:var(--ayla-aqua, #3AB0C8);
+}
+.cat-card:hover .cat-card-edit-hint{opacity:1;transform:translateX(0)}
 
 /* ----------- Category edit ----------- */
 .cat-edit-grid{
