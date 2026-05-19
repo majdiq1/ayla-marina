@@ -812,10 +812,11 @@ input,select,textarea,button{font-family:inherit}
 }
 .edit-satmap.show{display:block !important}
 .edit-satmap .leaflet-container{width:100%;height:100%}
-.edit-stage.is-satellite img,
-.edit-stage.is-satellite .edit-pin,
-.edit-stage.is-satellite .edit-pin-empty,
-.edit-stage.is-satellite .edit-context-pins{display:none !important}
+/* Hide ONLY the static map image (not Leaflet's tile imgs inside #edit-satmap) */
+.edit-stage.is-satellite > img,
+.edit-stage.is-satellite > .edit-pin,
+.edit-stage.is-satellite > .edit-pin-empty,
+.edit-stage.is-satellite > .edit-context-pins{display:none !important}
 /* Custom marker for the active place on the admin satellite map */
 .edit-sat-marker{
   width:36px;height:36px;
