@@ -463,18 +463,17 @@ document.addEventListener('click', e => {
   if (!wasOpen) group.classList.add('is-open');
 });
 
-// Extract real-world coords from a Google Maps URL
-// Handles long URLs with !3d<lat>!4d<lng>, /@lat,lng, and ?q=lat,lng patterns
+// Extract real-world coords from a Google Maps URL.
+// Priority: /@lat,lng (camera position — what the user is looking at) >
+//           !3d<lat>!4d<lng> (Google's canonical place coord, sometimes off-building) >
+//           ?q=lat,lng (legacy share link)
 function parseGoogleMapsLatLng(url){
   if (!url || typeof url !== 'string') return null;
   let m;
-  // Most precise: !3d<lat>!4d<lng>
-  m = url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
-  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
-  // Fallback: /@lat,lng,zoom
   m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
   if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
-  // Fallback: ?q=lat,lng or &q=lat,lng
+  m = url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
   m = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
   if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
   return null;
