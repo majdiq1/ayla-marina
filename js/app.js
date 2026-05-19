@@ -70,6 +70,9 @@ function applyAdminSettings(){
     splash_tag:       local.splash_tag       ?? j.brand?.splash_tagline ?? null,
     logo_data:        local.logo_data        ?? j.brand?.logo           ?? null,
     primary:          local.primary          ?? j.theme?.primary        ?? null,
+    brand_size:       local.brand_size       ?? j.brand?.size           ?? null,
+    brand_color:      local.brand_color      ?? j.brand?.color          ?? null,
+    brand_accent_color: local.brand_accent_color ?? j.brand?.accent_color ?? null,
     font_heading_data: local.font_heading_data ?? j.theme?.font_heading_data ?? null,
     font_heading_name: local.font_heading_name ?? j.theme?.font_heading_name ?? null,
     font_body_data:    local.font_body_data    ?? j.theme?.font_body_data    ?? null,
@@ -118,6 +121,16 @@ function applyAdminSettings(){
     document.documentElement.style.setProperty('--ayla-teal', s.primary);
     // Derive a deeper shade by darkening
     document.documentElement.style.setProperty('--ayla-aqua-deep', s.primary);
+  }
+  // Brand title font size + colours
+  document.querySelectorAll('.brand-name').forEach(el => {
+    if (s.brand_size) el.style.fontSize = s.brand_size + 'px';
+    if (s.brand_color) el.style.color = s.brand_color;
+  });
+  if (s.brand_accent_color){
+    document.querySelectorAll('.brand-accent').forEach(el => {
+      el.style.color = s.brand_accent_color;
+    });
   }
   // Custom fonts (uploaded data URLs)
   if (s.font_heading_data){

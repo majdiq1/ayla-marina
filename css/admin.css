@@ -403,6 +403,23 @@ input,select,textarea,button{font-family:inherit}
 }
 .cat-color-hex:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px rgba(15,41,51,.05)}
 .cat-sort-field{max-width:140px}
+
+/* Brand title preview tile in Settings */
+.brand-preview{
+  display:flex;align-items:center;justify-content:center;
+  min-height:96px;padding:18px 20px;
+  background:#fff;border:1px solid var(--border);border-radius:4px;
+}
+.brand-preview-name{
+  margin:0;font-family:var(--serif);font-weight:500;
+  font-size:var(--brand-size, 22px);
+  letter-spacing:-.018em;line-height:1.1;
+  color:var(--brand-color, var(--ink));
+}
+.brand-preview-accent{
+  color:var(--brand-accent-color, var(--ayla-aqua));
+  font-style:italic;font-weight:500;margin-left:.2em;
+}
 .form-hint{font-size:13px;color:var(--ink-2);margin:0 0 12px}
 .form-sublabel{
   margin:14px 0 8px;font-size:11px;text-transform:uppercase;

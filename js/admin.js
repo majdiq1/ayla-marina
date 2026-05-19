@@ -461,6 +461,41 @@ document.addEventListener('click', e => {
   if (!wasOpen) group.classList.add('is-open');
 });
 
+// Extract real-world coords from a Google Maps URL
+// Handles long URLs with !3d<lat>!4d<lng>, /@lat,lng, and ?q=lat,lng patterns
+function parseGoogleMapsLatLng(url){
+  if (!url || typeof url !== 'string') return null;
+  let m;
+  // Most precise: !3d<lat>!4d<lng>
+  m = url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  // Fallback: /@lat,lng,zoom
+  m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  // Fallback: ?q=lat,lng or &q=lat,lng
+  m = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  return null;
+}
+
+// Auto-extract lat/lng whenever the Google Maps URL field is edited
+document.addEventListener('input', e => {
+  if (e.target?.id !== 'f-google-maps') return;
+  const url = e.target.value.trim();
+  if (!url) return;
+  const coords = parseGoogleMapsLatLng(url);
+  if (!coords) return;
+  editState.lat = +coords.lat.toFixed(6);
+  editState.lng = +coords.lng.toFixed(6);
+  // Update on-screen feedback + sat marker if visible
+  if (editState.concept === 'satellite' && ADMIN_SAT.map){
+    ADMIN_SAT.map.setView([editState.lat, editState.lng], 18);
+    renderAdminSatMarker();
+    $('#edit-pos-coords').textContent = `(${editState.lat}, ${editState.lng})`;
+  }
+  toast(`GPS detected · ${editState.lat}, ${editState.lng}`, 'ok');
+});
+
 // Re-render pin when name or category changes (so initials / icon refresh)
 document.addEventListener('input', e => {
   if (e.target?.id === 'f-name') renderEditPin?.();
@@ -1086,6 +1121,9 @@ function effectiveSettings(){
     splash_tag:    ov.splash_tag    ?? base.brand?.splash_tagline ?? 'Shops, dining and experiences by the sea',
     logo_data:     ov.logo_data     ?? null,
     primary:       ov.primary       ?? '#3AB0C8',
+    brand_size:    ov.brand_size    ?? 22,
+    brand_color:   ov.brand_color   ?? '#0F2933',
+    brand_accent_color: ov.brand_accent_color ?? '#3AB0C8',
     // Custom fonts (data URLs) + names
     font_heading_data: ov.font_heading_data ?? null,
     font_heading_name: ov.font_heading_name ?? 'Playfair Display',
@@ -1141,6 +1179,13 @@ function renderSettings(){
   $('#s-color').value = s.primary;
   $('#s-color-hex').value = s.primary.toUpperCase();
   $('#s-color-preview').style.setProperty('--c', s.primary);
+  // Brand title (size, base + accent colour)
+  $('#s-brand-size').value = s.brand_size;
+  $('#s-brand-color').value = s.brand_color;
+  $('#s-brand-color-hex').value = s.brand_color.toUpperCase();
+  $('#s-brand-accent-color').value = s.brand_accent_color;
+  $('#s-brand-accent-hex').value = s.brand_accent_color.toUpperCase();
+  refreshBrandPreview();
   $('#s-show-illustrated').checked = s.show_illustrated;
   $('#s-show-satellite').checked = s.show_satellite;
   $('#s-show-new').checked = s.show_new;
@@ -1351,6 +1396,42 @@ setupFontUpload('#s-font-body-btn',    '#s-font-body-file',    '#s-font-body-cle
 // Logo clear
 $('#s-logo-clear')?.addEventListener('click', () => { _settingsState.logo = null; refreshSettingsPreviews(); });
 
+// Brand title live preview
+function refreshBrandPreview(){
+  const preview = document.getElementById('s-brand-preview');
+  if (!preview) return;
+  const size = parseInt($('#s-brand-size').value, 10) || 22;
+  const base = $('#s-brand-color').value;
+  const accent = $('#s-brand-accent-color').value;
+  preview.style.setProperty('--brand-size', size + 'px');
+  preview.style.setProperty('--brand-color', base);
+  preview.style.setProperty('--brand-accent-color', accent);
+  // Use the current brand name to drive the preview text
+  const name = $('#s-brand-name').value.trim() || 'Ayla Marina';
+  const parts = name.split(/\s+/);
+  const accentPart = parts.length > 1 ? parts.pop() : '';
+  const baseEl = preview.querySelector('.brand-preview-base');
+  const accEl = preview.querySelector('.brand-preview-accent');
+  if (baseEl) baseEl.textContent = parts.join(' ');
+  if (accEl) accEl.textContent = accentPart;
+  document.querySelectorAll('#s-brand-base-swatch').forEach(s => s.style.background = base);
+  document.querySelectorAll('#s-brand-accent-swatch').forEach(s => s.style.background = accent);
+}
+$('#s-brand-size')?.addEventListener('input', refreshBrandPreview);
+$('#s-brand-name')?.addEventListener('input', refreshBrandPreview);
+$('#s-brand-color')?.addEventListener('input', e => { $('#s-brand-color-hex').value = e.target.value.toUpperCase(); refreshBrandPreview(); });
+$('#s-brand-color-hex')?.addEventListener('input', e => {
+  let v = e.target.value.trim();
+  if (!v.startsWith('#')) v = '#' + v;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)){ $('#s-brand-color').value = v; refreshBrandPreview(); }
+});
+$('#s-brand-accent-color')?.addEventListener('input', e => { $('#s-brand-accent-hex').value = e.target.value.toUpperCase(); refreshBrandPreview(); });
+$('#s-brand-accent-hex')?.addEventListener('input', e => {
+  let v = e.target.value.trim();
+  if (!v.startsWith('#')) v = '#' + v;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)){ $('#s-brand-accent-color').value = v; refreshBrandPreview(); }
+});
+
 // Colour sync
 $('#s-color')?.addEventListener('input', e => {
   const v = e.target.value;
@@ -1374,6 +1455,9 @@ $('#settings-save-btn')?.addEventListener('click', () => {
     splash_tag:       $('#s-splash-tag').value.trim() || null,
     logo_data:        _settingsState.logo,
     primary:          $('#s-color-hex').value.trim().toUpperCase(),
+    brand_size:       parseInt($('#s-brand-size').value, 10) || 22,
+    brand_color:      $('#s-brand-color-hex').value.trim().toUpperCase(),
+    brand_accent_color: $('#s-brand-accent-hex').value.trim().toUpperCase(),
     font_heading_data: _settingsState.fontHeading,
     font_heading_name: _settingsState.fontHeadingName,
     font_body_data:    _settingsState.fontBody,
