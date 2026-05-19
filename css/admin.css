@@ -1018,6 +1018,14 @@ input,select,textarea,button{font-family:inherit}
 }
 .support-footer a{color:var(--ayla-aqua, #3AB0C8);text-decoration:none}
 
+.support-export{
+  margin-top:36px;padding:28px 32px;
+  background:#fff;border:1px solid var(--border);border-radius:4px;
+}
+.support-export #export-status{color:var(--success);font-size:12px;font-style:italic}
+.support-export #export-status.is-busy{color:var(--ink-2)}
+.support-export #export-status.is-error{color:var(--danger)}
+
 /* ----------- Map picker (Settings) ----------- */
 .map-picker{display:flex;flex-direction:column;gap:12px;margin-top:8px}
 .map-picker-tabs{

@@ -679,11 +679,31 @@
         </div>
       </a>
     </div>
+    <!-- Handoff: export everything as a ZIP to send for the next phase -->
+    <div class="support-export">
+      <div class="support-export-head">
+        <span class="cropper-label" style="font:italic 400 11px/1 var(--serif);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)">Project handoff</span>
+        <h2 style="font-family:var(--serif);font-weight:500;font-size:22px;margin:6px 0 8px;letter-spacing:-.012em">Export full project ZIP</h2>
+        <p style="margin:0 0 16px;color:var(--ink-2);font-size:13px;line-height:1.6">
+          Bundles every file (HTML, CSS, JS, JSON, images) <em>plus</em> all the
+          places, categories, and settings you've edited in this browser into a
+          single ZIP. Send it to the next developer and they have everything
+          needed to keep building from where you left off.
+        </p>
+      </div>
+      <button type="button" id="export-zip-btn" class="btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export project &amp; data as ZIP
+      </button>
+      <p id="export-status" class="cropper-hint" style="margin-top:14px;display:none"></p>
+    </div>
     <div class="support-footer">
       <p>Built &amp; maintained by <strong>Majdi Alqudah</strong> · <a href="https://majdialqudah.com" target="_blank" rel="noopener">majdialqudah.com</a></p>
     </div>
   </main>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
 
 <!-- Toast -->
 <div id="toast" class="toast" role="status" aria-live="polite"></div>

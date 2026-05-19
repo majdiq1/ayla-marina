@@ -1600,6 +1600,197 @@ $('#search-input')?.addEventListener('input', refreshTable);
 $('#cat-filter')?.addEventListener('change', refreshTable);
 $('#lvl-filter')?.addEventListener('change', refreshTable);
 
+// ---------- Project ZIP export (Support page) ----------
+const ZIP_FILES = [
+  'index.html', 'admin.html', 'pitch.html',
+  'README.md', 'GUIDE.md', 'CNAME',
+  'css/admin.css', 'css/app.css',
+  'js/admin.js', 'js/app.js',
+  'data/levels.json',
+  'images/map-ground.png', 'images/map-ground.svg', 'images/map-marina.png',
+  'images/map-new.jpg', 'images/map-new-parchment.jpg',
+  'images/brand/ayla-white-logo.svg',
+];
+
+function dataURLtoBlob(dataURL){
+  const [meta, body] = dataURL.split(',');
+  const mime = (meta.match(/data:([^;]+)/) || [])[1] || 'application/octet-stream';
+  const isBase64 = meta.includes('base64');
+  const raw = isBase64 ? atob(body) : decodeURIComponent(body);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+async function buildExportZip(setStatus){
+  if (typeof JSZip === 'undefined'){
+    throw new Error('JSZip not loaded yet — try again in a second');
+  }
+  const zip = new JSZip();
+  setStatus('Fetching project files…');
+  // Static files
+  for (const path of ZIP_FILES){
+    try {
+      const res = await fetch(path);
+      if (!res.ok) continue;
+      const blob = await res.blob();
+      zip.file(path, blob);
+    } catch(_){ /* skip missing */ }
+  }
+  // Per-place logos referenced in pois.json
+  setStatus('Bundling place logos…');
+  const logoPaths = new Set();
+  DATA.pois.forEach(p => { if (p.logo && p.logo.startsWith('images/')) logoPaths.add(p.logo); });
+  for (const path of logoPaths){
+    try {
+      const res = await fetch(path);
+      if (!res.ok) continue;
+      const blob = await res.blob();
+      zip.file(path, blob);
+    } catch(_){}
+  }
+
+  setStatus('Merging admin edits…');
+  // Build merged data files from current in-memory state
+  const overrides = readOverrides();
+  const settingsOv = readSettings();
+
+  const mergedPois = DATA.pois.map(p => ({
+    id: p.id, name: p.name, name_ar: p.name_ar ?? null,
+    level_id: p.level_id, category_id: p.category_id,
+    pin_x: p.pin_x, pin_y: p.pin_y,
+    pin_x_new: p.pin_x_new ?? null, pin_y_new: p.pin_y_new ?? null,
+    lat: p.lat ?? null, lng: p.lng ?? null,
+    google_maps_url: p.google_maps_url ?? null,
+    logo: p.logo ?? null,
+    phone: p.phone ?? null,
+    whatsapp: p.whatsapp ?? null,
+    instagram: p.instagram ?? null,
+    description: p.description ?? null,
+    description_ar: p.description_ar ?? null,
+    is_active: p.is_active !== false,
+  }));
+  zip.file('data/pois.json', JSON.stringify(mergedPois, null, 2));
+  zip.file('data/categories.json', JSON.stringify(
+    DATA.categories.map(c => ({
+      id: c.id, slug: c.slug, name: c.name, name_ar: c.name_ar ?? null,
+      color: c.color, icon: c.icon, sort_order: c.sort_order ?? 0,
+    })), null, 2,
+  ));
+
+  // settings.json — merge base + overrides
+  const baseSettings = DATA.settings || {};
+  const out = JSON.parse(JSON.stringify(baseSettings));
+  out.brand = out.brand || {};
+  if (settingsOv.brand_name)    out.brand.name = settingsOv.brand_name;
+  if (settingsOv.brand_name_ar) out.brand.name_ar = settingsOv.brand_name_ar;
+  if (settingsOv.splash_tag)    out.brand.splash_tagline = settingsOv.splash_tag;
+  if (settingsOv.brand_size)    out.brand.size = settingsOv.brand_size;
+  if (settingsOv.brand_color)   out.brand.color = settingsOv.brand_color;
+  if (settingsOv.brand_accent_color) out.brand.accent_color = settingsOv.brand_accent_color;
+  if (settingsOv.logo_data)     out.brand.logo = 'images/uploads/brand-logo.png';
+  out.theme = out.theme || {};
+  if (settingsOv.primary)       out.theme.primary = settingsOv.primary;
+  out.map = out.map || {};
+  out.map.show_illustrated = settingsOv.show_illustrated !== false;
+  out.map.show_satellite   = settingsOv.show_satellite   !== false;
+  out.map.show_new         = settingsOv.show_new         !== false;
+  out.map.default_concept  = settingsOv.default_concept  || 'illustrated';
+  out.admin = out.admin || {};
+  if (settingsOv.password_hash) out.admin.password_hash = settingsOv.password_hash;
+  zip.file('data/settings.json', JSON.stringify(out, null, 2));
+
+  // Custom uploaded images (logo, fonts, custom map images) → files
+  setStatus('Bundling uploads…');
+  const uploads = {
+    'images/uploads/brand-logo.png': settingsOv.logo_data,
+    'images/uploads/font-heading': settingsOv.font_heading_data,
+    'images/uploads/font-body':    settingsOv.font_body_data,
+    'images/uploads/map-ill-ground-desktop.png': settingsOv.map_ill_ground_desktop,
+    'images/uploads/map-ill-ground-phone.png':   settingsOv.map_ill_ground_phone,
+    'images/uploads/map-ill-marina-desktop.png': settingsOv.map_ill_marina_desktop,
+    'images/uploads/map-ill-marina-phone.png':   settingsOv.map_ill_marina_phone,
+    'images/uploads/map-new-ground-desktop.png': settingsOv.map_new_ground_desktop,
+    'images/uploads/map-new-ground-phone.png':   settingsOv.map_new_ground_phone,
+    'images/uploads/map-new-marina-desktop.png': settingsOv.map_new_marina_desktop,
+    'images/uploads/map-new-marina-phone.png':   settingsOv.map_new_marina_phone,
+  };
+  for (const [path, dataURL] of Object.entries(uploads)){
+    if (!dataURL) continue;
+    try {
+      const blob = dataURLtoBlob(dataURL);
+      zip.file(path, blob);
+    } catch(_){}
+  }
+
+  // Handoff note
+  const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  const handoff = `# Ayla Marina — Handoff snapshot
+
+Exported: ${now}
+Places: ${mergedPois.length}
+Categories: ${DATA.categories.length}
+Custom logo: ${settingsOv.logo_data ? 'YES' : 'no'}
+Custom heading font: ${settingsOv.font_heading_data ? 'YES (' + settingsOv.font_heading_name + ')' : 'no'}
+Custom body font:    ${settingsOv.font_body_data ? 'YES (' + settingsOv.font_body_name + ')' : 'no'}
+Custom map images:   ${[
+    settingsOv.map_ill_ground_desktop, settingsOv.map_ill_ground_phone,
+    settingsOv.map_ill_marina_desktop, settingsOv.map_ill_marina_phone,
+    settingsOv.map_new_ground_desktop, settingsOv.map_new_ground_phone,
+    settingsOv.map_new_marina_desktop, settingsOv.map_new_marina_phone,
+  ].filter(Boolean).length} uploaded
+Password changed:    ${settingsOv.password_hash ? 'YES' : 'no — still demo (ayla2026)'}
+
+## To continue building
+1. Unzip into a folder
+2. Serve with any static server (e.g. \`python3 -m http.server 4173\`)
+3. Open http://127.0.0.1:4173/
+
+All admin edits done in the browser are baked into data/pois.json,
+data/categories.json, and data/settings.json. Uploaded images are
+under images/uploads/.
+
+Live URL: https://ayla.actual.business/
+GitHub:   https://github.com/majdiq1/ayla-marina
+
+— Majdi Alqudah · majdi@majdialqudah.com · +962 79 200 0126
+`;
+  zip.file('HANDOFF.md', handoff);
+
+  setStatus('Compressing…');
+  const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+  return blob;
+}
+
+$('#export-zip-btn')?.addEventListener('click', async () => {
+  const btn = $('#export-zip-btn');
+  const status = $('#export-status');
+  btn.disabled = true;
+  status.style.display = 'block';
+  status.classList.remove('is-error');
+  status.classList.add('is-busy');
+  status.textContent = 'Preparing…';
+  try {
+    const blob = await buildExportZip(msg => { status.textContent = msg; });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url; a.download = `ayla-marina-${stamp}.zip`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    status.classList.remove('is-busy');
+    status.textContent = `Downloaded · ${(blob.size / 1024 / 1024).toFixed(2)} MB`;
+    toast('Project zipped — share with the next developer', 'ok');
+  } catch(err){
+    status.classList.remove('is-busy');
+    status.classList.add('is-error');
+    status.textContent = 'Failed: ' + err.message;
+    toast('Export failed', 'err');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
 // ---------- 9. Toast ----------
 function toast(msg, type){
   const t = $('#toast');
