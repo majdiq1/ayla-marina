@@ -486,7 +486,93 @@ input,select,textarea,button{font-family:inherit}
 .search input{flex:1;border:0;outline:0;font:inherit;font-size:var(--t-label);background:transparent;color:var(--ink);min-width:0;padding:11px 0;letter-spacing:.005em}
 .search input::placeholder{color:var(--ink-3)}
 
-/* ----------- POI table — editorial register ----------- */
+/* ----------- POI list — dense editorial directory ----------- */
+.poi-list{display:flex;flex-direction:column;gap:var(--s-5)}
+.poi-section{display:flex;flex-direction:column}
+.poi-section-head{
+  display:flex;align-items:baseline;gap:14px;
+  padding:0 0 12px;margin-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.poi-section-bar{
+  width:18px;height:1px;background:var(--c);align-self:center;flex-shrink:0;
+}
+.poi-section-name{
+  font-family:var(--serif);font-weight:500;font-size:20px;
+  color:var(--ink);margin:0;letter-spacing:-.015em;line-height:1;
+}
+.poi-section-ar{
+  font:italic 400 13px/1 var(--serif);
+  color:var(--ink-3);direction:rtl;
+}
+.poi-section-count{
+  margin-left:auto;
+  font:italic 400 var(--t-meta)/1 var(--serif);
+  letter-spacing:.12em;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;
+}
+.poi-rows{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+}
+.poi-row{
+  display:grid;
+  grid-template-columns:36px 1fr auto auto 14px;
+  gap:14px;align-items:center;
+  padding:10px 18px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  transition:background 160ms ease;
+}
+.poi-rows .poi-row:last-child{border-bottom:0}
+.poi-row:hover{background:color-mix(in srgb, var(--muted) 40%, #fff)}
+.poi-row-logo{
+  width:36px;height:36px;border-radius:50%;overflow:hidden;
+  background:var(--muted);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.poi-row-logo img{width:100%;height:100%;object-fit:cover}
+.poi-row-logo .initials{
+  font-family:var(--serif);font-weight:500;color:var(--ink);font-size:13px;letter-spacing:.01em;
+}
+.poi-row-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.poi-row-name{
+  font-family:var(--serif);font-weight:500;font-size:15px;
+  color:var(--ink);letter-spacing:-.005em;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.poi-row-meta{
+  display:flex;align-items:center;gap:6px;
+  font-size:var(--t-meta);color:var(--ink-3);letter-spacing:.01em;
+}
+.poi-row-cat{display:inline-flex;align-items:center;gap:6px}
+.poi-row-cat-dot{width:5px;height:5px;border-radius:50%}
+.poi-row-sep{opacity:.5}
+.poi-row-dots{display:flex;gap:5px;flex-shrink:0}
+.poi-row-dots .poi-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:transparent;border:1px solid var(--border-strong);
+}
+.poi-row-dots .poi-dot.on{border-color:transparent}
+.poi-row-status{
+  font:italic 400 var(--t-eyebrow)/1 var(--serif);
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--success);flex-shrink:0;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.poi-row-status::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.poi-row-status.off{color:var(--ink-3)}
+.poi-row-chev{width:14px;height:14px;color:var(--ink-3);flex-shrink:0}
+.poi-row:hover .poi-row-chev{color:var(--ink)}
+
+@media (max-width:720px){
+  .poi-row{grid-template-columns:32px 1fr auto;gap:12px;padding:10px 14px}
+  .poi-row-dots, .poi-row-status{display:none}
+}
+
+/* ----------- POI table — legacy (unused, kept for compat) ----------- */
 .list-wrap{
   background:var(--surface);
   border:1px solid var(--border);

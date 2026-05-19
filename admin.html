@@ -101,24 +101,13 @@
       </div>
       <select id="cat-filter" class="select"><option value="">All categories</option></select>
       <select id="lvl-filter" class="select"><option value="">All levels</option></select>
+      <div class="lvl-switch view-switch" role="tablist" aria-label="View mode">
+        <button type="button" class="lvl-btn on" data-view="group">By category</button>
+        <button type="button" class="lvl-btn" data-view="az">A–Z</button>
+      </div>
     </div>
 
-    <div class="list-wrap">
-      <table class="poi-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Level</th>
-            <th>Contact</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="poi-tbody"></tbody>
-      </table>
-    </div>
+    <div id="poi-list" class="poi-list"></div>
   </main>
 
   <!-- View: POI edit -->

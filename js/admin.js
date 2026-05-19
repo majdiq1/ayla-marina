@@ -254,6 +254,8 @@ function populateFilterDropdowns(){
   }
 }
 
+let _listView = 'group'; // 'group' = by category, 'az' = flat A-Z
+
 function refreshTable(){
   const q = $('#search-input').value.trim().toLowerCase();
   const cat = $('#cat-filter').value;
@@ -266,39 +268,82 @@ function refreshTable(){
       if (!hay.includes(q)) return false;
     }
     return true;
-  }).sort((a, b) => a.name.localeCompare(b.name));
+  });
 
   $('#poi-count').textContent = `${filtered.length} place${filtered.length === 1 ? '' : 's'}`;
-  const tbody = $('#poi-tbody');
-  tbody.innerHTML = filtered.map(p => rowHTML(p)).join('');
-  tbody.querySelectorAll('tr').forEach(tr => {
-    tr.addEventListener('click', () => { location.hash = `#edit/${tr.dataset.id}`; });
+  const wrap = $('#poi-list');
+  if (!wrap) return;
+
+  if (_listView === 'group'){
+    // Group by category, in category sort_order then name
+    const byCat = {};
+    filtered.forEach(p => { (byCat[p.category_id] = byCat[p.category_id] || []).push(p); });
+    const cats = DATA.categories
+      .slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .filter(c => byCat[c.id]?.length);
+    wrap.innerHTML = cats.map(c => {
+      const rows = byCat[c.id]
+        .slice().sort((a, b) => a.name.localeCompare(b.name))
+        .map(p => rowHTML(p, { showCat: false }))
+        .join('');
+      return `
+        <section class="poi-section" style="--c:${escAttr(c.color)}">
+          <header class="poi-section-head">
+            <span class="poi-section-bar" aria-hidden="true"></span>
+            <h2 class="poi-section-name">${escHtml(c.name)}</h2>
+            ${c.name_ar ? `<span class="poi-section-ar">${escHtml(c.name_ar)}</span>` : ''}
+            <span class="poi-section-count">${byCat[c.id].length}</span>
+          </header>
+          <div class="poi-rows">${rows}</div>
+        </section>
+      `;
+    }).join('');
+  } else {
+    // Flat A-Z
+    const rows = filtered.slice().sort((a, b) => a.name.localeCompare(b.name))
+      .map(p => rowHTML(p, { showCat: true })).join('');
+    wrap.innerHTML = `<div class="poi-rows poi-rows-flat">${rows}</div>`;
+  }
+
+  wrap.querySelectorAll('.poi-row').forEach(el => {
+    el.addEventListener('click', () => { location.hash = `#edit/${el.dataset.id}`; });
   });
 }
 
-function rowHTML(p){
+function rowHTML(p, { showCat }){
   const cat = DATA.catById[p.category_id];
   const lvl = DATA.lvlById[p.level_id];
   const logo = p.logo
     ? `<img src="${escAttr(p.logo)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'initials',textContent:'${initials(p.name)}'}))">`
     : `<span class="initials">${initials(p.name)}</span>`;
-  const con = c => `<span class="ico${c ? ' set' : ''}">`;
+  const dotIf = (set, color) => set ? `<span class="poi-dot on" style="background:${color}"></span>` : `<span class="poi-dot"></span>`;
   return `
-    <tr data-id="${escAttr(p.id)}">
-      <td class="td-logo"><div class="poi-logo">${logo}</div></td>
-      <td class="td-name poi-name">${escHtml(p.name)}</td>
-      <td class="td-cat td-meta"><span class="cat-tag"><span class="dot" style="background:${cat?.color || '#999'}"></span>${escHtml(cat?.name || '—')}</span></td>
-      <td class="td-lvl td-meta">${escHtml(lvl?.name || '—')}</td>
-      <td class="td-contact poi-contact">
-        ${con(p.phone)}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.56 2.81.69A2 2 0 0 1 22 16.92z"/></svg></span>
-        ${con(p.whatsapp)}<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.07 4.93A10 10 0 0 0 4.93 19.07L4 22l3-1a10 10 0 0 0 12.07-16.07z"/></svg></span>
-        ${con(p.instagram)}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/></svg></span>
-      </td>
-      <td class="td-status"><span class="status-pill${p.is_active ? '' : ' off'}">${p.is_active ? 'Active' : 'Hidden'}</span></td>
-      <td class="td-chev chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></td>
-    </tr>
+    <div class="poi-row" data-id="${escAttr(p.id)}">
+      <div class="poi-row-logo">${logo}</div>
+      <div class="poi-row-main">
+        <span class="poi-row-name">${escHtml(p.name)}</span>
+        <span class="poi-row-meta">
+          ${showCat ? `<span class="poi-row-cat"><span class="poi-row-cat-dot" style="background:${cat?.color || '#999'}"></span>${escHtml(cat?.name || '—')}</span><span class="poi-row-sep">·</span>` : ''}
+          <span class="poi-row-lvl">${escHtml(lvl?.name || '—')}</span>
+        </span>
+      </div>
+      <div class="poi-row-dots" title="Phone · WhatsApp · Instagram">
+        ${dotIf(p.phone, 'var(--ink)')}${dotIf(p.whatsapp, '#25D366')}${dotIf(p.instagram, '#E1306C')}
+      </div>
+      <span class="poi-row-status ${p.is_active ? 'on' : 'off'}">${p.is_active ? 'Active' : 'Hidden'}</span>
+      <svg class="poi-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
   `;
 }
+
+// View-mode switch
+document.addEventListener('click', e => {
+  const b = e.target.closest?.('.view-switch [data-view]');
+  if (!b) return;
+  _listView = b.dataset.view;
+  document.querySelectorAll('.view-switch [data-view]').forEach(x => x.classList.toggle('on', x === b));
+  refreshTable();
+});
 
 function initials(name){
   return (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
