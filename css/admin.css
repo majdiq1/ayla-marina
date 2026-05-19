@@ -806,9 +806,12 @@ input,select,textarea,button{font-family:inherit}
   touch-action:none;
 }
 .edit-satmap{
-  position:absolute;inset:0;z-index:4;background:#1a2530;
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  z-index:4;background:#1a2530;
 }
 .edit-satmap.show{display:block !important}
+.edit-satmap .leaflet-container{width:100%;height:100%}
 .edit-stage.is-satellite img,
 .edit-stage.is-satellite .edit-pin,
 .edit-stage.is-satellite .edit-pin-empty,

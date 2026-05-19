@@ -802,9 +802,19 @@ function initAdminSatellite(){
   if (!ADMIN_SAT.map){
     ADMIN_SAT.map = L.map(el, { zoomControl: true, attributionControl: false, minZoom: 14, maxZoom: 19 })
       .setView(center, 17);
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxNativeZoom: 19, maxZoom: 19,
-    }).addTo(ADMIN_SAT.map);
+    const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxNativeZoom: 19, maxZoom: 19, crossOrigin: true,
+    });
+    esri.on('tileerror', () => {
+      // Fallback to a basic OSM layer if Esri tiles fail (CORS/rate-limit)
+      if (!ADMIN_SAT.fallbackAdded){
+        ADMIN_SAT.fallbackAdded = true;
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+        }).addTo(ADMIN_SAT.map);
+      }
+    });
+    esri.addTo(ADMIN_SAT.map);
     ADMIN_SAT.map.on('click', e => {
       editState.lat = +e.latlng.lat.toFixed(6);
       editState.lng = +e.latlng.lng.toFixed(6);
@@ -814,10 +824,11 @@ function initAdminSatellite(){
   } else {
     ADMIN_SAT.map.setView(center, 17);
   }
-  // Recompute tile layout after the un-hide
-  ADMIN_SAT.map.invalidateSize();
-  setTimeout(() => ADMIN_SAT.map.invalidateSize(), 120);
-  setTimeout(() => ADMIN_SAT.map.invalidateSize(), 350);
+  // Recompute tile layout after the un-hide — aggressive invalidation
+  ADMIN_SAT.map.invalidateSize(true);
+  setTimeout(() => ADMIN_SAT.map.invalidateSize(true), 100);
+  setTimeout(() => ADMIN_SAT.map.invalidateSize(true), 300);
+  setTimeout(() => ADMIN_SAT.map.invalidateSize(true), 600);
   renderAdminSatMarker();
   $('#edit-pos-hint').textContent = 'Tap the satellite map to set GPS · click to refine';
   if (editState.lat && editState.lng){
