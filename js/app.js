@@ -1311,12 +1311,18 @@ function renderSatMarkers(){
   for (const p of pois){
     const cat = DATA.catById[p.category_id];
     const [lat, lng] = poiLatLng(p);
+    const initials = (p.name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const inner = p.logo
+      ? `<img src="${p.logo}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'sat-initials',textContent:'${initials}'}))">`
+      : `<span class="sat-initials">${initials}</span>`;
+    const active = state.selectedPoiId === p.id ? ' active' : '';
     const icon = L.divIcon({
       className: '',
-      html: `<div class="sat-pin ${state.selectedPoiId === p.id ? 'active' : ''}" style="--c:${cat?.color || '#666'}">
-        <div class="sat-dot"></div><span class="sat-name">${escapeHtml(p.name)}</span>
+      html: `<div class="sat-pin${active}" style="--c:${cat?.color || '#666'}">
+        <div class="sat-teardrop"><div class="sat-inner">${inner}</div></div>
+        <span class="sat-name">${escapeHtml(p.name)}</span>
       </div>`,
-      iconSize: [16, 16], iconAnchor: [8, 8],
+      iconSize: [38, 50], iconAnchor: [19, 50],
     });
     const m = L.marker([lat, lng], { icon }).addTo(SAT.map);
     m.on('click', () => openPoi(p.id));

@@ -208,26 +208,58 @@ body.concept-satellite .map-tools,
 body.concept-satellite .scale-bar,
 body.concept-satellite .reset-btn{ display: none !important; }
 
-/* Branded Leaflet markers */
+/* Branded Leaflet markers — teardrop with logo (matches illustrated map) */
 .sat-pin{
   display: flex; flex-direction: column; align-items: center;
   cursor: pointer; pointer-events: auto;
+  transition: transform 220ms var(--ease-spring);
 }
-.sat-pin .sat-dot{
-  width: 16px; height: 16px; border-radius: 50%;
-  background: var(--c); border: 2.5px solid #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,.4);
+.sat-pin:hover{ transform: translateY(-2px) scale(1.05); z-index: 5; }
+.sat-pin .sat-teardrop{
+  width: 38px; height: 38px;
+  background: var(--c);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,.40);
+  flex-shrink: 0;
+}
+.sat-pin .sat-inner{
+  width: 28px; height: 28px; border-radius: 50%; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  transform: rotate(45deg); overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.sat-pin .sat-inner img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+.sat-pin .sat-initials{
+  font-family: var(--serif); font-weight: 700;
+  color: var(--c); font-size: 11px;
 }
 .sat-pin .sat-name{
-  margin-top: 3px;
-  background: #fff; color: var(--ink);
-  font-size: 10.5px; font-weight: 600;
-  padding: 2px 7px; border-radius: 5px;
+  margin-top: 4px;
+  background: rgba(255,255,255,0.96);
+  color: var(--ink);
+  font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 6px;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0,0,0,.3);
-  max-width: 130px; overflow: hidden; text-overflow: ellipsis;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+  max-width: 140px; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: -0.005em;
 }
-.sat-pin.active .sat-dot{ width: 22px; height: 22px; box-shadow: 0 0 0 3px var(--ayla-aqua), 0 4px 12px rgba(0,0,0,.4); }
+.sat-pin.active .sat-teardrop{
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--ayla-aqua), 0 8px 20px rgba(0,0,0,.5);
+  animation: satPop 320ms var(--ease-spring);
+}
+.sat-pin.active .sat-name{
+  background: var(--ink); color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  font-weight: 700;
+}
+@keyframes satPop{
+  0%{ transform: rotate(-45deg) scale(.6); }
+  60%{ transform: rotate(-45deg) scale(1.1); }
+  100%{ transform: rotate(-45deg) scale(1); }
+}
 .leaflet-container{ background: #1a2530; font-family: var(--sans); }
 .leaflet-control-attribution{ font-size: 9px !important; }
 
@@ -668,51 +700,7 @@ body.concept-satellite .reset-btn{ display: none !important; }
 .map-satellite .stage::after{ display: none; }
 /* Leaflet handles all touch — pass pointer events through stage to satmap */
 .map-satellite .stage{ touch-action: auto; }
-/* MapLibre custom markers — colored dot + name label */
-.sat-pin{
-  position: relative;
-  display: flex; flex-direction: column; align-items: center;
-  cursor: pointer; pointer-events: auto;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 200ms var(--ease-spring);
-}
-.sat-pin:hover{ transform: translateY(-2px); z-index: 5; }
-.sat-pin .sat-dot{
-  width: 16px; height: 16px;
-  background: var(--c);
-  border: 2.5px solid #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,.32);
-}
-.sat-pin .sat-name{
-  margin-top: 4px;
-  background: rgba(255,255,255,0.97);
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.18), 0 0 0 0.5px rgba(0,0,0,.06);
-  white-space: nowrap;
-  letter-spacing: -0.01em;
-  pointer-events: none;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.sat-pin.active .sat-dot{
-  width: 22px; height: 22px;
-  border-width: 3px;
-  box-shadow: 0 0 0 3px var(--ayla-aqua), 0 6px 18px rgba(0,0,0,.35);
-}
-.sat-pin.active .sat-name{
-  background: var(--ink);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  z-index: 6;
-}
+/* (Legacy .sat-pin overrides removed — see new teardrop+logo styles above) */
 /* Pin label readability on satellite imagery: stronger shadow + white outline */
 .sat-pin .sat-name{
   box-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.1), 0 0 12px rgba(255,255,255,0.4);
