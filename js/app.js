@@ -108,12 +108,16 @@ function applyAdminSettings(){
     const tag = document.querySelector('.splash-tag');
     if (tag) tag.textContent = s.splash_tag;
   }
-  // Brand logo — drive both the splash and the persistent topbar mark
+  // Brand logo — drive both the splash and the persistent topbar mark.
+  // When a custom logo carries the brand mark, hide the redundant text title
+  // on the splash so it doesn't look like two stacked titles.
   if (s.logo_data){
     const splashLogo = document.querySelector('.splash-logo');
     if (splashLogo){ splashLogo.src = s.logo_data; splashLogo.style.filter = 'none'; }
     const brandLogo = document.getElementById('brand-logo');
     if (brandLogo){ brandLogo.src = s.logo_data; brandLogo.hidden = false; }
+    const splashMarina = document.querySelector('.splash-marina');
+    if (splashMarina) splashMarina.style.display = 'none';
   }
   // Primary colour
   if (s.primary){

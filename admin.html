@@ -255,8 +255,19 @@
           </label>
           <label class="field">
             <span>Google Maps URL</span>
-            <input id="f-google-maps" type="url" placeholder="https://maps.google.com/…">
+            <input id="f-google-maps" type="url" placeholder="Paste any Google Maps link — GPS will auto-fill">
+            <span class="form-hint" style="margin-top:6px">Tip: paste the full URL from Google Maps; we'll detect lat / lng automatically.</span>
           </label>
+          <div class="field-row">
+            <label class="field">
+              <span>Latitude</span>
+              <input id="f-lat" type="number" step="0.000001" placeholder="29.545436">
+            </label>
+            <label class="field">
+              <span>Longitude</span>
+              <input id="f-lng" type="number" step="0.000001" placeholder="34.989631">
+            </label>
+          </div>
           </div>
         </div>
 
@@ -495,13 +506,14 @@
         <h2>Theme</h2>
         <label class="field">
           <span>Primary brand colour</span>
-          <div class="color-picker-row">
-            <div class="color-preview-large" id="s-color-preview"></div>
-            <div class="color-input-wrap">
+          <div class="cat-color-row">
+            <label class="cat-color-swatch" id="s-color-swatch" aria-label="Primary colour">
               <input id="s-color" type="color" value="#3AB0C8">
-              <input id="s-color-hex" type="text" value="#3AB0C8" maxlength="7">
-            </div>
+            </label>
+            <input id="s-color-hex" class="cat-color-hex" type="text" value="#3AB0C8" maxlength="7" placeholder="#3AB0C8">
           </div>
+          <!-- legacy preview retained for old refresh code path -->
+          <div class="color-preview-large" id="s-color-preview" hidden></div>
         </label>
         <p class="form-sublabel">Upload your own fonts (.woff2 / .woff / .ttf / .otf)</p>
         <label class="field">

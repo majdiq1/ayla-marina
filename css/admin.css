@@ -416,8 +416,14 @@ input,select,textarea,button{font-family:inherit}
   letter-spacing:-.018em;line-height:1.1;
   color:var(--brand-color, var(--ink));
 }
+/* Reset the eyebrow ".field span" rule for nested preview spans */
+.brand-preview-name span,
+.brand-preview-name .brand-preview-base,
+.brand-preview-name .brand-preview-accent{
+  font:inherit;letter-spacing:inherit;text-transform:none;color:inherit;
+}
 .brand-preview-accent{
-  color:var(--brand-accent-color, var(--ayla-aqua));
+  color:var(--brand-accent-color, var(--ayla-aqua)) !important;
   font-style:italic;font-weight:500;margin-left:.2em;
 }
 .form-hint{font-size:13px;color:var(--ink-2);margin:0 0 12px}

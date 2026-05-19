@@ -420,6 +420,8 @@ function renderEdit(id){
   $('#f-whatsapp').value = poi?.whatsapp || '';
   $('#f-instagram').value = poi?.instagram || '';
   $('#f-google-maps').value = poi?.google_maps_url || '';
+  $('#f-lat').value = poi?.lat ?? '';
+  $('#f-lng').value = poi?.lng ?? '';
   $('#f-description').value = poi?.description || '';
   $('#f-description-ar').value = poi?.description_ar || '';
   $('#f-active').checked = poi ? !!poi.is_active : true;
@@ -487,6 +489,9 @@ document.addEventListener('input', e => {
   if (!coords) return;
   editState.lat = +coords.lat.toFixed(6);
   editState.lng = +coords.lng.toFixed(6);
+  // Auto-fill the lat/lng inputs
+  const latEl = $('#f-lat'); if (latEl) latEl.value = editState.lat;
+  const lngEl = $('#f-lng'); if (lngEl) lngEl.value = editState.lng;
   // Update on-screen feedback + sat marker if visible
   if (editState.concept === 'satellite' && ADMIN_SAT.map){
     ADMIN_SAT.map.setView([editState.lat, editState.lng], 18);
@@ -494,6 +499,22 @@ document.addEventListener('input', e => {
     $('#edit-pos-coords').textContent = `(${editState.lat}, ${editState.lng})`;
   }
   toast(`GPS detected · ${editState.lat}, ${editState.lng}`, 'ok');
+});
+
+// Manual entry: keep editState in sync if admin types lat/lng directly
+document.addEventListener('input', e => {
+  if (e.target?.id === 'f-lat'){
+    const v = parseFloat(e.target.value);
+    editState.lat = Number.isFinite(v) ? v : null;
+  } else if (e.target?.id === 'f-lng'){
+    const v = parseFloat(e.target.value);
+    editState.lng = Number.isFinite(v) ? v : null;
+  } else return;
+  if (editState.concept === 'satellite' && ADMIN_SAT.map && editState.lat != null && editState.lng != null){
+    ADMIN_SAT.map.setView([editState.lat, editState.lng], 18);
+    renderAdminSatMarker();
+    $('#edit-pos-coords').textContent = `(${editState.lat}, ${editState.lng})`;
+  }
 });
 
 // Re-render pin when name or category changes (so initials / icon refresh)
@@ -754,7 +775,8 @@ document.addEventListener('click', e => {
   if (editState.concept === 'satellite'){
     stage.classList.add('is-satellite');
     if (satEl) satEl.hidden = false;
-    initAdminSatellite();
+    // Wait for browser to reflow (so element has real dimensions) before Leaflet measures
+    requestAnimationFrame(() => requestAnimationFrame(initAdminSatellite));
   } else {
     stage.classList.remove('is-satellite');
     if (satEl) satEl.hidden = true;
@@ -771,9 +793,15 @@ function initAdminSatellite(){
   }
   const el = document.getElementById('edit-satmap');
   if (!el) return;
+  // If the container has zero size (still mid-layout), retry next frame
+  if (el.clientWidth === 0 || el.clientHeight === 0){
+    requestAnimationFrame(initAdminSatellite);
+    return;
+  }
+  const center = editState.lat && editState.lng ? [editState.lat, editState.lng] : AYLA_CENTER;
   if (!ADMIN_SAT.map){
     ADMIN_SAT.map = L.map(el, { zoomControl: true, attributionControl: false, minZoom: 14, maxZoom: 19 })
-      .setView(editState.lat && editState.lng ? [editState.lat, editState.lng] : AYLA_CENTER, 17);
+      .setView(center, 17);
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxNativeZoom: 19, maxZoom: 19,
     }).addTo(ADMIN_SAT.map);
@@ -783,9 +811,13 @@ function initAdminSatellite(){
       renderAdminSatMarker();
       $('#edit-pos-coords').textContent = `(${editState.lat}, ${editState.lng})`;
     });
+  } else {
+    ADMIN_SAT.map.setView(center, 17);
   }
-  // Ensure tile size recalculates after un-hiding
-  setTimeout(() => ADMIN_SAT.map.invalidateSize(), 60);
+  // Recompute tile layout after the un-hide
+  ADMIN_SAT.map.invalidateSize();
+  setTimeout(() => ADMIN_SAT.map.invalidateSize(), 120);
+  setTimeout(() => ADMIN_SAT.map.invalidateSize(), 350);
   renderAdminSatMarker();
   $('#edit-pos-hint').textContent = 'Tap the satellite map to set GPS · click to refine';
   if (editState.lat && editState.lng){
@@ -1508,7 +1540,30 @@ function refreshDemoHint(){
   if (!hint) return;
   if (readSettings()?.password_hash) hint.hidden = true;
 }
+// Apply brand settings to the login screen (logo, gradient, accent colour)
+function applyLoginBrand(){
+  const ov = readSettings();
+  if (ov.logo_data){
+    const img = document.querySelector('.login-logo');
+    if (img){ img.src = ov.logo_data; img.style.filter = 'none'; }
+  }
+  const primary = ov.primary;
+  const accent = ov.brand_accent_color || primary;
+  if (primary){
+    const login = document.querySelector('.login');
+    if (login){
+      const deeper = primary; // simple darker variant left up to CSS gradient
+      login.style.background = `linear-gradient(160deg, ${primary} 0%, ${deeper} 100%)`;
+    }
+  }
+  if (accent){
+    document.querySelectorAll('.login-title span, .login-hint strong').forEach(el => {
+      el.style.color = accent;
+    });
+  }
+}
 refreshDemoHint();
+applyLoginBrand();
 
 $('#login-form')?.addEventListener('submit', async e => {
   e.preventDefault();
