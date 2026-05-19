@@ -89,6 +89,7 @@ img{ display: block; }
   -webkit-animation: float 3.8s ease-in-out infinite;
 }
 .splash-marina{
+  display: none; /* logo carries the brand mark — redundant text removed */
   font-family: var(--serif); font-weight: 500;
   font-size: 22px; letter-spacing: 0.02em;
   margin: 0 0 14px;
