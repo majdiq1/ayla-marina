@@ -113,17 +113,13 @@
   <!-- View: POI edit -->
   <main id="view-edit" class="view view-edit" hidden>
     <div class="edit-head">
-      <button id="back-list-btn" class="btn-ghost-sm">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-        Back
-      </button>
-      <h1 id="edit-title">Edit place</h1>
-      <div class="edit-actions">
-        <button id="delete-btn" class="btn-danger-sm">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-          Delete
-        </button>
-        <button id="save-btn" class="btn-primary">Save changes</button>
+      <a class="edit-back" id="back-list-btn" href="#list">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        <span>All places</span>
+      </a>
+      <div class="edit-head-titles">
+        <span class="edit-eyebrow">Editing place</span>
+        <h1 id="edit-title">Edit place</h1>
       </div>
     </div>
 
@@ -157,6 +153,7 @@
       <!-- Form -->
       <div class="edit-form">
         <div class="form-group">
+          <span class="form-step">Step 01</span>
           <h2>Identity</h2>
           <label class="field">
             <span>Name (English) *</span>
@@ -218,6 +215,7 @@
         </div>
 
         <div class="form-group">
+          <span class="form-step">Step 02</span>
           <h2>Contact</h2>
           <label class="field">
             <span>Phone</span>
@@ -238,6 +236,7 @@
         </div>
 
         <div class="form-group">
+          <span class="form-step">Step 03</span>
           <h2>About</h2>
           <label class="field">
             <span>Description (English)</span>
@@ -252,6 +251,21 @@
             <span>Active (visible on public map)</span>
           </label>
         </div>
+      </div>
+    </div>
+
+    <div class="edit-actionbar">
+      <div class="edit-actionbar-inner">
+        <button id="delete-btn" class="btn-danger-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete place
+        </button>
+        <div class="edit-actionbar-spacer"></div>
+        <a class="btn-ghost-sm" href="#list">Cancel</a>
+        <button id="save-btn" class="btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Save changes
+        </button>
       </div>
     </div>
   </main>

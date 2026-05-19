@@ -643,20 +643,58 @@ input,select,textarea,button{font-family:inherit}
 
 /* ----------- Edit view ----------- */
 .edit-head{
-  display:flex;align-items:center;gap:14px;
-  margin-bottom:24px;padding:0;
-  flex-wrap:wrap;
+  display:flex;flex-direction:column;gap:18px;
+  margin-bottom:32px;padding:0;
+}
+.edit-back{
+  display:inline-flex;align-items:center;gap:8px;
+  font:italic 400 var(--t-meta)/1 var(--serif);
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);align-self:flex-start;
+  text-decoration:none;
+  transition:color 200ms ease, gap 240ms ease;
+}
+.edit-back:hover{color:var(--ink);gap:12px}
+.edit-back svg{width:12px;height:12px}
+.edit-head-titles{display:flex;flex-direction:column;gap:8px}
+.edit-eyebrow{
+  font:italic 400 var(--t-meta)/1 var(--serif);
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);
 }
 .edit-head h1{
-  flex:1;
-  font-family:var(--serif);font-weight:600;font-size:24px;
-  margin:0;letter-spacing:-.02em;
+  font-family:var(--serif);font-weight:500;font-size:var(--t-h1);
+  margin:0;letter-spacing:-.022em;color:var(--ink);line-height:1.05;
 }
-.edit-actions{display:flex;gap:8px;align-items:center}
 .edit-grid{
-  display:grid;grid-template-columns:1.3fr 1fr;gap:24px;
+  display:grid;grid-template-columns:1.05fr 1fr;gap:var(--s-6);
   align-items:flex-start;
 }
+
+/* Step numbering on form panels */
+.form-step{
+  font:italic 400 var(--t-eyebrow)/1 var(--serif);
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);
+  font-variant-numeric:tabular-nums;
+  margin-bottom:4px;
+}
+
+/* Sticky bottom action bar */
+.edit-actionbar{
+  position:sticky;bottom:0;z-index:6;
+  margin:32px -32px -96px;
+  padding:14px 32px;
+  background:rgba(250,247,243,0.94);
+  -webkit-backdrop-filter:blur(18px) saturate(1.4);
+  backdrop-filter:blur(18px) saturate(1.4);
+  border-top:1px solid var(--border);
+}
+.edit-actionbar-inner{
+  max-width:1400px;margin:0 auto;
+  display:flex;align-items:center;gap:10px;
+}
+.edit-actionbar-spacer{flex:1}
 
 /* Map placement */
 .edit-map{
