@@ -1178,45 +1178,50 @@ body.concept-satellite .reset-btn{ display: none !important; }
   .tabbar{
     display: flex;
     position: fixed;
-    left: 12px; right: 12px;
-    bottom: calc(var(--safe-bottom) + 12px);
+    left: 16px; right: 16px;
+    bottom: calc(var(--safe-bottom) + 10px);
     z-index: 45;
-    background: rgba(255,255,255,0.96);
+    background: rgba(255,255,255,0.94);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
     backdrop-filter: blur(24px) saturate(1.4);
     border: 1px solid rgba(255,255,255,0.7);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(8,58,66,.18), 0 2px 6px rgba(8,58,66,.08);
-    padding: 6px;
-    gap: 2px;
+    border-radius: 999px;
+    box-shadow: 0 6px 20px rgba(8,58,66,.14), 0 1px 3px rgba(8,58,66,.06);
+    padding: 4px;
+    gap: 0;
   }
 }
 .tab{
   flex: 1;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px;
-  padding: 8px 0 6px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 0;
   border: 0; background: transparent;
   color: var(--ink-2);
-  font-size: 11px; font-weight: 600;
-  border-radius: 14px;
+  font-size: 12px; font-weight: 500;
+  border-radius: 999px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   position: relative;
-  transition: background 160ms, color 160ms, transform 160ms var(--ease-spring);
-  min-height: 50px;
+  transition: background 200ms ease, color 200ms ease, transform 160ms var(--ease-spring);
+  min-height: 36px;
 }
-.tab svg{ width: 22px; height: 22px; }
+.tab svg{ width: 16px; height: 16px; }
+.tab span{ display: none; }
+.tab.tab-active{
+  color: var(--ink);
+  background: rgba(8,58,66,0.06);
+}
+.tab.tab-active span{ display: inline; font-weight: 600; }
+.tab.tab-active svg{ stroke-width: 2.2; color: var(--ayla-aqua); }
 .tab:active{ transform: scale(.94); }
-.tab.tab-active{ color: var(--ayla-aqua); background: var(--ayla-aqua-soft); }
-.tab.tab-active svg{ stroke-width: 2.4; }
 .tab-badge{
-  position: absolute; top: 4px; right: 18%;
+  position: absolute; top: 1px; right: 28%;
   background: var(--ayla-aqua); color: #fff;
-  border-radius: 999px; padding: 1px 6px;
-  font-size: 10px; font-weight: 700;
-  min-width: 16px; text-align: center;
-  border: 1.5px solid var(--surface);
+  border-radius: 999px; padding: 0 5px;
+  font-size: 9px; font-weight: 700; line-height: 14px;
+  min-width: 14px; text-align: center;
+  border: 1.5px solid #fff;
 }
 
 /* ---------------------------------------------------------
