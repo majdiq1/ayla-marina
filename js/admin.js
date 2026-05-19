@@ -169,6 +169,7 @@ function currentRoute(){
   if (h === '#cat-new') return { name: 'cat-edit', id: null };
   if (h === '#cats') return { name: 'cats' };
   if (h === '#settings') return { name: 'settings' };
+  if (h === '#support') return { name: 'support' };
   return { name: 'list' };
 }
 
@@ -176,7 +177,7 @@ function navigate(){
   if (!isAuthed()){ showLogin(); return; }
   const r = currentRoute();
   // Hide all views, then show one
-  ['#view-list','#view-edit','#view-cats','#view-cat-edit','#view-settings'].forEach(s => { const el = $(s); if (el) el.hidden = true; });
+  ['#view-list','#view-edit','#view-cats','#view-cat-edit','#view-settings','#view-support'].forEach(s => { const el = $(s); if (el) el.hidden = true; });
   // Section-tab active state
   document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('on'));
   if (r.name === 'list' || r.name === 'edit'){
@@ -185,6 +186,8 @@ function navigate(){
     document.querySelector('.sec-tab[data-section="cats"]')?.classList.add('on');
   } else if (r.name === 'settings'){
     document.querySelector('.sec-tab[data-section="settings"]')?.classList.add('on');
+  } else if (r.name === 'support'){
+    document.querySelector('.sec-tab[data-section="support"]')?.classList.add('on');
   }
 
   if (r.name === 'list'){
@@ -202,9 +205,21 @@ function navigate(){
   } else if (r.name === 'settings'){
     $('#view-settings').hidden = false;
     renderSettings();
+    showSettingsTab('brand');
+  } else if (r.name === 'support'){
+    $('#view-support').hidden = false;
   }
   refreshSectionCounts();
 }
+
+function showSettingsTab(tab){
+  document.querySelectorAll('#view-settings .st-tab').forEach(b => b.classList.toggle('on', b.dataset.st === tab));
+  document.querySelectorAll('#view-settings [data-st-panel]').forEach(p => p.classList.toggle('on', p.dataset.stPanel === tab));
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest?.('#view-settings .st-tab');
+  if (b) showSettingsTab(b.dataset.st);
+});
 
 function refreshSectionCounts(){
   const cl = document.getElementById('sec-count-list');
@@ -846,7 +861,7 @@ document.querySelectorAll('.sec-tab').forEach(t => {
   t.addEventListener('click', e => {
     e.preventDefault();
     const sec = t.dataset.section;
-    const route = { list: '#list', cats: '#cats', settings: '#settings' }[sec] || '#list';
+    const route = { list: '#list', cats: '#cats', settings: '#settings', support: '#support' }[sec] || '#list';
     location.hash = route;
   });
 });
@@ -1197,54 +1212,6 @@ $('#s-pw-change-btn')?.addEventListener('click', async () => {
   $('#s-pw-current').value = ''; $('#s-pw-new').value = ''; $('#s-pw-confirm').value = '';
   refreshDemoHint();
   toast('Password changed · export settings.json to persist for other users', 'ok');
-});
-
-// ---------- 6. Export JSON ----------
-$('#export-btn')?.addEventListener('click', () => {
-  const json = JSON.stringify(DATA.pois.map(p => ({
-    id: p.id,
-    name: p.name,
-    name_ar: p.name_ar ?? null,
-    level_id: p.level_id,
-    category_id: p.category_id,
-    pin_x: p.pin_x,
-    pin_y: p.pin_y,
-    lat: p.lat ?? null,
-    lng: p.lng ?? null,
-    google_maps_url: p.google_maps_url ?? null,
-    logo: p.logo ?? null,
-    instagram: p.instagram ?? null,
-    phone: p.phone ?? null,
-    whatsapp: p.whatsapp ?? null,
-    description: p.description ?? null,
-    description_ar: p.description_ar ?? null,
-    is_active: p.is_active !== false,
-  })), null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'pois.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-  toast('Downloaded pois.json — commit to the repo and Vercel will redeploy', 'ok');
-  // Also offer categories.json if any cat changes exist
-  const o = readOverrides();
-  if ((o.catUpdates && Object.keys(o.catUpdates).length) || (o.catAdds && o.catAdds.length) || (o.catDeletes && o.catDeletes.length)){
-    setTimeout(() => {
-      const catJson = JSON.stringify(DATA.categories.map(c => ({
-        id: c.id, slug: c.slug, name: c.name, name_ar: c.name_ar ?? null,
-        color: c.color, icon: c.icon, sort_order: c.sort_order ?? 0,
-      })), null, 2);
-      const b = new Blob([catJson], { type: 'application/json' });
-      const u = URL.createObjectURL(b);
-      const a = document.createElement('a');
-      a.href = u; a.download = 'categories.json';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(u);
-      toast('Also downloaded categories.json', 'ok');
-    }, 1200);
-  }
 });
 
 // ---------- 7. Login form ----------
