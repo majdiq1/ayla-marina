@@ -819,19 +819,43 @@ input,select,textarea,button{font-family:inherit}
 }
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-/* Edit form panel */
-.edit-form{display:flex;flex-direction:column;gap:var(--s-3)}
+/* Edit form panel — collapsible accordion */
+.edit-form{display:flex;flex-direction:column;gap:10px}
 .form-group{
   background:var(--surface);
   border:1px solid var(--border);
   border-radius:4px;
-  padding:24px 28px;
-  display:flex;flex-direction:column;gap:var(--s-4);
+  display:flex;flex-direction:column;
+  overflow:hidden;
 }
+.form-group-head{
+  appearance:none;border:0;background:transparent;cursor:pointer;
+  width:100%;text-align:left;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:20px 28px;
+  transition:background 220ms ease;
+}
+.form-group-head:hover{background:color-mix(in srgb, var(--muted) 40%, #fff)}
+.form-group-titles{display:flex;flex-direction:column;gap:6px;min-width:0}
+.form-group-chev{
+  width:16px;height:16px;color:var(--ink-3);flex-shrink:0;
+  transition:transform 320ms cubic-bezier(.22,1,.36,1), color 220ms ease;
+}
+.form-group.is-open .form-group-chev{transform:rotate(180deg);color:var(--ink)}
 .form-group h2{
   font-family:var(--serif);font-weight:500;font-size:var(--t-h3);
-  margin:0 0 var(--s-1);letter-spacing:-.012em;color:var(--ink);
+  margin:0;letter-spacing:-.012em;color:var(--ink);
 }
+.form-group-body{
+  display:flex;flex-direction:column;gap:var(--s-4);
+  padding:0 28px 24px;
+  overflow:hidden;max-height:0;opacity:0;
+  transition:max-height 360ms cubic-bezier(.22,1,.36,1), opacity 240ms ease, padding 240ms ease;
+}
+.form-group.is-open .form-group-body{
+  max-height:2400px;opacity:1;
+}
+.form-group:not(.is-open) .form-group-body{padding-top:0;padding-bottom:0}
 .logo-upload{display:flex;align-items:center;gap:12px}
 .logo-preview{
   width:56px;height:56px;border-radius:4px;
@@ -976,7 +1000,11 @@ input,select,textarea,button{font-family:inherit}
   pointer-events:none;user-select:none;
   transform-origin:top left;
   -webkit-user-drag:none;
-  image-rendering:auto;
+  image-rendering:high-quality;
+  image-rendering:-webkit-optimize-contrast;
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  -webkit-transform:translateZ(0);
 }
 .cropper-hint{font-size:11px;color:var(--ink-3);margin:0}
 .cropper-preview{display:flex;flex-direction:column;align-items:center;gap:8px}

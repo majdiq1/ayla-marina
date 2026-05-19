@@ -444,6 +444,16 @@ function refreshLogoPreview(){
   if (typeof renderEditPin === 'function') renderEditPin();
 }
 
+// Accordion behaviour for the edit form steps
+document.addEventListener('click', e => {
+  const head = e.target.closest?.('#view-edit .form-group-head');
+  if (!head) return;
+  const group = head.parentElement;
+  const wasOpen = group.classList.contains('is-open');
+  document.querySelectorAll('#view-edit .form-group').forEach(g => g.classList.remove('is-open'));
+  if (!wasOpen) group.classList.add('is-open');
+});
+
 // Re-render pin when name or category changes (so initials / icon refresh)
 document.addEventListener('input', e => {
   if (e.target?.id === 'f-name') renderEditPin?.();

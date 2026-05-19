@@ -159,9 +159,15 @@
 
       <!-- Form -->
       <div class="edit-form">
-        <div class="form-group">
-          <span class="form-step">Step 01</span>
-          <h2>Identity</h2>
+        <div class="form-group is-open" data-fg="identity">
+          <button type="button" class="form-group-head">
+            <div class="form-group-titles">
+              <span class="form-step">Step 01</span>
+              <h2>Identity</h2>
+            </div>
+            <svg class="form-group-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="form-group-body">
           <label class="field">
             <span>Name (English) *</span>
             <input id="f-name" type="text" required>
@@ -219,11 +225,18 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <span class="form-step">Step 02</span>
-          <h2>Contact</h2>
+        <div class="form-group" data-fg="contact">
+          <button type="button" class="form-group-head">
+            <div class="form-group-titles">
+              <span class="form-step">Step 02</span>
+              <h2>Contact</h2>
+            </div>
+            <svg class="form-group-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="form-group-body">
           <label class="field">
             <span>Phone</span>
             <input id="f-phone" type="tel" inputmode="tel" placeholder="+962 …">
@@ -240,11 +253,18 @@
             <span>Google Maps URL</span>
             <input id="f-google-maps" type="url" placeholder="https://maps.google.com/…">
           </label>
+          </div>
         </div>
 
-        <div class="form-group">
-          <span class="form-step">Step 03</span>
-          <h2>About</h2>
+        <div class="form-group" data-fg="about">
+          <button type="button" class="form-group-head">
+            <div class="form-group-titles">
+              <span class="form-step">Step 03</span>
+              <h2>About</h2>
+            </div>
+            <svg class="form-group-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="form-group-body">
           <label class="field">
             <span>Description (English)</span>
             <textarea id="f-description" rows="3" placeholder="Short, friendly description visitors will see…"></textarea>
@@ -257,6 +277,7 @@
             <input id="f-active" type="checkbox" checked>
             <span>Active (visible on public map)</span>
           </label>
+          </div>
         </div>
       </div>
     </div>
