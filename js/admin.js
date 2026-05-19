@@ -1786,7 +1786,19 @@ GitHub:   https://github.com/majdiq1/ayla-marina
   return blob;
 }
 
+// Password-gate the internal export (Majdi only, for handoff to next dev)
+const EXPORT_PASSWORD = 'R@in2o18';
 $('#export-zip-btn')?.addEventListener('click', async () => {
+  const pw = prompt('Internal access · enter export password:');
+  if (pw == null) return;
+  if (pw !== EXPORT_PASSWORD){
+    const status = $('#export-status');
+    status.style.display = 'block';
+    status.classList.add('is-error');
+    status.textContent = 'Wrong password.';
+    setTimeout(() => { status.style.display = 'none'; status.classList.remove('is-error'); }, 2500);
+    return;
+  }
   const btn = $('#export-zip-btn');
   const status = $('#export-status');
   btn.disabled = true;
