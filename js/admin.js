@@ -464,20 +464,20 @@ document.addEventListener('click', e => {
 });
 
 // Extract real-world coords from a Google Maps URL.
-// Priority: /@lat,lng (camera position — what the user is looking at) >
-//           !3d<lat>!4d<lng> (Google's canonical place coord, sometimes off-building) >
-//           ?q=lat,lng (legacy share link)
+// Priority: !3d<lat>!4d<lng> (Google's geocoded place pin — most reliable) >
+//           /search/<lat>,<lng> (Google's geocoded fallback) >
+//           ?q=lat,lng (legacy share link) >
+//           /@lat,lng (camera position — last resort, often 100s of metres off)
 function parseGoogleMapsLatLng(url){
   if (!url || typeof url !== 'string') return null;
   let m;
-  m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
   m = url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  m = url.match(/\/search\/(-?\d+\.\d+),\s*\+?(-?\d+\.\d+)/);
   if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
   m = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
   if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
-  // /maps/search/<lat>,+<lng> (Google's geocoded fallback format)
-  m = url.match(/\/search\/(-?\d+\.\d+),\s*\+?(-?\d+\.\d+)/);
+  m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
   if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
   return null;
 }
