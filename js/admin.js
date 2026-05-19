@@ -444,13 +444,14 @@ function refreshLogoPreview(){
   if (typeof renderEditPin === 'function') renderEditPin();
 }
 
-// Accordion behaviour for the edit form steps
+// Accordion behaviour — works inside both place-edit and category-edit
 document.addEventListener('click', e => {
-  const head = e.target.closest?.('#view-edit .form-group-head');
+  const head = e.target.closest?.('.form-group-head');
   if (!head) return;
   const group = head.parentElement;
+  const container = group.parentElement;
   const wasOpen = group.classList.contains('is-open');
-  document.querySelectorAll('#view-edit .form-group').forEach(g => g.classList.remove('is-open'));
+  container.querySelectorAll(':scope > .form-group').forEach(g => g.classList.remove('is-open'));
   if (!wasOpen) group.classList.add('is-open');
 });
 
