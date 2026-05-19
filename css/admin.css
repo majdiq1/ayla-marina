@@ -404,11 +404,11 @@ input,select,textarea,button{font-family:inherit}
 .cat-color-hex:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px rgba(15,41,51,.05)}
 .cat-sort-field{max-width:140px}
 
-/* Brand title preview tile in Settings */
+/* Brand title preview — inline, no boxed frame */
 .brand-preview{
-  display:flex;align-items:center;justify-content:center;
-  min-height:96px;padding:18px 20px;
-  background:#fff;border:1px solid var(--border);border-radius:4px;
+  display:flex;align-items:center;justify-content:flex-start;
+  padding:8px 0 4px;
+  background:transparent;border:0;
 }
 .brand-preview-name{
   margin:0;font-family:var(--serif);font-weight:500;
