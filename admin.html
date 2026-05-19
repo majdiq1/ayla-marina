@@ -618,6 +618,17 @@
         </div>
       </section>
 
+      <!-- Bulk GPS auto-fill -->
+      <section class="form-group" data-st-panel="maps">
+        <h2>GPS auto-fill</h2>
+        <p class="form-hint">Scan every place's Google Maps URL and extract latitude/longitude in one pass. Useful after importing data or whenever many pins need a precise satellite position.</p>
+        <button type="button" id="bulk-gps-btn" class="btn-ghost-sm" style="align-self:flex-start;margin-top:4px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="3"/></svg>
+          Auto-detect GPS for every place
+        </button>
+        <p id="bulk-gps-status" class="cropper-hint" style="margin-top:10px;display:none"></p>
+      </section>
+
       <!-- Security -->
       <section class="form-group" data-st-panel="security">
         <h2>Security</h2>

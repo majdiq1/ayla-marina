@@ -1600,6 +1600,30 @@ $('#search-input')?.addEventListener('input', refreshTable);
 $('#cat-filter')?.addEventListener('change', refreshTable);
 $('#lvl-filter')?.addEventListener('change', refreshTable);
 
+// ---------- Bulk GPS auto-fill from Google Maps URLs ----------
+$('#bulk-gps-btn')?.addEventListener('click', () => {
+  const status = $('#bulk-gps-status');
+  status.style.display = 'block';
+  const o = readOverrides();
+  o.updates = o.updates || {};
+  let updated = 0, skipped = 0, missing = 0;
+  for (const p of DATA.pois){
+    if (!p.google_maps_url){ missing++; continue; }
+    const coords = parseGoogleMapsLatLng(p.google_maps_url);
+    if (!coords){ missing++; continue; }
+    const newLat = +coords.lat.toFixed(6);
+    const newLng = +coords.lng.toFixed(6);
+    if (p.lat === newLat && p.lng === newLng){ skipped++; continue; }
+    o.updates[p.id] = { ...(o.updates[p.id] || {}), lat: newLat, lng: newLng };
+    // Apply in-memory too so a satellite reload shows updated positions
+    p.lat = newLat; p.lng = newLng;
+    updated++;
+  }
+  writeOverrides(o);
+  status.textContent = `Updated ${updated} place${updated === 1 ? '' : 's'} · unchanged ${skipped} · no URL ${missing}`;
+  toast(`GPS auto-detected for ${updated} places`, 'ok');
+});
+
 // ---------- Project ZIP export (Support page) ----------
 const ZIP_FILES = [
   'index.html', 'admin.html', 'pitch.html',
